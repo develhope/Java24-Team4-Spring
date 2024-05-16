@@ -1,4 +1,4 @@
-<h1 align="center">Team4 documentation</h1>
+<h1 align="center">App documentation</h1>
 <h2 align="center">✨ Emmanuele | Simone | Davide | Sam | Michele ✨</h2>
 <br>
 <img align="right" alt="Coding" width="500" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYkI9AIrTDCHxDM4jdWJqspqW1TuFkuSXOIkisEdTarQ&s">
