@@ -12,11 +12,11 @@ Packaging: Jar<br />
 Java: 21<br />
 
 # Entities: 
-**User** ⬇️  (Il ruolo di User sarà gestito tramite Enum o tramite Classi figlie)?
+**User** ⬇️  (Dentro User vanno inseriti altri oggetti per enum)
 - Advertiser (modificare Agency)                                   
 - Artist
 - Listner
-- Administration
+<br>
 
 **Others** ⬇️<br>
 
