@@ -13,14 +13,20 @@ Java: 21<br />
 
 # Entities: 
 **User** ⬇️  (Dentro User vanno inseriti altri oggetti per enum)
-- Advertiser (modificare Agency)                                   
 - Artist
 - Listner
+- Advertiser
+- Advertistment
 <br>
 
-**Others** ⬇️<br>
-
-| Song | Genre | Album | Comment | Like_Songs | PlayList | Advertistment | Subscription
+**Song** ⬇️
+- Genre
+- Album
+- Comment
+- Like_Songs
+- PlayList
+- Subscription 
+<br>
 
 # Controllers:
 **SongController** ⬇️
@@ -35,13 +41,13 @@ Java: 21<br />
   
 **UserController** ⬇️
 
-- ***GET:***
+- ***GET:*** FindAllUser | FindUserByNickname | FindByUserById | 
 
-- ***POST:***
+- ***POST:*** addUser (request body)
 
-- ***PUT:***
+- ***PUT:*** updateUser (request body)
 
-- ***DELETE:***
+- ***DELETE:*** deleteUser (request path Variable)
   
 <h1 align="center">Languages and Tools:</h1>
 <p align="center"> <a href="https://git-scm.com/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="git" width="40" height="40"/> </a> <a href="https://www.java.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="java" width="40" height="40"/> </a> <a href="https://www.mysql.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original-wordmark.svg" alt="mysql" width="40" height="40"/> </a> <a href="https://postman.com" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg" alt="postman" width="40" height="40"/> </a> <a href="https://spring.io/" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/springio/springio-icon.svg" alt="spring" width="40" height="40"/> </a></a> </p>
