@@ -1,7 +1,9 @@
 package com.develhope.spring.controllers;
 
+import com.develhope.spring.dtos.requests.UserRequestDTO;
 import com.develhope.spring.entities.User;
-import com.develhope.spring.servicies.implementations.UserService;
+import com.develhope.spring.servicies.interfaces.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -13,8 +15,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @PostMapping("/")
-    public User createUser(@RequestBody User user) {
+    public User createUser(@RequestBody UserRequestDTO userDTO) {
+        User user = modelMapper.map(userDTO, User.class);
         return userService.createUser(user);
     }
 
@@ -37,5 +43,4 @@ public class UserController {
     public void deleteUser(@PathVariable long id) {
         userService.deleteUser(id);
     }
-
 }
