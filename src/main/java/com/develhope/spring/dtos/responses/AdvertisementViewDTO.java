@@ -56,6 +56,10 @@ public class AdvertisementViewDTO {
         this.active = active;
     }
 
+
+    public AdvertisementViewDTO() {
+    }
+
     public Long getId() {
         return id;
     }
