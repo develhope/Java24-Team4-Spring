@@ -1,6 +1,6 @@
 package com.develhope.spring.dtos.responses;
 
-import com.develhope.spring.entities.UserEntity;
+import com.develhope.spring.entities.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -9,7 +9,7 @@ public class AdvertisementViewDTO {
 
 
     private Long id;
-    private UserEntity user;
+    private User user;
     private String advText;
     private String audioLink;
     private String imageLink;
@@ -26,7 +26,7 @@ public class AdvertisementViewDTO {
 
     public AdvertisementViewDTO(
             Long id,
-            UserEntity user,
+            User user,
             String advText,
             String audioLink,
             String imageLink,
@@ -64,11 +64,11 @@ public class AdvertisementViewDTO {
         this.id = id;
     }
 
-    public UserEntity getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(UserEntity user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
