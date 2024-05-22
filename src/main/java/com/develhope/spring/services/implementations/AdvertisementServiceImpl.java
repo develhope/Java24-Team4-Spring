@@ -2,7 +2,7 @@ package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
-import com.develhope.spring.entities.AdvertisementEntity;
+import com.develhope.spring.entities.Advertisement;
 import com.develhope.spring.repositories.AdvertismentRepository;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import org.modelmapper.ModelMapper;
@@ -47,7 +47,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             return null;
         }
 
-        AdvertisementEntity adv = repository.findById(id).orElse(null);
+        Advertisement adv = repository.findById(id).orElse(null);
 
         if (adv == null) {
             return null;
@@ -62,10 +62,10 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
 
     @Override
-    public AdvertisementEntity createAdvertisement(AdvertisementCreateUpdateDTO creationDTO) {
+    public Advertisement createAdvertisement(AdvertisementCreateUpdateDTO creationDTO) {
 
         // faccio mapping
-        AdvertisementEntity createdAdv = mapper.map(creationDTO, AdvertisementEntity.class);
+        Advertisement createdAdv = mapper.map(creationDTO, Advertisement.class);
 
         // imposto i atributi necessari quelli che non c`erano in DTO
         createdAdv.setCostPerDay(calculateCostPerDay(createdAdv));
@@ -82,9 +82,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
 
     @Override
-    public AdvertisementEntity updateAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long id) {
+    public Advertisement updateAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long id) {
 
-        AdvertisementEntity updatedAdv = mapper.map(creationDTO, AdvertisementEntity.class);
+        Advertisement updatedAdv = mapper.map(creationDTO, Advertisement.class);
         //Set ID per essere sicuro
         updatedAdv.setId(id);
 
@@ -118,19 +118,19 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
 
     @Override
-    public void enableAdvertisement(AdvertisementEntity advertisementEntity) {
+    public void enableAdvertisement(Advertisement advertisementEntity) {
 
         advertisementEntity.setActive(true);
     }
 
     @Override
-    public void disableAdvertisement(AdvertisementEntity advertisementEntity) {
+    public void disableAdvertisement(Advertisement advertisementEntity) {
 
         advertisementEntity.setActive(false);
     }
 
     @Override
-    public void incrementActualViews(AdvertisementEntity advertisementEntity) {
+    public void incrementActualViews(Advertisement advertisementEntity) {
 
         advertisementEntity.setActualViews(advertisementEntity.getActualViews() + 1);
     }
@@ -147,7 +147,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public Integer calculateTotalDuration(AdvertisementEntity advertisementEntity) {
+    public Integer calculateTotalDuration(Advertisement advertisementEntity) {
 
         return (int) (
                 Duration.between(
@@ -158,26 +158,26 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public Float calculateCostPerView(AdvertisementEntity advertisementEntity) {
+    public Float calculateCostPerView(Advertisement advertisementEntity) {
 
         return advertisementEntity.getOrderedViews() >= 500 ? 0.35f : 0.50f;
     }
 
     @Override
-    public Float calculateCostPerDay(AdvertisementEntity advertisementEntity) {
+    public Float calculateCostPerDay(Advertisement advertisementEntity) {
 
         return calculateTotalDuration(advertisementEntity) >= 50 ? 8f : 10f;
     }
 
     @Override
-    public Float calculateFinalCost(AdvertisementEntity advertisementEntity) {
+    public Float calculateFinalCost(Advertisement advertisement) {
 
-        Float costPerDay = advertisementEntity.getCostPerDay();
-        Float costPerView = advertisementEntity.getCostPerView();
+        Float costPerDay = advertisement.getCostPerDay();
+        Float costPerView = advertisement.getCostPerView();
 
         Float finalCost =
-                costPerDay * calculateTotalDuration(advertisementEntity) +
-                costPerView * advertisementEntity.getOrderedViews();
+                costPerDay * calculateTotalDuration(advertisement) +
+                costPerView * advertisement.getOrderedViews();
 
         return finalCost;
     }

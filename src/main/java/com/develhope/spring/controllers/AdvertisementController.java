@@ -2,7 +2,7 @@ package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
-import com.develhope.spring.entities.AdvertisementEntity;
+import com.develhope.spring.entities.Advertisement;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,22 +37,22 @@ public class AdvertisementController {
     }
 
     @PostMapping
-    public ResponseEntity<AdvertisementEntity> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO) {
+    public ResponseEntity<Advertisement> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO) {
 
-        AdvertisementEntity adv = advService.createAdvertisement(creationDTO);
+        Advertisement adv = advService.createAdvertisement(creationDTO);
         return adv == null ? new ResponseEntity<>(HttpStatus.BAD_REQUEST) : new ResponseEntity<>(adv, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AdvertisementEntity> enableAdvertisement(@PathVariable Long id, @RequestBody AdvertisementCreateUpdateDTO updateDTO) {
+    public ResponseEntity<Advertisement> enableAdvertisement(@PathVariable Long id, @RequestBody AdvertisementCreateUpdateDTO updateDTO) {
 
-        AdvertisementEntity adv = advService.updateAdvertisement(updateDTO, id);
+        Advertisement adv = advService.updateAdvertisement(updateDTO, id);
         return adv == null ? new ResponseEntity<>(HttpStatus.BAD_REQUEST) : new ResponseEntity<>(adv, HttpStatus.OK);
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<AdvertisementEntity> deleteAdvertisement(@PathVariable Long id) {
+    public ResponseEntity<Advertisement> deleteAdvertisement(@PathVariable Long id) {
         advService.deleteAdvertisement(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

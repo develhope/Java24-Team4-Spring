@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "advertisements")
-public class AdvertisementEntity {
+public class Advertisement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +15,7 @@ public class AdvertisementEntity {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private User user;
 
     private String audioLink;
     private String imageLink;
@@ -28,12 +28,12 @@ public class AdvertisementEntity {
     private Integer actualViews;
     private boolean active;
 
-    public AdvertisementEntity() {
+    public Advertisement() {
     }
 
-    public AdvertisementEntity(
+    public Advertisement(
            Long id,
-           UserEntity user,
+           User user,
            String advText,
            String audioLink,
            String imageLink,
@@ -79,11 +79,11 @@ public class AdvertisementEntity {
         this.advText = advText;
     }
 
-    public UserEntity getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(UserEntity user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

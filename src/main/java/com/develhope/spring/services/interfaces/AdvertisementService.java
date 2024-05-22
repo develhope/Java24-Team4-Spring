@@ -2,7 +2,7 @@ package com.develhope.spring.services.interfaces;
 
 import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
-import com.develhope.spring.entities.AdvertisementEntity;
+import com.develhope.spring.entities.Advertisement;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,30 +15,30 @@ public interface AdvertisementService {
 
     public AdvertisementViewDTO getAdvertisementById(Long id);
 
-    public AdvertisementEntity createAdvertisement(AdvertisementCreateUpdateDTO creationDTO);
+    public Advertisement createAdvertisement(AdvertisementCreateUpdateDTO creationDTO);
 
-    public AdvertisementEntity updateAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long id);
+    public Advertisement updateAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long id);
 
     public void deleteAdvertisement(Long id);
 
     public void deleteAllAdvertisements();
 
-    public void enableAdvertisement(AdvertisementEntity advertisementEntity);
+    public void enableAdvertisement(Advertisement advertisementEntity);
 
-    void disableAdvertisement(AdvertisementEntity advertisementEntity);
+    void disableAdvertisement(Advertisement advertisementEntity);
 
     //Il metodo che aumenta i views dopo che l'annuncio e` stato visualizzato
-    public void incrementActualViews(AdvertisementEntity advertisementEntity);
+    public void incrementActualViews(Advertisement advertisementEntity);
 
     public Integer calculateActualDuration(LocalDateTime startDate);
 
-    public Integer calculateTotalDuration(AdvertisementEntity advertisementEntity);
+    public Integer calculateTotalDuration(Advertisement advertisementEntity);
 
-    public Float calculateCostPerView(AdvertisementEntity advertisementEntity);
+    public Float calculateCostPerView(Advertisement advertisementEntity);
 
-    public Float calculateCostPerDay(AdvertisementEntity advertisementEntity);
+    public Float calculateCostPerDay(Advertisement advertisementEntity);
 
-    public Float calculateFinalCost(AdvertisementEntity advertisementEntity);
+    public Float calculateFinalCost(Advertisement advertisementEntity);
 
 }
 
