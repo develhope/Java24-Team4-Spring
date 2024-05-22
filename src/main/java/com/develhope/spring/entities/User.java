@@ -9,45 +9,46 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // Identificatore univoco dell'utente
 
     @Column(name = "nickName", unique = true, nullable = false)
-    private String nickName;
+    private String nickName; // Nickname dell'utente, deve essere unico e non nullo
 
     @Column(nullable = false)
-    private String name;
+    private String name; // Nome dell'utente, non può essere nullo
 
     @Column(nullable = false)
-    private String lastName;
+    private String lastName; // Cognome dell'utente, non può essere nullo
 
     @Column(unique = true)
-    private String numPhone;
+    private String numPhone; // Numero di telefono dell'utente, deve essere unico
 
     @Column(nullable = false, unique = true)
-    private String email;
+    private String email; // Email dell'utente, deve essere unica e non nulla
 
     @Column(nullable = false)
-    private String password;
+    private String password; // Password dell'utente, non può essere nullo
 
     @Column(nullable = false)
-    private LocalDate registrationDate;
+    private LocalDate registrationDate; // Data di registrazione dell'utente, non può essere nullo
 
     @Column(name = "url_profile")
-    private String urlProfile;
+    private String urlProfile; // URL del profilo dell'utente
 
     @Column(name = "url_social")
-    private String urlSocial;
+    private String urlSocial; // URL dei profili social dell'utente
 
     public enum Role {
-        ARTIST,
-        LISTENER,
-        ADVERTISER
+        ARTIST, // Artista
+        LISTENER, // Ascoltatore
+        ADVERTISER // Pubblicitario
     }
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role; // Ruolo dell'utente
 
+    // Costruttore con parametri per inizializzare gli attributi della classe
     public User(
             Long id,
             String nickName,
@@ -73,11 +74,15 @@ public class User {
         this.role = role;
     }
 
+    // Costruttore alternativo per un rapido accesso a id, nickName ed email dell'utente
     public User(Long id, String nickName, String email) {
         this.id = id;
         this.nickName = nickName;
         this.email = email;
     }
+
+    // Metodi getter e setter per gli attributi della classe
+    // Ogni metodo restituisce o imposta il valore corrispondente dell'attributo
 
     public Long getId() {
         return id;
@@ -167,6 +172,7 @@ public class User {
         this.role = role;
     }
 
+    // Metodo toString per rappresentare l'oggetto User come stringa
     @Override
     public String toString() {
         return "User{" +

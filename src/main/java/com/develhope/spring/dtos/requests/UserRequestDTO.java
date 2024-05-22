@@ -4,16 +4,16 @@ import com.develhope.spring.entities.User;
 import java.time.LocalDate;
 
 public class UserRequestDTO {
-    private String nickName;
-    private String name;
-    private String lastName;
-    private String numPhone;
-    private String email;
-    private String password;
-    private LocalDate registrationDate;
-    private String urlProfile;
-    private String urlSocial;
-    private User.Role role;
+    private String nickName; // Nickname dell'utente
+    private String name; // Nome dell'utente
+    private String lastName; // Cognome dell'utente
+    private String numPhone; // Numero di telefono dell'utente
+    private String email; // Email dell'utente
+    private String password; // Password dell'utente
+    private LocalDate registrationDate; // Data di registrazione dell'utente
+    private String urlProfile; // URL del profilo dell'utente
+    private String urlSocial; // URL dei profili social dell'utente
+    private User.Role role; // Ruolo dell'utente
 
     public UserRequestDTO() {}
 
@@ -29,6 +29,10 @@ public class UserRequestDTO {
         this.urlSocial = urlSocial;
         this.role = role;
     }
+
+    // Metodi getter e setter per i campi della classe
+    // Ogni metodo restituisce o imposta il valore corrispondente del campo
+    // Esempio: getNickName() restituisce il valore del nickname dell'utente
 
     public String getNickName() {
         return nickName;

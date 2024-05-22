@@ -1,12 +1,13 @@
 package com.develhope.spring.dtos.responses;
 
 public class UserResponseDTO {
-    private Long id;
-    private String nickName;
-    private String name;
-    private String lastName;
-    private String email;
+    private Long id; // Identificatore univoco dell'utente
+    private String nickName; // Nickname dell'utente
+    private String name; // Nome dell'utente
+    private String lastName; // Cognome dell'utente
+    private String email; // Email dell'utente
 
+    // Costruttore con parametri per inizializzare gli attributi della classe
     public UserResponseDTO(Long id, String nickName, String name, String lastName, String email) {
         this.id = id;
         this.nickName = nickName;
@@ -14,6 +15,9 @@ public class UserResponseDTO {
         this.lastName = lastName;
         this.email = email;
     }
+
+    // Metodi getter e setter per gli attributi della classe
+    // Ogni metodo restituisce o imposta il valore corrispondente dell'attributo
 
     public Long getId() {
         return id;
