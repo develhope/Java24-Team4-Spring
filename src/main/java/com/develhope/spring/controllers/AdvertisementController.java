@@ -1,7 +1,7 @@
 package com.develhope.spring.controllers;
 
-import com.develhope.spring.dtos.request.AdvertisementCreateUpdateDTO;
-import com.develhope.spring.dtos.response.AdvertisementViewDTO;
+import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
+import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
 import com.develhope.spring.entities.AdvertisementEntity;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class AdvertisementController {
         this.advService = advService;
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<AdvertisementViewDTO>> getAllAdvertisements() {
 
         List<AdvertisementViewDTO> advList = advService.getAllAdvertisements();
@@ -36,7 +36,7 @@ public class AdvertisementController {
         return adv == null ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(adv, HttpStatus.OK);
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<AdvertisementEntity> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO) {
 
         AdvertisementEntity adv = advService.createAdvertisement(creationDTO);

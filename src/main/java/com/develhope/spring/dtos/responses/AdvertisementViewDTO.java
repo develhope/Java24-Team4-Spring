@@ -1,4 +1,4 @@
-package com.develhope.spring.dtos.response;
+package com.develhope.spring.dtos.responses;
 
 import com.develhope.spring.entities.UserEntity;
 

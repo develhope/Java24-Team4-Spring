@@ -1,7 +1,7 @@
 package com.develhope.spring.services.implementations;
 
-import com.develhope.spring.dtos.request.AdvertisementCreateUpdateDTO;
-import com.develhope.spring.dtos.response.AdvertisementViewDTO;
+import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
+import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
 import com.develhope.spring.entities.AdvertisementEntity;
 import com.develhope.spring.repositories.AdvertismentRepository;
 import com.develhope.spring.services.interfaces.AdvertisementService;
@@ -47,10 +47,15 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             return null;
         }
 
-        AdvertisementEntity adv = repository.findById(id).get();
+        AdvertisementEntity adv = repository.findById(id).orElse(null);
+
+        if (adv == null) {
+            return null;
+        }
         AdvertisementViewDTO dtoView = mapper.map(adv, AdvertisementViewDTO.class);
 
         dtoView.setDaysPassed(calculateActualDuration(dtoView.getStartDate()));
+        dtoView.setActualViews(adv.getActualViews());
         //TODO implementare il metodo che calcola valore di actualViews ora `e sempre null !!!!!!
         return dtoView;
     }
@@ -130,7 +135,6 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         advertisementEntity.setActualViews(advertisementEntity.getActualViews() + 1);
     }
 
-    //OVERLODADED METHOD FOR VIEW DTO
     @Override
     public Integer calculateActualDuration(LocalDateTime startDate) {
 

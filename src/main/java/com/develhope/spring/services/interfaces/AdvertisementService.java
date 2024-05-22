@@ -1,7 +1,7 @@
 package com.develhope.spring.services.interfaces;
 
-import com.develhope.spring.dtos.request.AdvertisementCreateUpdateDTO;
-import com.develhope.spring.dtos.response.AdvertisementViewDTO;
+import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
+import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
 import com.develhope.spring.entities.AdvertisementEntity;
 
 import java.time.LocalDateTime;
@@ -41,3 +41,4 @@ public interface AdvertisementService {
     public Float calculateFinalCost(AdvertisementEntity advertisementEntity);
 
 }
+

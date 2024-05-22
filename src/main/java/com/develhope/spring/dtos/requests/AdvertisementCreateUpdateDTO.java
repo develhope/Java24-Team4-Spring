@@ -1,6 +1,4 @@
-package com.develhope.spring.dtos.request;
-
-import com.develhope.spring.entities.UserEntity;
+package com.develhope.spring.dtos.requests;
 
 import java.time.LocalDateTime;
 
