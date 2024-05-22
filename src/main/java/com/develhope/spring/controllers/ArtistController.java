@@ -6,9 +6,11 @@ import com.develhope.spring.models.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import com.develhope.spring.entities.Artist;
 import com.develhope.spring.servicies.interfaces.ArtistService;
 import org.modelmapper.ModelMapper;
@@ -25,12 +27,8 @@ public class ArtistController {
 
     // Endpoint per ottenere tutti gli artisti
     @GetMapping("/")
-    public List<ArtistResponseDTO> getAllArtists() {
-        List<Artist> artists = artistService.getAllArtists();
-        // Mappa gli artisti ad ArtistResponseDTO per la risposta
-        return artists.stream()
-                .map(artist -> modelMapper.map(artist, ArtistResponseDTO.class))
-                .collect(Collectors.toList());
+    public List<Artist> getAllArtists() {
+        return artistService.getAllArtists();
     }
 
     // Endpoint per ottenere un artista tramite ID
@@ -38,9 +36,7 @@ public class ArtistController {
     public ResponseEntity<Response> getArtistById(@PathVariable Long id) {
         Optional<Artist> artist = artistService.findArtist(id);
         if (artist.isPresent()) {
-            // Mappa l'artista ad ArtistResponseDTO per la risposta
-            ArtistResponseDTO artistResponseDTO = modelMapper.map(artist.get(), ArtistResponseDTO.class);
-            return ResponseEntity.ok().body(new Response(200, "Artist found", artistResponseDTO));
+            return ResponseEntity.ok().body(new Response(200, "Artist found", artist));
         } else {
             return ResponseEntity.status(404).body(new Response(404, "Artist not found"));
         }
@@ -53,9 +49,7 @@ public class ArtistController {
         Artist newArtist = artistService.createArtist(artist);
 
         if (newArtist != null) {
-            // Mappa il nuovo artista ad ArtistResponseDTO per la risposta
-            ArtistResponseDTO artistResponseDTO = modelMapper.map(newArtist, ArtistResponseDTO.class);
-            return ResponseEntity.ok().body(new Response(200, "Artist created successfully", artistResponseDTO));
+            return ResponseEntity.ok().body(new Response(200, "Artist created successfully", newArtist));
         } else {
             return ResponseEntity.status(400).body(
                     new Response(
@@ -72,9 +66,7 @@ public class ArtistController {
         Artist artistToUpdate = modelMapper.map(artistDTO, Artist.class);
         Artist updatedArtist = artistService.updateArtist(id, artistToUpdate);
         if (updatedArtist != null) {
-            // Mappa l'artista aggiornato ad ArtistResponseDTO per la risposta
-            ArtistResponseDTO artistResponseDTO = modelMapper.map(updatedArtist, ArtistResponseDTO.class);
-            return ResponseEntity.ok().body(new Response(200, "Artist updated successfully", artistResponseDTO));
+            return ResponseEntity.ok().body(new Response(200, "Artist updated successfully", updatedArtist));
         } else {
             return ResponseEntity.status(404).body(new Response(404, "Artist not found"));
         }
