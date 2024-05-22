@@ -3,7 +3,9 @@ package com.develhope.spring.services.implementations;
 import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
 import com.develhope.spring.entities.Advertisement;
+import com.develhope.spring.entities.User;
 import com.develhope.spring.repositories.AdvertismentRepository;
+import com.develhope.spring.repositories.UserRepository;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,38 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     private final ModelMapper mapper;
     private final AdvertismentRepository repository;
+    private final UserRepository userRepository;
+
 
     @Autowired
-    public AdvertisementServiceImpl(ModelMapper mapper, AdvertismentRepository repository) {
+    public AdvertisementServiceImpl(ModelMapper mapper, AdvertismentRepository repository, UserRepository userRepository) {
         this.mapper = mapper;
         this.repository = repository;
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public AdvertisementViewDTO displayAdvertisementToUser(Long id) {
+
+        if (! repository.existsById(id)) {
+            return null;
+        }
+        Advertisement adv = repository.findById(id).orElse(null);
+
+        if (adv == null) {
+            return null;
+        }
+
+        //incremento actualViews e salvo il valore in DB ogni visualizzazione
+        incrementActualViews(adv);
+        repository.saveAndFlush(adv);
+
+        AdvertisementViewDTO dtoView = mapper.map(adv, AdvertisementViewDTO.class);
+
+        dtoView.setDaysPassed(calculateActualDuration(dtoView.getStartDate()));
+        dtoView.setActualViews(adv.getActualViews());
+
+        return dtoView;
     }
 
     @Override
@@ -35,7 +64,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
                         (ad -> {
                             AdvertisementViewDTO dtoView = mapper.map(ad, AdvertisementViewDTO.class);
                             dtoView.setDaysPassed(calculateActualDuration(dtoView.getStartDate()));
-                            //TODO implementare il metodo che calcola valore di actualViews ora `e sempre null !!!!!!
+                            dtoView.setActualViews(ad.getActualViews());
                             return dtoView;
                         }).collect(Collectors.toList());
     }
@@ -52,20 +81,23 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         if (adv == null) {
             return null;
         }
+
         AdvertisementViewDTO dtoView = mapper.map(adv, AdvertisementViewDTO.class);
 
         dtoView.setDaysPassed(calculateActualDuration(dtoView.getStartDate()));
         dtoView.setActualViews(adv.getActualViews());
-        //TODO implementare il metodo che calcola valore di actualViews ora `e sempre null !!!!!!
+
         return dtoView;
     }
 
 
     @Override
-    public Advertisement createAdvertisement(AdvertisementCreateUpdateDTO creationDTO) {
+    public Advertisement createAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long userID) {
 
         // faccio mapping
         Advertisement createdAdv = mapper.map(creationDTO, Advertisement.class);
+
+        createdAdv.setUser(userRepository.findById(userID).orElse(null));
 
         // imposto i atributi necessari quelli che non c`erano in DTO
         createdAdv.setCostPerDay(calculateCostPerDay(createdAdv));

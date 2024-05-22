@@ -23,6 +23,17 @@ public class AdvertisementController {
         this.advService = advService;
     }
 
+    //TODO: AGGIUSTARE RELAZIONI TRA USER E ADV-S PER NON AVERE ERRORE 500 NEL CASO SE L'ANNUNCIO `E ASSOCIATO CON UN CERTO UTENTE
+    // ALTRIMENTI NON FUNZIONERA UN CAZZO!!!!!!!!!!!!!!!!1
+
+                                                           // param userID si puo usare x visualizzare a un certo user
+     @GetMapping("/display_adv/{id}")                     // e tenere la traccia a chi `e stato visualizzato
+    public ResponseEntity<?> displayAdvertisementToUser(@PathVariable Long id, @RequestParam Long userID) {
+
+        AdvertisementViewDTO adv = advService.displayAdvertisementToUser(id);
+        return adv == null ? ResponseEntity.noContent().build() : ResponseEntity.ok().body(adv);
+    }
+
     @GetMapping
     public ResponseEntity<?> getAllAdvertisements() {
 
@@ -37,10 +48,10 @@ public class AdvertisementController {
         return adv == null ? ResponseEntity.notFound().build(): ResponseEntity.ok().body(adv);
     }
 
-    @PostMapping
-    public ResponseEntity<?> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO) {
+    @PostMapping("/{id}")
+    public ResponseEntity<?> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO, @PathVariable(required = false) Long id) {
 
-        Advertisement adv = advService.createAdvertisement(creationDTO);
+        Advertisement adv = advService.createAdvertisement(creationDTO, id);
         return adv == null ?ResponseEntity.badRequest().body("Error creating advertisement") : ResponseEntity.created(URI.create("/api/v1/advertisements/" + adv.getId())).body(adv);
     }
 

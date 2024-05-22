@@ -10,12 +10,13 @@ import java.util.List;
 
 public interface AdvertisementService {
 
-    public List<AdvertisementViewDTO> getAllAdvertisements();
+    public AdvertisementViewDTO displayAdvertisementToUser(Long id);
 
+    public List<AdvertisementViewDTO> getAllAdvertisements();
 
     public AdvertisementViewDTO getAdvertisementById(Long id);
 
-    public Advertisement createAdvertisement(AdvertisementCreateUpdateDTO creationDTO);
+    public Advertisement createAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long userID);
 
     public Advertisement updateAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long id);
 
