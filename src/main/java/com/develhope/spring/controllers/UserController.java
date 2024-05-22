@@ -19,7 +19,7 @@ public class UserController {
     private UserService userService; // Servizio responsabile delle operazioni relative agli utenti
 
     @Autowired
-    private ModelMapper modelMapper; // Mapper per la conversione tra DTO e entità
+    private ModelMapper modelMapper; // Mapper per la conversione tra DTO ed entità
 
     // Endpoint per ottenere tutti gli utenti
     @GetMapping("/")

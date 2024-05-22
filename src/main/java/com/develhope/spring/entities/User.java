@@ -32,10 +32,10 @@ public class User {
     @Column(nullable = false)
     private LocalDate registrationDate; // Data di registrazione dell'utente, non può essere nullo
 
-    @Column(name = "url_profile")
+    @Column(name = "url_profile", nullable = true)
     private String urlProfile; // URL del profilo dell'utente
 
-    @Column(name = "url_social")
+    @Column(name = "url_social", nullable = true)
     private String urlSocial; // URL dei profili social dell'utente
 
     public enum Role {
@@ -79,6 +79,9 @@ public class User {
         this.id = id;
         this.nickName = nickName;
         this.email = email;
+    }
+
+    public User() {
     }
 
     // Metodi getter e setter per gli attributi della classe
