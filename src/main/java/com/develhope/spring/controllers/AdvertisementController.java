@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -23,37 +24,37 @@ public class AdvertisementController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AdvertisementViewDTO>> getAllAdvertisements() {
+    public ResponseEntity<?> getAllAdvertisements() {
 
         List<AdvertisementViewDTO> advList = advService.getAllAdvertisements();
-        return advList.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(advList, HttpStatus.OK);
+        return advList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok().body(advList);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AdvertisementViewDTO> getAdvertisementById(@PathVariable Long id) {
+    public ResponseEntity<?> getAdvertisementById(@PathVariable Long id) {
 
         AdvertisementViewDTO adv = advService.getAdvertisementById(id);
-        return adv == null ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(adv, HttpStatus.OK);
+        return adv == null ? ResponseEntity.notFound().build(): ResponseEntity.ok().body(adv);
     }
 
     @PostMapping
-    public ResponseEntity<Advertisement> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO) {
+    public ResponseEntity<?> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO) {
 
         Advertisement adv = advService.createAdvertisement(creationDTO);
-        return adv == null ? new ResponseEntity<>(HttpStatus.BAD_REQUEST) : new ResponseEntity<>(adv, HttpStatus.CREATED);
+        return adv == null ?ResponseEntity.badRequest().body("Error creating advertisement") : ResponseEntity.created(URI.create("/api/v1/advertisements/" + adv.getId())).body(adv);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Advertisement> enableAdvertisement(@PathVariable Long id, @RequestBody AdvertisementCreateUpdateDTO updateDTO) {
+    public ResponseEntity<?> enableAdvertisement(@PathVariable Long id, @RequestBody AdvertisementCreateUpdateDTO updateDTO) {
 
         Advertisement adv = advService.updateAdvertisement(updateDTO, id);
-        return adv == null ? new ResponseEntity<>(HttpStatus.BAD_REQUEST) : new ResponseEntity<>(adv, HttpStatus.OK);
+        return adv == null ? ResponseEntity.notFound().build() :ResponseEntity.ok(adv);
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Advertisement> deleteAdvertisement(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAdvertisement(@PathVariable Long id) {
         advService.deleteAdvertisement(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().body("Advertisement deleted");
     }
 }
