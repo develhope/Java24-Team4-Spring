@@ -81,6 +81,7 @@ public class User {
         this.email = email;
     }
 
+    // Costruttore vuoto
     public User() {
     }
 
