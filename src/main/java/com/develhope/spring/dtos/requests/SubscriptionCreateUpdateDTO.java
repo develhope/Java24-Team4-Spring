@@ -4,30 +4,23 @@ import com.develhope.spring.entities.Subscription;
 
 import java.time.LocalDateTime;
 
-public class SubscriptionCreateDTO {
-    private Long userId;
+public class SubscriptionCreateUpdateDTO {
+
     private Subscription.SubscrType type;
     private Float price;
     private LocalDateTime start;
     private LocalDateTime end;
 
-    public SubscriptionCreateDTO() {
+    public SubscriptionCreateUpdateDTO() {
     }
 
-    public SubscriptionCreateDTO(Long userId, Subscription.SubscrType type, Float price, LocalDateTime start, LocalDateTime end) {
-        this.userId = userId;
+    public SubscriptionCreateUpdateDTO(Long userId, Subscription.SubscrType type, Float price, LocalDateTime start, LocalDateTime end) {
+
         this.type = type;
         this.price = price;
         this.start = start;
         this.end = end;
-    }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public Subscription.SubscrType getType() {

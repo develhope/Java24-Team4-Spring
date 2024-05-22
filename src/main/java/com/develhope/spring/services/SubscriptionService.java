@@ -1,6 +1,6 @@
 package com.develhope.spring.services;
 
-import com.develhope.spring.dtos.requests.SubscriptionCreateDTO;
+import com.develhope.spring.dtos.requests.SubscriptionCreateUpdateDTO;
 import com.develhope.spring.entities.Subscription;
 import org.springframework.stereotype.Service;
 
@@ -9,11 +9,11 @@ import java.util.List;
 @Service
 public interface SubscriptionService {
 
-    public Subscription createSubscription(SubscriptionCreateDTO subscriptionCreateDTO, Long UserID);
+    public Subscription createSubscription(SubscriptionCreateUpdateDTO subscriptionCreateDTO, Long UserID);
 
-    public Subscription updateSubscription(Subscription subscription);
+    public Subscription updateSubscription(Long subscrID, SubscriptionCreateUpdateDTO createUpdateDTO);
 
-    public void deleteSubscription(Subscription subscription);
+    public Subscription deleteSubscriptionById(Long id);
 
     public void deleteAllSubscriptions();
 
