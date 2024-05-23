@@ -11,12 +11,11 @@ public class Advertisement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String advText;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
+    private String advText;
     private String audioLink;
     private String imageLink;
     private LocalDateTime startDate;
