@@ -13,3 +13,4 @@ public class ModelMapperConfig {
         return new ModelMapper(); // Restituisce un'istanza di ModelMapper per la mappatura tra oggetti
     }
 }
+

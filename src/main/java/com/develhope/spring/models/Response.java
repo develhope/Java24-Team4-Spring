@@ -31,5 +31,4 @@ public class Response {
     public Object getData() {
         return data;
     }
-
 }
