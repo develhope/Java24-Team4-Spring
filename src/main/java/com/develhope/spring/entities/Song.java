@@ -51,6 +51,70 @@ public class Song {
         this.link_audio = link_audio;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public int getArtist_id() {
+        return artist_id;
+    }
+
+    public void setArtist_id(int artist_id) {
+        this.artist_id = artist_id;
+    }
+
+    public int getYear_release() {
+        return year_release;
+    }
+
+    public void setYear_release(int year_release) {
+        this.year_release = year_release;
+    }
+
+    public int getDuration_time() {
+        return duration_time;
+    }
+
+    public void setDuration_time(int duration_time) {
+        this.duration_time = duration_time;
+    }
+
+    public int getNumber_of_plays() {
+        return number_of_plays;
+    }
+
+    public void setNumber_of_plays(int number_of_plays) {
+        this.number_of_plays = number_of_plays;
+    }
+
+    public String getLink_audio() {
+        return link_audio;
+    }
+
+    public void setLink_audio(String link_audio) {
+        this.link_audio = link_audio;
+    }
+
     @Override
     public String toString() {
         return "Song{" +
