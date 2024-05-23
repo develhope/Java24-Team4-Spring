@@ -32,6 +32,7 @@ public class Advertisement {
 
     public Advertisement(
            Long id,
+           //TODO COLLEGARE CON TIPO DI UTENTE GIUSTO
            User user,
            String advText,
            String audioLink,
