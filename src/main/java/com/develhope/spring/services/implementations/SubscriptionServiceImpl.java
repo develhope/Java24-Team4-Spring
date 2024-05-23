@@ -4,7 +4,7 @@ import com.develhope.spring.dtos.requests.SubscriptionCreateUpdateDTO;
 import com.develhope.spring.entities.Subscription;
 import com.develhope.spring.repositories.SubscriptionRepositoory;
 import com.develhope.spring.repositories.UserRepository;
-import com.develhope.spring.services.SubscriptionService;
+import com.develhope.spring.services.interfaces.SubscriptionService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,11 +28,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public Subscription createSubscription(SubscriptionCreateUpdateDTO subscriptionCreateUpdateDTO, Long UserID) {
+        //TODO PERCHE NON COLLEGA CON UTENTE????????????
 
         Subscription subscription = modelMapper.map(subscriptionCreateUpdateDTO, Subscription.class);
         subscription.setListener(userRepository.findById(UserID).get());
-
-        return subscrRepository.save(subscription);
+        subscrRepository.saveAndFlush(subscription);
+        return subscription;
 
     }
 
@@ -47,6 +48,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
 
         Subscription updateSubscr = modelMapper.map(createUpdateDTO, Subscription.class);
+
+        existingSubscription.setListener(existingSubscription.getListener());
 
         if (updateSubscr.getType() != null) {
             existingSubscription.setType(updateSubscr.getType());
@@ -66,8 +69,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public Subscription deleteSubscriptionById(Long id) {
+
         Subscription subscription = subscrRepository.findById(id).orElse(null);
-        subscrRepository.delete(subscription);
+        if (subscription != null) {
+            subscrRepository.delete(subscription);
+        }
 
         return subscription;
     }
@@ -87,6 +93,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public List<Subscription> getAllSubscriptions() {
         return subscrRepository.findAll();
     }
+
 }
 
 

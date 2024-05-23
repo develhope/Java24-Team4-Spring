@@ -6,14 +6,28 @@ import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-//TODO come gestire subscription
+
+// TODO CONTROLLARE RELAZIONI
 
 @Entity
 @Table(name = "subscriptions")
 public class Subscription {
 
     public enum SubscrType {
-        MONTHLY, HALF_YEAR, ANNUAL
+
+        MONTHLY(20f),
+        HALF_YEAR(100f),
+        ANNUAL(180f);
+
+        private final float price;
+
+        SubscrType(float price) {
+            this.price = price;
+        }
+
+        public float getPrice() {
+            return price;
+        }
     }
 
     @Id
@@ -25,6 +39,8 @@ public class Subscription {
     private User listener;
     private SubscrType type;
     private Float price;
+
+    //TODO IMPOSTARE START E END IN BASE AL TIPO DI SOTTOSCRIZIONE E DATA INIZIALE
     private LocalDateTime start;
     private LocalDateTime end;
 
@@ -35,7 +51,7 @@ public class Subscription {
         this.id = id;
         this.listener = listener;
         this.type = type;
-        this.price = price;
+        this.price = getType().getPrice();
         this.start = start;
         this.end = end;
     }

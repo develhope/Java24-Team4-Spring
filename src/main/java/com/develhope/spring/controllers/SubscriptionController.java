@@ -2,7 +2,7 @@ package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.SubscriptionCreateUpdateDTO;
 import com.develhope.spring.entities.Subscription;
-import com.develhope.spring.services.SubscriptionService;
+import com.develhope.spring.services.interfaces.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +20,14 @@ public class SubscriptionController {
         this.subscriptionService = subscriptionService;
     }
 
+
+    //TODO PERCHE NON COLLEGA CON UTENTE????????????
     @PostMapping
     public ResponseEntity<Subscription> createSubscription(@RequestBody SubscriptionCreateUpdateDTO subscriptionCreateDTO, @RequestParam Long userID) {
         Subscription subscription = subscriptionService.createSubscription(subscriptionCreateDTO, userID);
         return ResponseEntity.ok(subscription);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Subscription> updateSubscription(@PathVariable Long id, @RequestBody SubscriptionCreateUpdateDTO subscriptionUpdateDTO) {
