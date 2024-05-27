@@ -1,10 +1,9 @@
 package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.ListenerRequestDTO;
-import com.develhope.spring.dtos.responses.ListenerResponseDTO;
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.models.Response;
-import com.develhope.spring.servicies.interfaces.ListenerService;
+import com.develhope.spring.services.interfaces.ListenerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/listener")

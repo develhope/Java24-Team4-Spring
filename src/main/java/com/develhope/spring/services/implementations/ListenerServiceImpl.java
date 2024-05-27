@@ -1,8 +1,8 @@
-package com.develhope.spring.servicies.implementations;
+package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.repositories.ListenerRepository;
-import com.develhope.spring.servicies.interfaces.ListenerService;
+import com.develhope.spring.services.interfaces.ListenerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
