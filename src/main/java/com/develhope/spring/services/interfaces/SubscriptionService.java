@@ -1,24 +1,38 @@
 package com.develhope.spring.services.interfaces;
 
 import com.develhope.spring.dtos.requests.SubscriptionCreateUpdateDTO;
+import com.develhope.spring.dtos.responses.SubscriptionViewDTO;
 import com.develhope.spring.entities.Subscription;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface SubscriptionService {
 
-    Subscription createSubscription(SubscriptionCreateUpdateDTO subscriptionCreateDTO, Long UserID);
+    SubscriptionViewDTO createSubscription(SubscriptionCreateUpdateDTO subscriptionCreateDTO, Long UserID);
 
-    Subscription updateSubscription(Long subscrID, SubscriptionCreateUpdateDTO createUpdateDTO);
+    Optional<SubscriptionViewDTO> updateSubscription(Long subscrID, SubscriptionCreateUpdateDTO createUpdateDTO);
 
-    Subscription deleteSubscriptionById(Long id);
+    Optional<Subscription> deleteSubscriptionById(Long id);
 
     void deleteAllSubscriptions();
 
-    Subscription getSubscriptionById(Long id);
+    Optional<SubscriptionViewDTO> getSubscriptionById(Long id);
 
-    List<Subscription> getAllSubscriptions();
+    List<SubscriptionViewDTO> getAllSubscriptions();
 
+    LocalDateTime setInitialDate();
+
+    LocalDateTime setFinalDate(Subscription subscription);
+
+    long daysPassedSinceStart(LocalDateTime start);
+
+    long daysUntilTheEnd(LocalDateTime end);
+
+    float calculatePricePerMonth(SubscriptionViewDTO subscriptionViewDTO);
+
+    void setCalculableFieldsViewDTO(SubscriptionViewDTO dtoView);
 }

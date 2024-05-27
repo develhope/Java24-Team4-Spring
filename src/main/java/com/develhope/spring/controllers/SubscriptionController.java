@@ -1,6 +1,7 @@
 package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.SubscriptionCreateUpdateDTO;
+import com.develhope.spring.dtos.responses.SubscriptionViewDTO;
 import com.develhope.spring.entities.Subscription;
 import com.develhope.spring.services.interfaces.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/subscriptions")
@@ -21,41 +23,40 @@ public class SubscriptionController {
     }
 
 
-    //TODO PERCHE NON COLLEGA CON UTENTE????????????
     @PostMapping
-    public ResponseEntity<Subscription> createSubscription(@RequestBody SubscriptionCreateUpdateDTO subscriptionCreateDTO, @RequestParam Long userID) {
-        Subscription subscription = subscriptionService.createSubscription(subscriptionCreateDTO, userID);
-        return ResponseEntity.ok(subscription);
+    public ResponseEntity<?> createSubscription(@RequestBody SubscriptionCreateUpdateDTO subscriptionCreateDTO, @RequestParam Long userID) {
+        SubscriptionViewDTO subscription = subscriptionService.createSubscription(subscriptionCreateDTO, userID);
+        return subscription == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(subscription);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Subscription> updateSubscription(@PathVariable Long id, @RequestBody SubscriptionCreateUpdateDTO subscriptionUpdateDTO) {
-        Subscription subscription = subscriptionService.updateSubscription(id, subscriptionUpdateDTO);
-        return subscription != null ? ResponseEntity.ok(subscription) : ResponseEntity.notFound().build();
+    public ResponseEntity<?> updateSubscription(@PathVariable Long id, @RequestBody SubscriptionCreateUpdateDTO subscriptionUpdateDTO) {
+        Optional<SubscriptionViewDTO> subscription = subscriptionService.updateSubscription(id, subscriptionUpdateDTO);
+        return subscription.isPresent() ? ResponseEntity.ok(subscription) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSubscription(@PathVariable Long id) {
-        Subscription subscription = subscriptionService.deleteSubscriptionById(id);
-        return subscription != null ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    public ResponseEntity<?> deleteSubscription(@PathVariable Long id) {
+        Optional<Subscription> subscription = subscriptionService.deleteSubscriptionById(id);
+        return subscription.isPresent() ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteAllSubscriptions() {
+    public ResponseEntity<?> deleteAllSubscriptions() {
         subscriptionService.deleteAllSubscriptions();
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Subscription> getSubscriptionById(@PathVariable Long id) {
-        Subscription subscription = subscriptionService.getSubscriptionById(id);
-        return subscription != null ? ResponseEntity.ok(subscription) : ResponseEntity.notFound().build();
+    public ResponseEntity<?> getSubscriptionById(@PathVariable Long id) {
+        Optional<SubscriptionViewDTO> subscription = subscriptionService.getSubscriptionById(id);
+        return subscription.isPresent() ? ResponseEntity.ok(subscription) : ResponseEntity.notFound().build();
     }
 
     @GetMapping
-    public ResponseEntity<List<Subscription>> getAllSubscriptions() {
-        List<Subscription> subscriptions = subscriptionService.getAllSubscriptions();
+    public ResponseEntity<List<?>> getAllSubscriptions() {
+        List<SubscriptionViewDTO> subscriptions = subscriptionService.getAllSubscriptions();
         return ResponseEntity.ok(subscriptions);
     }
 }
