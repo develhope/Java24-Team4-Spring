@@ -14,11 +14,22 @@ public class SubscriptionViewDTO {
     private long daysLeft;
     private Float totalPrice;
     private float pricePerMonth;
+    private Boolean active;
 
     public SubscriptionViewDTO() {
     }
 
-    public SubscriptionViewDTO(Long id, User listener, Subscription.SubscrType type, LocalDateTime start, LocalDateTime end, long daysLeft, Float totalPrice, float pricePerMonth) {
+    public SubscriptionViewDTO(
+            Long id,
+            User listener,
+            Subscription.SubscrType type,
+            LocalDateTime start,
+            LocalDateTime end,
+            long daysLeft,
+            Float totalPrice,
+            float pricePerMonth,
+            Boolean active
+    ) {
         this.id = id;
         this.listener = listener;
         this.type = type;
@@ -27,6 +38,7 @@ public class SubscriptionViewDTO {
         this.daysLeft = daysLeft;
         this.totalPrice = totalPrice;
         this.pricePerMonth = pricePerMonth;
+        this.active = active;
     }
 
     public Long getId() {
@@ -37,44 +49,12 @@ public class SubscriptionViewDTO {
         this.id = id;
     }
 
-    public float getPricePerMonth() {
-        return pricePerMonth;
+    public User getListener() {
+        return listener;
     }
 
-    public void setPricePerMonth(float pricePerMonth) {
-        this.pricePerMonth = pricePerMonth;
-    }
-
-    public Float getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(Float totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    public long getDaysLeft() {
-        return daysLeft;
-    }
-
-    public void setDaysLeft(long daysLeft) {
-        this.daysLeft = daysLeft;
-    }
-
-    public LocalDateTime getEnd() {
-        return end;
-    }
-
-    public void setEnd(LocalDateTime end) {
-        this.end = end;
-    }
-
-    public LocalDateTime getStart() {
-        return start;
-    }
-
-    public void setStart(LocalDateTime start) {
-        this.start = start;
+    public void setListener(User listener) {
+        this.listener = listener;
     }
 
     public Subscription.SubscrType getType() {
@@ -85,11 +65,51 @@ public class SubscriptionViewDTO {
         this.type = type;
     }
 
-    public User getListener() {
-        return listener;
+    public LocalDateTime getStart() {
+        return start;
     }
 
-    public void setListener(User listener) {
-        this.listener = listener;
+    public void setStart(LocalDateTime start) {
+        this.start = start;
+    }
+
+    public LocalDateTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
+    }
+
+    public long getDaysLeft() {
+        return daysLeft;
+    }
+
+    public void setDaysLeft(long daysLeft) {
+        this.daysLeft = daysLeft;
+    }
+
+    public Float getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Float totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public float getPricePerMonth() {
+        return pricePerMonth;
+    }
+
+    public void setPricePerMonth(float pricePerMonth) {
+        this.pricePerMonth = pricePerMonth;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

@@ -5,6 +5,7 @@ import com.develhope.spring.dtos.responses.SubscriptionViewDTO;
 import com.develhope.spring.entities.Subscription;
 import com.develhope.spring.services.interfaces.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,39 +25,74 @@ public class SubscriptionController {
 
 
     @PostMapping
-    public ResponseEntity<?> createSubscription(@RequestBody SubscriptionCreateUpdateDTO subscriptionCreateDTO, @RequestParam Long userID) {
+    public ResponseEntity<?> createSubscription(
+            @RequestBody SubscriptionCreateUpdateDTO subscriptionCreateDTO,
+            @RequestParam Long userID
+    ) {
         SubscriptionViewDTO subscription = subscriptionService.createSubscription(subscriptionCreateDTO, userID);
+
         return subscription == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(subscription);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateSubscription(@PathVariable Long id, @RequestBody SubscriptionCreateUpdateDTO subscriptionUpdateDTO) {
+    public ResponseEntity<?> updateSubscription(
+            @PathVariable Long id,
+            @RequestBody SubscriptionCreateUpdateDTO subscriptionUpdateDTO
+    ) {
         Optional<SubscriptionViewDTO> subscription = subscriptionService.updateSubscription(id, subscriptionUpdateDTO);
-        return subscription.isPresent() ? ResponseEntity.ok(subscription) : ResponseEntity.notFound().build();
+
+        return subscription.isPresent() ? ResponseEntity.ok(subscription) :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found!");
+    }
+
+    @PatchMapping("/enable_subscr/{id}")
+    public ResponseEntity<?> enableSubscription(@PathVariable Long id){
+        Optional<SubscriptionViewDTO> subscription = subscriptionService.enableSubscription(id);
+
+        return subscription.isPresent() ? ResponseEntity.ok(subscription) :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found!");
+
+    }
+
+
+    @PatchMapping("/disable_subscr/{id}")
+    public ResponseEntity<?> disableSubscription(@PathVariable Long id){
+        Optional<SubscriptionViewDTO> subscription = subscriptionService.enableSubscription(id);
+
+        return subscription.isPresent() ? ResponseEntity.ok(subscription) :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found!");
+
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteSubscription(@PathVariable Long id) {
         Optional<Subscription> subscription = subscriptionService.deleteSubscriptionById(id);
-        return subscription.isPresent() ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+
+        return subscription.isPresent() ? ResponseEntity.noContent().build() :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found!");
     }
 
     @DeleteMapping
     public ResponseEntity<?> deleteAllSubscriptions() {
         subscriptionService.deleteAllSubscriptions();
+
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getSubscriptionById(@PathVariable Long id) {
         Optional<SubscriptionViewDTO> subscription = subscriptionService.getSubscriptionById(id);
-        return subscription.isPresent() ? ResponseEntity.ok(subscription) : ResponseEntity.notFound().build();
+
+        return subscription.isPresent() ? ResponseEntity.ok(subscription) :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found!");
     }
 
     @GetMapping
-    public ResponseEntity<List<?>> getAllSubscriptions() {
-        List<SubscriptionViewDTO> subscriptions = subscriptionService.getAllSubscriptions();
-        return ResponseEntity.ok(subscriptions);
+    public ResponseEntity<?> getAllSubscriptions() {
+        List<SubscriptionViewDTO> subscrList = subscriptionService.getAllSubscriptions();
+
+        return ! subscrList.isEmpty() ? ResponseEntity.ok(subscrList) :
+                ResponseEntity.status(HttpStatus.NO_CONTENT).body("Subscriptions list is empty!");
     }
 }

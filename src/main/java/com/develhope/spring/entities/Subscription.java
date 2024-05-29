@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 @Table(name = "subscriptions")
 public class Subscription {
 
-    //TODO AGGIUSTARE ERRORE DI VISUALIZAZIONE TRAMITE GET REQUEST
-
     public enum SubscrType {
 
         MONTHLY(20f, Duration.ofDays(30)),
@@ -44,24 +42,34 @@ public class Subscription {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "listener_id", nullable = false)
     @JsonBackReference
-    private User listener;
+    private User listener; //TODO CHANGE USER TI LISTENER
 
     @Enumerated(EnumType.STRING)
     private SubscrType type;
     private Float totalPrice;
     private LocalDateTime start;
     private LocalDateTime end;
+    private Boolean active;
 
     public Subscription() {
     }
 
-    public Subscription(Long id, User listener, SubscrType type, Float totalPrice, LocalDateTime start, LocalDateTime end) {
+    public Subscription(
+            Long id,
+            User listener,
+            SubscrType type,
+            Float totalPrice,
+            LocalDateTime start,
+            LocalDateTime end,
+            Boolean active
+    ) {
         this.id = id;
         this.listener = listener;
         this.type = type;
         this.totalPrice = totalPrice;
         this.start = start;
         this.end = end;
+        this.active = active;
     }
 
     public Long getId() {
@@ -110,5 +118,13 @@ public class Subscription {
 
     public void setEnd(LocalDateTime end) {
         this.end = end;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

@@ -5,7 +5,6 @@ import com.develhope.spring.dtos.responses.SubscriptionViewDTO;
 import com.develhope.spring.entities.Subscription;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,19 +19,17 @@ public interface SubscriptionService {
 
     void deleteAllSubscriptions();
 
+    Optional<SubscriptionViewDTO> enableSubscription(Long id);
+
+    Optional<SubscriptionViewDTO> disableSubscription(Long id);
+
     Optional<SubscriptionViewDTO> getSubscriptionById(Long id);
 
     List<SubscriptionViewDTO> getAllSubscriptions();
 
-    LocalDateTime setInitialDate();
+    List<SubscriptionViewDTO> getAllByActiveTrue();
 
-    LocalDateTime setFinalDate(Subscription subscription);
+    List<SubscriptionViewDTO> getAllByActiveFalse();
 
-    long daysPassedSinceStart(LocalDateTime start);
 
-    long daysUntilTheEnd(LocalDateTime end);
-
-    float calculatePricePerMonth(SubscriptionViewDTO subscriptionViewDTO);
-
-    void setCalculableFieldsViewDTO(SubscriptionViewDTO dtoView);
 }
