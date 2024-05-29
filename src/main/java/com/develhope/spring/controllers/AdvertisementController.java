@@ -34,7 +34,16 @@ public class AdvertisementController {
     public ResponseEntity<?> getAllAdvertisements() {
         List<AdvertisementViewDTO> advList = advService.getAllAdvertisements();
 
-        return ! advList.isEmpty() ? ResponseEntity.ok().body(advList) : ResponseEntity.status(HttpStatus.NO_CONTENT).body("Advertisements list is empty");
+        return !advList.isEmpty() ? ResponseEntity.ok().body(advList) : ResponseEntity.status(HttpStatus.NO_CONTENT).body("Advertisements list is empty");
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllByActive(@RequestParam Boolean active) {
+        List<AdvertisementViewDTO> advList = active ? advService.getAllActiveTrue() : advService.getAllActiveFalse();
+
+        return ! advList.isEmpty() ? ResponseEntity.ok(advList) :
+                ResponseEntity.status(HttpStatus.NO_CONTENT).body("Advertisements list" + "(Active = " + active +
+                        ") is empty");
     }
 
     @GetMapping("/{id}")
@@ -60,14 +69,14 @@ public class AdvertisementController {
     }
 
     @PatchMapping("/enable_adv/{id}")
-    public ResponseEntity<?> enableAdvertisement(@PathVariable Long id){
+    public ResponseEntity<?> enableAdvertisement(@PathVariable Long id) {
         Optional<AdvertisementViewDTO> adv = advService.enableAdvertisement(id);
 
         return adv.isPresent() ? ResponseEntity.ok().body(adv) : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Advertisement not found!");
     }
 
     @PatchMapping("/disable_adv/{id}")
-    public ResponseEntity<?> disableAdvertisement(@PathVariable Long id){
+    public ResponseEntity<?> disableAdvertisement(@PathVariable Long id) {
         Optional<AdvertisementViewDTO> adv = advService.disableAdvertisement(id);
 
         return adv.isPresent() ? ResponseEntity.ok().body(adv) : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Advertisement not found!");
@@ -81,7 +90,7 @@ public class AdvertisementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteAllAdvertisements(){
+    public ResponseEntity<?> deleteAllAdvertisements() {
         advService.deleteAllAdvertisements();
 
         return ResponseEntity.ok().body("All advertisements deleted!");
