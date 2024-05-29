@@ -1,7 +1,6 @@
 package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.ArtistRequestDTO;
-import com.develhope.spring.dtos.responses.ArtistResponseDTO;
 import com.develhope.spring.models.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,10 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.develhope.spring.entities.Artist;
-import com.develhope.spring.servicies.interfaces.ArtistService;
+import com.develhope.spring.services.interfaces.ArtistService;
 import org.modelmapper.ModelMapper;
 
 @RestController

@@ -1,8 +1,8 @@
-package com.develhope.spring.servicies.implementations;
+package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.entities.Artist;
 import com.develhope.spring.repositories.ArtistRepository;
-import com.develhope.spring.servicies.interfaces.ArtistService;
+import com.develhope.spring.services.interfaces.ArtistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
