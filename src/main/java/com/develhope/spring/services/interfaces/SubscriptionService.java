@@ -27,9 +27,6 @@ public interface SubscriptionService {
 
     List<SubscriptionViewDTO> getAllSubscriptions();
 
-    List<SubscriptionViewDTO> getAllByActiveTrue();
-
-    List<SubscriptionViewDTO> getAllByActiveFalse();
-
+    List<SubscriptionViewDTO> getAllByActive(Boolean active);
 
 }

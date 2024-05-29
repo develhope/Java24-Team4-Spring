@@ -99,7 +99,7 @@ public class SubscriptionController {
 
     @GetMapping
     public ResponseEntity<?> getAllByActive(@RequestParam Boolean active) {
-        List<SubscriptionViewDTO> advList = active ? subscriptionService.getAllByActiveTrue() : subscriptionService.getAllByActiveFalse();
+        List<SubscriptionViewDTO> advList = subscriptionService.getAllByActive(active);
 
         return ! advList.isEmpty() ? ResponseEntity.ok(advList) :
                 ResponseEntity.status(HttpStatus.NO_CONTENT).body("Advertisements list" + "(Active = " + active +

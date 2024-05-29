@@ -149,27 +149,25 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public List<SubscriptionViewDTO> getAllByActiveTrue() {
+    public List<SubscriptionViewDTO> getAllByActive(Boolean active) {
 
-        return subscrRepository.findByActiveTrue().stream().map(subscription -> {
-            SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
-            setCalculableFieldsViewDTO(found);
+        if (active) {
+            return subscrRepository.findByActiveTrue().stream().map(subscription -> {
+                SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
+                setCalculableFieldsViewDTO(found);
 
-            return found;
+                return found;
 
-        }).collect(Collectors.toList());
-    }
+            }).collect(Collectors.toList());
+        } else {
+            return subscrRepository.findByActiveFalse().stream().map(subscription -> {
+                SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
+                setCalculableFieldsViewDTO(found);
 
-    @Override
-    public List<SubscriptionViewDTO> getAllByActiveFalse() {
+                return found;
 
-        return subscrRepository.findByActiveFalse().stream().map(subscription -> {
-            SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
-            setCalculableFieldsViewDTO(found);
-
-            return found;
-
-        }).collect(Collectors.toList());
+            }).collect(Collectors.toList());
+        }
     }
 
     private LocalDateTime setInitialDate() {
