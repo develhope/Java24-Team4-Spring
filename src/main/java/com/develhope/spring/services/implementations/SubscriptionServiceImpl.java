@@ -40,6 +40,51 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
+    public Optional<SubscriptionViewDTO> getSubscriptionById(Long id) {
+
+        return subscrRepository.findById(id).map(subscription -> {
+            SubscriptionViewDTO response = modelMapper.map(subscription, SubscriptionViewDTO.class);
+            setCalculableFieldsViewDTO(response);
+
+            return response;
+        });
+    }
+
+    @Override
+    public List<SubscriptionViewDTO> getAllSubscriptions() {
+
+        return subscrRepository.findAll().stream().map(subscription -> {
+            SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
+            setCalculableFieldsViewDTO(found);
+
+            return found;
+
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SubscriptionViewDTO> getAllByActive(Boolean active) {
+
+        if (active) {
+            return subscrRepository.findByActiveTrue().stream().map(subscription -> {
+                SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
+                setCalculableFieldsViewDTO(found);
+
+                return found;
+
+            }).collect(Collectors.toList());
+        } else {
+            return subscrRepository.findByActiveFalse().stream().map(subscription -> {
+                SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
+                setCalculableFieldsViewDTO(found);
+
+                return found;
+
+            }).collect(Collectors.toList());
+        }
+    }
+
+    @Override
     public SubscriptionViewDTO createSubscription(SubscriptionCreateUpdateDTO request, Long userID) {
         Subscription toSave = modelMapper.map(request, Subscription.class);
 
@@ -62,9 +107,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public Optional<SubscriptionViewDTO> updateSubscription(Long subscrID, SubscriptionCreateUpdateDTO request) {
+    public Optional<SubscriptionViewDTO> updateSubscription(Long id, SubscriptionCreateUpdateDTO request) {
 
-        return subscrRepository.findById(subscrID).map(subscription -> {
+        return subscrRepository.findById(id).map(subscription -> {
             modelMapper.map(request, subscription);
 
             //TODO FORSE BISOGNO CAMBIARE LA LOGICA DI CALCOLO START/END DATE DURANTE AGGIORNAMENTO ?
@@ -125,50 +170,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
 
-    @Override
-    public Optional<SubscriptionViewDTO> getSubscriptionById(Long id) {
 
-        return subscrRepository.findById(id).map(subscription -> {
-            SubscriptionViewDTO response = modelMapper.map(subscription, SubscriptionViewDTO.class);
-            setCalculableFieldsViewDTO(response);
-
-            return response;
-        });
-    }
-
-    @Override
-    public List<SubscriptionViewDTO> getAllSubscriptions() {
-
-        return subscrRepository.findAll().stream().map(subscription -> {
-            SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
-            setCalculableFieldsViewDTO(found);
-
-            return found;
-
-        }).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<SubscriptionViewDTO> getAllByActive(Boolean active) {
-
-        if (active) {
-            return subscrRepository.findByActiveTrue().stream().map(subscription -> {
-                SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
-                setCalculableFieldsViewDTO(found);
-
-                return found;
-
-            }).collect(Collectors.toList());
-        } else {
-            return subscrRepository.findByActiveFalse().stream().map(subscription -> {
-                SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
-                setCalculableFieldsViewDTO(found);
-
-                return found;
-
-            }).collect(Collectors.toList());
-        }
-    }
 
     private LocalDateTime setInitialDate() {
         return LocalDateTime.now();

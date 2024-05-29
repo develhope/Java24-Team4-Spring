@@ -24,6 +24,30 @@ public class SubscriptionController {
         this.subscriptionService = subscriptionService;
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getSubscriptionById(@PathVariable Long id) {
+        Optional<SubscriptionViewDTO> subscription = subscriptionService.getSubscriptionById(id);
+
+        return subscription.isPresent() ? ResponseEntity.ok(subscription) :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found!");
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllSubscriptions() {
+        List<SubscriptionViewDTO> subscrList = subscriptionService.getAllSubscriptions();
+
+        return ! subscrList.isEmpty() ? ResponseEntity.ok(subscrList) :
+                ResponseEntity.status(HttpStatus.NO_CONTENT).body("Subscriptions list is empty!");
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllByActive(@RequestParam Boolean active) {
+        List<SubscriptionViewDTO> advList = subscriptionService.getAllByActive(active);
+
+        return ! advList.isEmpty() ? ResponseEntity.ok(advList) :
+                ResponseEntity.status(HttpStatus.NO_CONTENT).body("Subscriptions list" + "(Active = " + active +
+                        ") is empty");
+    }
 
     @PostMapping
     public ResponseEntity<?> createSubscription(
@@ -81,28 +105,4 @@ public class SubscriptionController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getSubscriptionById(@PathVariable Long id) {
-        Optional<SubscriptionViewDTO> subscription = subscriptionService.getSubscriptionById(id);
-
-        return subscription.isPresent() ? ResponseEntity.ok(subscription) :
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found!");
-    }
-
-    @GetMapping
-    public ResponseEntity<?> getAllSubscriptions() {
-        List<SubscriptionViewDTO> subscrList = subscriptionService.getAllSubscriptions();
-
-        return ! subscrList.isEmpty() ? ResponseEntity.ok(subscrList) :
-                ResponseEntity.status(HttpStatus.NO_CONTENT).body("Subscriptions list is empty!");
-    }
-
-    @GetMapping
-    public ResponseEntity<?> getAllByActive(@RequestParam Boolean active) {
-        List<SubscriptionViewDTO> advList = subscriptionService.getAllByActive(active);
-
-        return ! advList.isEmpty() ? ResponseEntity.ok(advList) :
-                ResponseEntity.status(HttpStatus.NO_CONTENT).body("Advertisements list" + "(Active = " + active +
-                        ") is empty");
-    }
 }

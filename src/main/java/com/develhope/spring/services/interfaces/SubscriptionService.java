@@ -11,9 +11,15 @@ import java.util.Optional;
 @Service
 public interface SubscriptionService {
 
+    Optional<SubscriptionViewDTO> getSubscriptionById(Long id);
+
+    List<SubscriptionViewDTO> getAllSubscriptions();
+
+    List<SubscriptionViewDTO> getAllByActive(Boolean active);
+
     SubscriptionViewDTO createSubscription(SubscriptionCreateUpdateDTO subscriptionCreateDTO, Long UserID);
 
-    Optional<SubscriptionViewDTO> updateSubscription(Long subscrID, SubscriptionCreateUpdateDTO createUpdateDTO);
+    Optional<SubscriptionViewDTO> updateSubscription(Long id, SubscriptionCreateUpdateDTO createUpdateDTO);
 
     Optional<Subscription> deleteSubscriptionById(Long id);
 
@@ -22,11 +28,5 @@ public interface SubscriptionService {
     Optional<SubscriptionViewDTO> enableSubscription(Long id);
 
     Optional<SubscriptionViewDTO> disableSubscription(Long id);
-
-    Optional<SubscriptionViewDTO> getSubscriptionById(Long id);
-
-    List<SubscriptionViewDTO> getAllSubscriptions();
-
-    List<SubscriptionViewDTO> getAllByActive(Boolean active);
 
 }
