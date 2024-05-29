@@ -4,42 +4,30 @@ import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
 import com.develhope.spring.entities.Advertisement;
 
-import java.time.LocalDateTime;
 import java.util.List;
-
+import java.util.Optional;
 
 public interface AdvertisementService {
 
-    public AdvertisementViewDTO displayAdvertisementToUser(Long id);
+    AdvertisementViewDTO createAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long userID);
 
-    public List<AdvertisementViewDTO> getAllAdvertisements();
+    Optional<AdvertisementViewDTO> updateAdvertisement(AdvertisementCreateUpdateDTO request, Long id);
 
-    public AdvertisementViewDTO getAdvertisementById(Long id);
+    Optional<AdvertisementViewDTO> displayAdvertisementToUser(Long id);
 
-    public Advertisement createAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long userID);
+    List<AdvertisementViewDTO> getAllAdvertisements();
 
-    public Advertisement updateAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long id);
+    Optional<AdvertisementViewDTO> getAdvertisementById(Long id);
 
-    public void deleteAdvertisement(Long id);
+    List<AdvertisementViewDTO> getAllActiveTrue();
 
-    public void deleteAllAdvertisements();
+    List<AdvertisementViewDTO> getAllActiveFalse();
 
-    public void enableAdvertisement(Advertisement advertisementEntity);
+    Optional<Advertisement> deleteAdvertisement(Long id);
 
-    void disableAdvertisement(Advertisement advertisementEntity);
+    void deleteAllAdvertisements();
 
-    //Il metodo che aumenta i views dopo che l'annuncio e` stato visualizzato
-    public void incrementActualViews(Advertisement advertisementEntity);
+    Optional<AdvertisementViewDTO> enableAdvertisement(Long id);
 
-    public Integer calculateActualDuration(LocalDateTime startDate);
-
-    public Integer calculateTotalDuration(Advertisement advertisementEntity);
-
-    public Float calculateCostPerView(Advertisement advertisementEntity);
-
-    public Float calculateCostPerDay(Advertisement advertisementEntity);
-
-    public Float calculateFinalCost(Advertisement advertisementEntity);
-
+    Optional<AdvertisementViewDTO> disableAdvertisement(Long id);
 }
-

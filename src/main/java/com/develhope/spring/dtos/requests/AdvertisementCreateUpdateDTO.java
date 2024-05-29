@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public class AdvertisementCreateUpdateDTO {
 
+    //TODO ADD VALIDATION (DIPEND. VALIDATION & EXCEPTION HANDLER)
     private String advText;
     private String audioLink;
     private String imageLink;

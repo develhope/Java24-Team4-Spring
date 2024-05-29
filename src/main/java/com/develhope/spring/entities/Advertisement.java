@@ -1,5 +1,8 @@
 package com.develhope.spring.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -8,13 +11,16 @@ import java.time.LocalDateTime;
 @Table(name = "advertisements")
 public class Advertisement {
 
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)  //TODO TROVARE UN MODO PER FARLA FUNZIONARE CON FETCH TYPE "LAZY"
     @JoinColumn(name = "user_id")
-    private User user;
+    @JsonBackReference
+    private User user;   //TODO CHANGE USER TO LISTENER
     private String advText;
     private String audioLink;
     private String imageLink;
@@ -24,27 +30,26 @@ public class Advertisement {
     private Float costPerDay;
     private Float costPerView;
     private Float finalCost;
-    private Integer actualViews;
-    private boolean active;
+    private int actualViews;
+    private Boolean active;
 
     public Advertisement() {
     }
 
     public Advertisement(
-           Long id,
-           //TODO COLLEGARE CON TIPO DI UTENTE GIUSTO
-           User user,
-           String advText,
-           String audioLink,
-           String imageLink,
-           LocalDateTime startDate,
-           LocalDateTime endDate,
-           Integer orderedViews,
-           Float costPerDay,
-           Float costPerView,
-           Float finalCost,
-           Integer actualViews,
-           boolean active
+            Long id,
+            User user,
+            String advText,
+            String audioLink,
+            String imageLink,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            Integer orderedViews,
+            Float costPerDay,
+            Float costPerView,
+            Float finalCost,
+            int actualViews,
+            Boolean active
 
     ) {
 
@@ -151,15 +156,15 @@ public class Advertisement {
         this.finalCost = finalCost;
     }
 
-    public Integer getActualViews() {
+    public int getActualViews() {
         return actualViews;
     }
 
-    public void setActualViews(Integer actualViews) {
+    public void setActualViews(int actualViews) {
         this.actualViews = actualViews;
     }
 
-    public boolean isActive() {
+    public Boolean isActive() {
         return active;
     }
 
