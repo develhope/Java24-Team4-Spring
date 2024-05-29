@@ -16,12 +16,13 @@ public class AdvertisementViewDTO {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Integer orderedViews;
-    private BigDecimal costPerDay;
-    private BigDecimal costPerView;
-    private BigDecimal finalCost;
-    private Integer actualViews;
-    private Integer daysPassed;
-    private boolean active;
+    private Float costPerDay;
+    private Float costPerView;
+    private Float finalCost;
+    private int actualViews;
+    private Integer actualDuration;
+    private Integer totalDuration;
+    private Boolean active;
 
 
     public AdvertisementViewDTO(
@@ -33,12 +34,13 @@ public class AdvertisementViewDTO {
             LocalDateTime startDate,
             LocalDateTime endDate,
             Integer orderedViews,
-            BigDecimal costPerDay,
-            BigDecimal costPerView,
-            BigDecimal finalCost,
-            Integer actualViews,
-            Integer daysPassed,
-            boolean active
+            Float costPerDay,
+            Float costPerView,
+            Float finalCost,
+            int actualViews,
+            Integer actualDuration,
+            Integer totalDuration,
+            Boolean active
     ) {
         this.id = id;
         this.user = user;
@@ -52,10 +54,10 @@ public class AdvertisementViewDTO {
         this.costPerView = costPerView;
         this.finalCost = finalCost;
         this.actualViews = actualViews;
-        this.daysPassed = daysPassed;
+        this.actualDuration = actualDuration;
+        this.totalDuration = totalDuration;
         this.active = active;
     }
-
 
     public AdvertisementViewDTO() {
     }
@@ -124,51 +126,59 @@ public class AdvertisementViewDTO {
         this.orderedViews = orderedViews;
     }
 
-    public BigDecimal getCostPerDay() {
+    public Float getCostPerDay() {
         return costPerDay;
     }
 
-    public void setCostPerDay(BigDecimal costPerDay) {
+    public void setCostPerDay(Float costPerDay) {
         this.costPerDay = costPerDay;
     }
 
-    public BigDecimal getCostPerView() {
+    public Float getCostPerView() {
         return costPerView;
     }
 
-    public void setCostPerView(BigDecimal costPerView) {
+    public void setCostPerView(Float costPerView) {
         this.costPerView = costPerView;
     }
 
-    public BigDecimal getFinalCost() {
+    public Float getFinalCost() {
         return finalCost;
     }
 
-    public void setFinalCost(BigDecimal finalCost) {
+    public void setFinalCost(Float finalCost) {
         this.finalCost = finalCost;
     }
 
-    public Integer getActualViews() {
+    public int getActualViews() {
         return actualViews;
     }
 
-    public void setActualViews(Integer actualViews) {
+    public void setActualViews(int actualViews) {
         this.actualViews = actualViews;
     }
 
-    public Integer getDaysPassed() {
-        return daysPassed;
+    public Integer getActualDuration() {
+        return actualDuration;
     }
 
-    public void setDaysPassed(Integer daysPassed) {
-        this.daysPassed = daysPassed;
+    public void setActualDuration(Integer actualDuration) {
+        this.actualDuration = actualDuration;
     }
 
-    public boolean isActive() {
+    public Integer getTotalDuration() {
+        return totalDuration;
+    }
+
+    public void setTotalDuration(Integer totalDuration) {
+        this.totalDuration = totalDuration;
+    }
+
+    public Boolean getActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
 }
