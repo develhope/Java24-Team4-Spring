@@ -1,6 +1,7 @@
 package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.SubscriptionCreateUpdateDTO;
+import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
 import com.develhope.spring.dtos.responses.SubscriptionViewDTO;
 import com.develhope.spring.entities.Subscription;
 import com.develhope.spring.services.interfaces.SubscriptionService;
@@ -94,5 +95,14 @@ public class SubscriptionController {
 
         return ! subscrList.isEmpty() ? ResponseEntity.ok(subscrList) :
                 ResponseEntity.status(HttpStatus.NO_CONTENT).body("Subscriptions list is empty!");
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllByActive(@RequestParam Boolean active) {
+        List<SubscriptionViewDTO> advList = active ? subscriptionService.getAllByActiveTrue() : subscriptionService.getAllByActiveFalse();
+
+        return ! advList.isEmpty() ? ResponseEntity.ok(advList) :
+                ResponseEntity.status(HttpStatus.NO_CONTENT).body("Advertisements list" + "(Active = " + active +
+                        ") is empty");
     }
 }
