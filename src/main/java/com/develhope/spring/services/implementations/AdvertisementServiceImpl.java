@@ -104,6 +104,30 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         });
     }
 
+    @Override
+    public List<AdvertisementViewDTO> getAllByActive(Boolean active) {
+
+        if (active) {
+            return advRepository.findByActiveTrue().stream()
+                    .map
+                            (ad -> {
+                                AdvertisementViewDTO found = modelMapper.map(ad, AdvertisementViewDTO.class);
+                                setCalculableFieldsAdvViewDTO(found);
+
+                                return found;
+                            }).collect(Collectors.toList());
+        } else {
+            return advRepository.findByActiveFalse().stream()
+                    .map
+                            (ad -> {
+                                AdvertisementViewDTO found = modelMapper.map(ad, AdvertisementViewDTO.class);
+                                setCalculableFieldsAdvViewDTO(found);
+
+                                return found;
+                            }).collect(Collectors.toList());
+        }
+    }
+
 
     @Override
     public Optional<Advertisement> deleteAdvertisement(Long id) {
@@ -113,30 +137,6 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             return advToDelete;
         });
 
-    }
-
-    @Override
-    public List<AdvertisementViewDTO> getAllActiveTrue() {
-
-        return advRepository.findByActiveTrue().stream()
-                .map
-                        (ad -> {
-                            AdvertisementViewDTO found = modelMapper.map(ad, AdvertisementViewDTO.class);
-                            setCalculableFieldsAdvViewDTO(found);
-                            return found;
-                        }).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<AdvertisementViewDTO> getAllActiveFalse() {
-
-        return advRepository.findByActiveFalse().stream()
-                .map
-                        (ad -> {
-                            AdvertisementViewDTO found = modelMapper.map(ad, AdvertisementViewDTO.class);
-                            setCalculableFieldsAdvViewDTO(found);
-                            return found;
-                        }).collect(Collectors.toList());
     }
 
     @Override
@@ -225,7 +225,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         Float costPerView = advertisement.getCostPerView();
 
         return costPerDay * calculateTotalDuration(advertisement.getStartDate(), advertisement.getEndDate()) +
-                        costPerView * advertisement.getOrderedViews();
+                costPerView * advertisement.getOrderedViews();
 
 
     }

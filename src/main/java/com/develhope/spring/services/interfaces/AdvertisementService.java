@@ -19,9 +19,7 @@ public interface AdvertisementService {
 
     Optional<AdvertisementViewDTO> getAdvertisementById(Long id);
 
-    List<AdvertisementViewDTO> getAllActiveTrue();
-
-    List<AdvertisementViewDTO> getAllActiveFalse();
+    List<AdvertisementViewDTO> getAllByActive(Boolean active);
 
     Optional<Advertisement> deleteAdvertisement(Long id);
 
