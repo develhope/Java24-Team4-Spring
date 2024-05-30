@@ -15,9 +15,15 @@ public class Song {
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
-    //TODO - manca foreign key album
 
-    //TODO - manca foreign key genre
+    @ManyToOne(fetch =  FetchType.LAZY)
+    @JoinColumn(name = "album_id")
+    private int album_id;
+
+
+    @OneToOne
+    @JoinColumn(name = "genre_id", referencedColumnName = "id")
+    private Genre genre;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artist_id")
@@ -114,18 +120,5 @@ public class Song {
     public void setLink_audio(String link_audio) {
         this.link_audio = link_audio;
     }
-
-    @Override
-    public String toString() {
-        return "Song{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", user=" + user +
-                ", artist_id=" + artist_id +
-                ", year_release=" + year_release +
-                ", duration_time=" + duration_time +
-                ", number_of_plays=" + number_of_plays +
-                ", link_audio='" + link_audio + '\'' +
-                '}';
-    }
+    
 }
