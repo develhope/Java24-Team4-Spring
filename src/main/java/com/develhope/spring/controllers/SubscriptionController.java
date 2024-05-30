@@ -54,9 +54,9 @@ public class SubscriptionController {
             @RequestBody SubscriptionCreateUpdateDTO subscriptionCreateDTO,
             @RequestParam Long userID
     ) {
-        SubscriptionViewDTO subscription = subscriptionService.createSubscription(subscriptionCreateDTO, userID);
+        Optional <SubscriptionViewDTO> subscription = subscriptionService.createSubscription(subscriptionCreateDTO, userID);
 
-        return subscription == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(subscription);
+        return subscription.isPresent() ? ResponseEntity.badRequest().build() : ResponseEntity.ok(subscription);
     }
 
 
@@ -71,7 +71,7 @@ public class SubscriptionController {
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found!");
     }
 
-    @PatchMapping("/enable_subscr/{id}")
+    @PatchMapping("/enableSubscr/{id}")
     public ResponseEntity<?> enableSubscription(@PathVariable Long id){
         Optional<SubscriptionViewDTO> subscription = subscriptionService.enableSubscription(id);
 
@@ -81,7 +81,7 @@ public class SubscriptionController {
     }
 
 
-    @PatchMapping("/disable_subscr/{id}")
+    @PatchMapping("/disableSubscr/{id}")
     public ResponseEntity<?> disableSubscription(@PathVariable Long id){
         Optional<SubscriptionViewDTO> subscription = subscriptionService.enableSubscription(id);
 

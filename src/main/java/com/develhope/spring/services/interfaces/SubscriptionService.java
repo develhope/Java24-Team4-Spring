@@ -17,7 +17,7 @@ public interface SubscriptionService {
 
     List<SubscriptionViewDTO> getAllByActive(Boolean active);
 
-    SubscriptionViewDTO createSubscription(SubscriptionCreateUpdateDTO subscriptionCreateDTO, Long UserID);
+    Optional<SubscriptionViewDTO> createSubscription(SubscriptionCreateUpdateDTO subscriptionCreateDTO, Long UserID);
 
     Optional<SubscriptionViewDTO> updateSubscription(Long id, SubscriptionCreateUpdateDTO createUpdateDTO);
 

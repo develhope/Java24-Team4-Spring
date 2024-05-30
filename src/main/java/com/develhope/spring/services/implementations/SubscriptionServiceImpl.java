@@ -3,7 +3,6 @@ package com.develhope.spring.services.implementations;
 import com.develhope.spring.dtos.requests.SubscriptionCreateUpdateDTO;
 import com.develhope.spring.dtos.responses.SubscriptionViewDTO;
 import com.develhope.spring.entities.Subscription;
-import com.develhope.spring.entities.User;
 import com.develhope.spring.repositories.SubscriptionRepository;
 import com.develhope.spring.repositories.UserRepository;
 import com.develhope.spring.services.interfaces.SubscriptionService;
@@ -85,25 +84,23 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public SubscriptionViewDTO createSubscription(SubscriptionCreateUpdateDTO request, Long userID) {
-        Subscription toSave = modelMapper.map(request, Subscription.class);
+    public Optional<SubscriptionViewDTO> createSubscription(SubscriptionCreateUpdateDTO request, Long userID) {
 
-        User listener = userRepository.findById(userID).orElse(null);
-        if (listener == null) {
-            return null;
-        }
 
-        toSave.setListener(listener);
-        toSave.setTotalPrice(toSave.getType().getTotalPrice());
-        setStartSetEnd(toSave);
+        return userRepository.findById(userID).map(user -> {
+            Subscription toSave = modelMapper.map(request, Subscription.class);
 
-        Subscription saved = subscrRepository.saveAndFlush(toSave);
+            toSave.setListener(user);
+            toSave.setTotalPrice(toSave.getType().getTotalPrice());
+            setStartSetEnd(toSave);
 
-        SubscriptionViewDTO response = modelMapper.map(saved, SubscriptionViewDTO.class);
+            Subscription saved = subscrRepository.saveAndFlush(toSave);
+            SubscriptionViewDTO response = modelMapper.map(saved, SubscriptionViewDTO.class);
 
-        setCalculableFieldsViewDTO(response);
+            setCalculableFieldsViewDTO(response);
+            return response;
+        });
 
-        return response;
     }
 
     @Override
@@ -168,8 +165,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             return response;
         });
     }
-
-
 
 
     private LocalDateTime setInitialDate() {
