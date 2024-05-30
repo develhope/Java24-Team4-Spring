@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface AdvertisementService {
 
-    AdvertisementViewDTO createAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long userID);
+    Optional <AdvertisementViewDTO> createAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long userID);
 
     Optional<AdvertisementViewDTO> updateAdvertisement(AdvertisementCreateUpdateDTO request, Long id);
 

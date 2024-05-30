@@ -23,7 +23,7 @@ public class AdvertisementController {
         this.advService = advService;
     }
 
-    @GetMapping("/display_adv/{id}")
+    @GetMapping("/displayAdv/{id}")
     public ResponseEntity<?> displayAdvertisementToUser(@PathVariable Long id) {
         Optional<AdvertisementViewDTO> adv = advService.displayAdvertisementToUser(id);
 
@@ -57,15 +57,19 @@ public class AdvertisementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO, @RequestParam Long userID) {
-        AdvertisementViewDTO response = advService.createAdvertisement(creationDTO, userID);
+    public ResponseEntity<?> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO,
+                                                 @RequestParam Long userID
+    ) {
+        Optional <AdvertisementViewDTO> response = advService.createAdvertisement(creationDTO, userID);
 
-        return response == null ? ResponseEntity.badRequest().body("Error creating advertisement") :
+        return response.isPresent() ? ResponseEntity.badRequest().body("Error creating advertisement") :
                 ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAdvertisement(@PathVariable Long id, @RequestBody AdvertisementCreateUpdateDTO updateDTO) {
+    public ResponseEntity<?> updateAdvertisement(@PathVariable Long id,
+                                                 @RequestBody AdvertisementCreateUpdateDTO updateDTO
+    ) {
         Optional<AdvertisementViewDTO> adv = advService.updateAdvertisement(updateDTO, id);
 
         return adv.isPresent() ? ResponseEntity.ok(adv) :
@@ -73,7 +77,7 @@ public class AdvertisementController {
 
     }
 
-    @PatchMapping("/enable_adv/{id}")
+    @PatchMapping("/enableAdv/{id}")
     public ResponseEntity<?> enableAdvertisement(@PathVariable Long id) {
         Optional<AdvertisementViewDTO> adv = advService.enableAdvertisement(id);
 
@@ -81,7 +85,7 @@ public class AdvertisementController {
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body("Advertisement not found!");
     }
 
-    @PatchMapping("/disable_adv/{id}")
+    @PatchMapping("/disableAdv/{id}")
     public ResponseEntity<?> disableAdvertisement(@PathVariable Long id) {
         Optional<AdvertisementViewDTO> adv = advService.disableAdvertisement(id);
 
