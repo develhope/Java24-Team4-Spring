@@ -4,6 +4,12 @@ import com.develhope.spring.entities.Subscription;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public interface SubscriptionRepositoory extends JpaRepository <Subscription, Long> {
+public interface SubscriptionRepository extends JpaRepository <Subscription, Long> {
+
+   List<Subscription> findByActiveTrue();
+
+   List<Subscription> findByActiveFalse();
 }

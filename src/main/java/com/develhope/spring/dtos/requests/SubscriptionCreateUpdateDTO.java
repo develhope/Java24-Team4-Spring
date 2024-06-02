@@ -7,20 +7,12 @@ import java.time.LocalDateTime;
 public class SubscriptionCreateUpdateDTO {
 
     private Subscription.SubscrType type;
-    private Float price;
-    private LocalDateTime start;
-    private LocalDateTime end;
 
     public SubscriptionCreateUpdateDTO() {
     }
 
-    public SubscriptionCreateUpdateDTO(Long userId, Subscription.SubscrType type, Float price, LocalDateTime start, LocalDateTime end) {
-
+    public SubscriptionCreateUpdateDTO(Subscription.SubscrType type) {
         this.type = type;
-        this.price = price;
-        this.start = start;
-        this.end = end;
-
     }
 
     public Subscription.SubscrType getType() {
@@ -29,29 +21,5 @@ public class SubscriptionCreateUpdateDTO {
 
     public void setType(Subscription.SubscrType type) {
         this.type = type;
-    }
-
-    public Float getPrice() {
-        return price;
-    }
-
-    public void setPrice(Float price) {
-        this.price = price;
-    }
-
-    public LocalDateTime getStart() {
-        return start;
-    }
-
-    public void setStart(LocalDateTime start) {
-        this.start = start;
-    }
-
-    public LocalDateTime getEnd() {
-        return end;
-    }
-
-    public void setEnd(LocalDateTime end) {
-        this.end = end;
     }
 }
