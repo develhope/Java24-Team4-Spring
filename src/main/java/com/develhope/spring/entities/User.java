@@ -175,23 +175,4 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
-
-    // Metodo toString per rappresentare l'oggetto User come stringa
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", nickName='" + nickName + '\'' +
-                ", name='" + name + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", numPhone='" + numPhone + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", registrationDate=" + registrationDate +
-                ", urlProfile='" + urlProfile + '\'' +
-                ", urlSocial='" + urlSocial + '\'' +
-                ", role=" + role +
-                '}';
-    }
-
 }
