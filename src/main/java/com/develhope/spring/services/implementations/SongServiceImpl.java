@@ -1,8 +1,9 @@
-package com.develhope.spring.servicies.implementations;
+package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.entities.Song;
 import com.develhope.spring.repositories.SongRepository;
-import com.develhope.spring.servicies.interfaces.SongService;
+import com.develhope.spring.services.interfaces.SongService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,8 @@ import java.util.Optional;
 public class SongServiceImpl implements SongService {
     @Autowired
     private SongRepository songRepository;
+    @Autowired
+    private final ModelMapper modelMapper;
 
 
     @Override

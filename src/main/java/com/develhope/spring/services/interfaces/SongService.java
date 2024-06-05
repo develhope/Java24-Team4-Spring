@@ -1,4 +1,4 @@
-package com.develhope.spring.servicies.interfaces;
+package com.develhope.spring.services.interfaces;
 
 import com.develhope.spring.entities.Song;
 

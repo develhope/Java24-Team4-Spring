@@ -1,9 +1,9 @@
-package com.develhope.spring.Controller;
+package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.SongRequestDTO;
 import com.develhope.spring.entities.Song;
 import com.develhope.spring.models.Response;
-import com.develhope.spring.servicies.interfaces.SongService;
+import com.develhope.spring.services.interfaces.SongService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
