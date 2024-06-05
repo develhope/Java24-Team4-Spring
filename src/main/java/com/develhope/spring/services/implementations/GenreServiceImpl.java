@@ -33,7 +33,7 @@ public class GenreServiceImpl implements GenreService {
     // Metodo per aggiornare un genere musicale
     @Override
     public Genre updateGenre(long id, Genre genre) {
-        genre.setIdGenre(id);
+        genre.setId(id);
         return genreRepository.save(genre);
     }
 
