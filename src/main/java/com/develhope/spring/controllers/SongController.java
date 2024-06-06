@@ -27,7 +27,7 @@ public class SongController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<Response> getSongById(@PathVariable int id) {
-        Optional<Song> song = songService.findSong(id);
+        Optional<Song> song = songService.findSongById(id);
         if (song.isPresent()) {
             return ResponseEntity.ok().body(new Response(200, "song found", song));
         } else {

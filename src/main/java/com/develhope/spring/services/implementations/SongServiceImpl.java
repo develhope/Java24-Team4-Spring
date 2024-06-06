@@ -32,4 +32,18 @@ public class SongServiceImpl implements SongService {
     public Optional<Song> findSong(long id) {
         return songRepository.findById(id);
     }
+    @Override
+    public Song updateSong(Long id, Song song) {
+        song.setId(id);
+        return  songRepository.saveAndFlush(song);
+    }
+    @Override
+    public boolean deleteSong(Long id) {
+        if (songRepository.existsById(id)) {
+            songRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
