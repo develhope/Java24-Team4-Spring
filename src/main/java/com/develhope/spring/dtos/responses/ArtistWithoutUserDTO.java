@@ -1,61 +1,24 @@
-package com.develhope.spring.entities;
+package com.develhope.spring.dtos.responses;
 
-import jakarta.persistence.*;
-import lombok.Builder;
+import com.develhope.spring.entities.Album;
 
 import java.util.List;
 
+public class ArtistWithoutUserDTO {
 
-@Entity
-@Table(name = "artists")
-public class Artist {
-
-    @Id
-    private Long id;
-
-    @MapsId
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id", nullable = false)
-    private User user;
-
-    @Column(nullable = false)
     private String artistName;
-
-    @Column(nullable = false)
     private String description;
-
-    @Column(nullable = false)
     private String artistCountry;
+    private List<Album> albums;
 
-    @OneToMany(mappedBy = "artist", fetch = FetchType.LAZY)
-    List<Album> albums;
-
-    public Artist() {
+    public ArtistWithoutUserDTO() {
     }
 
-    public Artist(Long id, User user, String artistName, String description, String artistCountry, List<Album> albums) {
-        this.id = id;
-        this.user = user;
+    public ArtistWithoutUserDTO(String artistName, String description, String artistCountry, List<Album> albums) {
         this.artistName = artistName;
         this.description = description;
         this.artistCountry = artistCountry;
         this.albums = albums;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getArtistName() {

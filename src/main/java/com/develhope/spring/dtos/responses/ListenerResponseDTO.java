@@ -1,37 +1,25 @@
 package com.develhope.spring.dtos.responses;
 
+import com.develhope.spring.entities.Subscription;
+import com.develhope.spring.entities.User;
+
 public class ListenerResponseDTO {
 
-    private Long id; // Identificatore univoco dell'ascoltatore
-    private String listenerName; // Nome dell'ascoltatore
+    private User user;
 
-    // Costruttore vuoto
+    public ListenerResponseDTO(User user) {
+        this.user = user;
+    }
+
     public ListenerResponseDTO() {
     }
 
-    // Costruttore con parametri per inizializzare gli attributi della classe
-    public ListenerResponseDTO(Long id, String listenerName) {
-        this.id = id;
-        this.listenerName = listenerName;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    // Metodi getter e setter per gli attributi della classe
-    // Ogni metodo restituisce o imposta il valore corrispondente dell'attributo
-
-
-    public Long getId() {
-        return id;
+    public User getUser() {
+        return user;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getListenerName() {
-        return listenerName;
-    }
-
-    public void setListenerName(String listenerName) {
-        this.listenerName = listenerName;
-    }
 }

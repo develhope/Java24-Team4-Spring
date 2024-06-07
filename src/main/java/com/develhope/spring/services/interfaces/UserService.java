@@ -1,25 +1,26 @@
 package com.develhope.spring.services.interfaces;
 
-import com.develhope.spring.entities.User;
+import com.develhope.spring.dtos.requests.UserCreationDTO;
+import com.develhope.spring.dtos.responses.UserWithRoleDetailsResponseDTO;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 
 // Interfaccia per il servizio di gestione degli utenti
 public interface UserService {
 
-    // Metodo per creare un nuovo utente
-    User createUser(User user);
 
-    // Metodo per ottenere tutti gli utenti
-    List<User> getAllUsers();
+    Optional<?> createUser(UserCreationDTO request) throws InvocationTargetException, IllegalAccessException;
 
-    // Metodo per trovare un utente tramite ID
-    Optional<User> findUser(long id);
+    Optional<?> updateUser(UserCreationDTO request, Long ID) throws InvocationTargetException, IllegalAccessException;
 
-    // Metodo per aggiornare un utente esistente
-    User updateUser(long id, User user);
+    Optional<UserWithRoleDetailsResponseDTO> getUserById(Long id);
 
-    // Metodo per eliminare un utente
-    boolean deleteUser(long id);
+    List<UserWithRoleDetailsResponseDTO> getAllUsers();
+
+    boolean deleteUserById(Long id);
+
+    void deleteAllUsers();
 
 }
