@@ -1,10 +1,10 @@
 package com.develhope.spring.services.implementations;
 
-import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
-import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
+import com.develhope.spring.dtos.requests.AdvertisementRequestDTO;
+import com.develhope.spring.dtos.responses.AdvertisementResponseDTO;
 import com.develhope.spring.entities.Advertisement;
 import com.develhope.spring.repositories.AdvertisementRepository;
-import com.develhope.spring.repositories.UserRepository;
+import com.develhope.spring.repositories.AdvertiserRepository;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,46 +21,37 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     private final ModelMapper modelMapper;
     private final AdvertisementRepository advRepository;
-    private final UserRepository userRepository;
-
+    private final AdvertiserRepository advertiserRepository;
 
     @Autowired
-    public AdvertisementServiceImpl(
-            ModelMapper modelMapper,
-            AdvertisementRepository advRepository,
-            UserRepository userRepository
-    ) {
+    public AdvertisementServiceImpl(ModelMapper modelMapper, AdvertisementRepository advRepository, AdvertiserRepository advertiserRepository) {
         this.modelMapper = modelMapper;
         this.advRepository = advRepository;
-        this.userRepository = userRepository;
+        this.advertiserRepository = advertiserRepository;
     }
 
     @Override
-    public Optional<AdvertisementViewDTO> createAdvertisement(AdvertisementCreateUpdateDTO request, Long userID) {
-
-
-        return userRepository.findById(userID).map(user -> {
+    public Optional<AdvertisementResponseDTO> createAdvertisement(AdvertisementRequestDTO request, Long advertiserID) {
+        return advertiserRepository.findById(advertiserID).map(advertiser -> {
             Advertisement newAdv = modelMapper.map(request, Advertisement.class);
-
-            newAdv.setUser(user);
+            newAdv.setAdvertiser(advertiser);
             initializeAdvertisement(newAdv);
             advRepository.saveAndFlush(newAdv);
 
-            AdvertisementViewDTO response = modelMapper.map(newAdv, AdvertisementViewDTO.class);
+            AdvertisementResponseDTO response = modelMapper.map(newAdv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(response);
             return response;
         });
     }
 
     @Override
-    public Optional<AdvertisementViewDTO> updateAdvertisement(AdvertisementCreateUpdateDTO request, Long id) {
-
+    public Optional<AdvertisementResponseDTO> updateAdvertisement(AdvertisementRequestDTO request, Long id) {
         return advRepository.findById(id).map(adv -> {
             modelMapper.map(request, adv);
             controlAndEnableAdvertisement(adv);
             advRepository.saveAndFlush(adv);
 
-            AdvertisementViewDTO response = modelMapper.map(adv, AdvertisementViewDTO.class);
+            AdvertisementResponseDTO response = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(response);
 
             return response;
@@ -68,13 +59,11 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public Optional<AdvertisementViewDTO> displayAdvertisementToUser(Long id) {
-
+    public Optional<AdvertisementResponseDTO> displayAdvertisementToUser(Long id) {
         return advRepository.findById(id).map(adv -> {
-
             incrementActualViews(adv);
             advRepository.saveAndFlush(adv);
-            AdvertisementViewDTO found = modelMapper.map(adv, AdvertisementViewDTO.class);
+            AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(found);
 
             return found;
@@ -82,60 +71,41 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public List<AdvertisementViewDTO> getAllAdvertisements() {
-
+    public List<AdvertisementResponseDTO> getAllAdvertisements() {
         return advRepository.findAll().stream()
-                .map
-                        (adv -> {
-                            AdvertisementViewDTO found = modelMapper.map(adv, AdvertisementViewDTO.class);
-                            setCalculableFieldsAdvViewDTO(found);
-                            return found;
-                        }).collect(Collectors.toList());
+                .map(adv -> {
+                    AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
+                    setCalculableFieldsAdvViewDTO(found);
+                    return found;
+                }).collect(Collectors.toList());
     }
 
     @Override
-    public Optional<AdvertisementViewDTO> getAdvertisementById(Long id) {
-
+    public Optional<AdvertisementResponseDTO> getAdvertisementById(Long id) {
         return advRepository.findById(id).map(adv -> {
-            AdvertisementViewDTO found = modelMapper.map(adv, AdvertisementViewDTO.class);
+            AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(found);
             return found;
         });
     }
 
     @Override
-    public List<AdvertisementViewDTO> getAllByActive(Boolean active) {
-
-        if (active) {
-            return advRepository.findByActiveTrue().stream()
-                    .map
-                            (adv -> {
-                                AdvertisementViewDTO found = modelMapper.map(adv, AdvertisementViewDTO.class);
-                                setCalculableFieldsAdvViewDTO(found);
-
-                                return found;
-                            }).collect(Collectors.toList());
-        } else {
-            return advRepository.findByActiveFalse().stream()
-                    .map
-                            (adv -> {
-                                AdvertisementViewDTO found = modelMapper.map(adv, AdvertisementViewDTO.class);
-                                setCalculableFieldsAdvViewDTO(found);
-
-                                return found;
-                            }).collect(Collectors.toList());
-        }
+    public List<AdvertisementResponseDTO> getAllByActive(Boolean active) {
+        List<Advertisement> ads = active ? advRepository.findByActiveTrue() : advRepository.findByActiveFalse();
+        return ads.stream()
+                .map(adv -> {
+                    AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
+                    setCalculableFieldsAdvViewDTO(found);
+                    return found;
+                }).collect(Collectors.toList());
     }
-
 
     @Override
     public Optional<Advertisement> deleteAdvertisement(Long id) {
-
         return advRepository.findById(id).map(advToDelete -> {
             advRepository.deleteById(id);
             return advToDelete;
         });
-
     }
 
     @Override
@@ -144,27 +114,23 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public Optional<AdvertisementViewDTO> enableAdvertisement(Long id) {
-
+    public Optional<AdvertisementResponseDTO> enableAdvertisement(Long id) {
         return advRepository.findById(id).map(adv -> {
             adv.setActive(true);
             advRepository.saveAndFlush(adv);
-            AdvertisementViewDTO response = modelMapper.map(adv, AdvertisementViewDTO.class);
+            AdvertisementResponseDTO response = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(response);
-
             return response;
         });
     }
 
     @Override
-    public Optional<AdvertisementViewDTO> disableAdvertisement(Long id) {
-
+    public Optional<AdvertisementResponseDTO> disableAdvertisement(Long id) {
         return advRepository.findById(id).map(adv -> {
             adv.setActive(false);
             advRepository.saveAndFlush(adv);
-            AdvertisementViewDTO response = modelMapper.map(adv, AdvertisementViewDTO.class);
+            AdvertisementResponseDTO response = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(response);
-
             return response;
         });
     }
@@ -186,54 +152,32 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     private Integer calculateActualDuration(LocalDateTime start) {
         LocalDateTime current = LocalDateTime.now();
-
         if (current.isBefore(start)) {
             return 0;
         }
-        return (int) (
-                Duration.between(
-                        start.toLocalDate().atStartOfDay(),
-                        current.toLocalDate()
-                ).plusDays(1).toDays()
-        );
+        return (int) (Duration.between(start.toLocalDate().atStartOfDay(), current.toLocalDate()).plusDays(1).toDays());
     }
 
     private Integer calculateTotalDuration(LocalDateTime start, LocalDateTime end) {
-
-        return (int) (
-                Duration.between(
-                        start,
-                        end
-                ).plusDays(2).toDays()
-        );
+        return (int) (Duration.between(start, end).plusDays(2).toDays());
     }
 
     private Float calculateCostPerView(Advertisement advertisement) {
-
         return advertisement.getOrderedViews() >= 500 ? 0.35f : 0.50f;
     }
 
     private Float calculateCostPerDay(Advertisement advertisement) {
-
         return calculateTotalDuration(advertisement.getStartDate(), advertisement.getEndDate()) >= 50 ? 8f : 10f;
     }
 
     private Float calculateFinalCost(Advertisement advertisement) {
-
         Float costPerDay = advertisement.getCostPerDay();
         Float costPerView = advertisement.getCostPerView();
-
-        return costPerDay * calculateTotalDuration(advertisement.getStartDate(), advertisement.getEndDate()) +
-                costPerView * advertisement.getOrderedViews();
-
-
+        return costPerDay * calculateTotalDuration(advertisement.getStartDate(), advertisement.getEndDate()) + costPerView * advertisement.getOrderedViews();
     }
 
-    private void setCalculableFieldsAdvViewDTO(AdvertisementViewDTO advertisementViewDTO) {
-
-        advertisementViewDTO.setActualDuration(calculateActualDuration(advertisementViewDTO.getStartDate()));
-
-        advertisementViewDTO.setTotalDuration(calculateTotalDuration(
-                advertisementViewDTO.getStartDate(), advertisementViewDTO.getEndDate()));
+    private void setCalculableFieldsAdvViewDTO(AdvertisementResponseDTO advertisementResponseDTO) {
+        advertisementResponseDTO.setActualDuration(calculateActualDuration(advertisementResponseDTO.getStartDate()));
+        advertisementResponseDTO.setTotalDuration(calculateTotalDuration(advertisementResponseDTO.getStartDate(), advertisementResponseDTO.getEndDate()));
     }
 }

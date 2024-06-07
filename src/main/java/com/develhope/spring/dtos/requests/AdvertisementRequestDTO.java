@@ -2,9 +2,8 @@ package com.develhope.spring.dtos.requests;
 
 import java.time.LocalDateTime;
 
-public class AdvertisementCreateUpdateDTO {
+public class AdvertisementRequestDTO {
 
-    //TODO ADD VALIDATION (DIPEND. VALIDATION & EXCEPTION HANDLER)
     private String advText;
     private String audioLink;
     private String imageLink;
@@ -12,7 +11,7 @@ public class AdvertisementCreateUpdateDTO {
     private LocalDateTime endDate;
     private Integer orderedViews;
 
-    public AdvertisementCreateUpdateDTO(
+    public AdvertisementRequestDTO(
             String advText,
             String audioLink,
             String imageLink,

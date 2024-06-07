@@ -2,10 +2,9 @@ package com.develhope.spring.dtos.responses;
 
 import com.develhope.spring.entities.User;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class AdvertisementViewDTO {
+public class AdvertisementResponseDTO {
 
 
     private Long id;
@@ -25,7 +24,7 @@ public class AdvertisementViewDTO {
     private Boolean active;
 
 
-    public AdvertisementViewDTO(
+    public AdvertisementResponseDTO(
             Long id,
             User user,
             String advText,
@@ -59,7 +58,7 @@ public class AdvertisementViewDTO {
         this.active = active;
     }
 
-    public AdvertisementViewDTO() {
+    public AdvertisementResponseDTO() {
     }
 
     public Long getId() {

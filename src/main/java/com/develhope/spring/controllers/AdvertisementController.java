@@ -1,7 +1,7 @@
 package com.develhope.spring.controllers;
 
-import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
-import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
+import com.develhope.spring.dtos.requests.AdvertisementRequestDTO;
+import com.develhope.spring.dtos.responses.AdvertisementResponseDTO;
 import com.develhope.spring.entities.Advertisement;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class AdvertisementController {
 
     @GetMapping("/displayAdv/{id}")
     public ResponseEntity<?> displayAdvertisementToUser(@PathVariable Long id) {
-        Optional<AdvertisementViewDTO> adv = advService.displayAdvertisementToUser(id);
+        Optional<AdvertisementResponseDTO> adv = advService.displayAdvertisementToUser(id);
 
         return adv.isPresent() ? ResponseEntity.ok().body(adv) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body("Advertisement not found!");
@@ -33,15 +33,15 @@ public class AdvertisementController {
 
     @GetMapping
     public ResponseEntity<?> getAllAdvertisements() {
-        List<AdvertisementViewDTO> advList = advService.getAllAdvertisements();
+        List<AdvertisementResponseDTO> advList = advService.getAllAdvertisements();
 
         return !advList.isEmpty() ? ResponseEntity.ok().body(advList) :
                 ResponseEntity.status(HttpStatus.NO_CONTENT).body("Advertisements list is empty");
     }
 
-    @GetMapping
+    @GetMapping("/findActive")
     public ResponseEntity<?> getAllByActive(@RequestParam Boolean active) {
-        List<AdvertisementViewDTO> advList = advService.getAllByActive(active);
+        List<AdvertisementResponseDTO> advList = advService.getAllByActive(active);
 
         return !advList.isEmpty() ? ResponseEntity.ok(advList) :
                 ResponseEntity.status(HttpStatus.NO_CONTENT).body("Advertisements list" + "(Active = " + active +
@@ -50,17 +50,17 @@ public class AdvertisementController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getAdvertisementById(@PathVariable Long id) {
-        Optional<AdvertisementViewDTO> adv = advService.getAdvertisementById(id);
+        Optional<AdvertisementResponseDTO> adv = advService.getAdvertisementById(id);
 
         return adv.isPresent() ? ResponseEntity.ok().body(adv) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body("Advertisement not found!");
     }
 
     @PostMapping
-    public ResponseEntity<?> createAdvertisement(@RequestBody AdvertisementCreateUpdateDTO creationDTO,
+    public ResponseEntity<?> createAdvertisement(@RequestBody AdvertisementRequestDTO creationDTO,
                                                  @RequestParam Long userID
     ) {
-        Optional <AdvertisementViewDTO> response = advService.createAdvertisement(creationDTO, userID);
+        Optional <AdvertisementResponseDTO> response = advService.createAdvertisement(creationDTO, userID);
 
         return response.isPresent() ? ResponseEntity.badRequest().body("Error creating advertisement") :
                 ResponseEntity.ok(response);
@@ -68,9 +68,9 @@ public class AdvertisementController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateAdvertisement(@PathVariable Long id,
-                                                 @RequestBody AdvertisementCreateUpdateDTO updateDTO
+                                                 @RequestBody AdvertisementRequestDTO updateDTO
     ) {
-        Optional<AdvertisementViewDTO> adv = advService.updateAdvertisement(updateDTO, id);
+        Optional<AdvertisementResponseDTO> adv = advService.updateAdvertisement(updateDTO, id);
 
         return adv.isPresent() ? ResponseEntity.ok(adv) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body("Advertisement not found!");
@@ -79,7 +79,7 @@ public class AdvertisementController {
 
     @PatchMapping("/enableAdv/{id}")
     public ResponseEntity<?> enableAdvertisement(@PathVariable Long id) {
-        Optional<AdvertisementViewDTO> adv = advService.enableAdvertisement(id);
+        Optional<AdvertisementResponseDTO> adv = advService.enableAdvertisement(id);
 
         return adv.isPresent() ? ResponseEntity.ok().body(adv) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body("Advertisement not found!");
@@ -87,7 +87,7 @@ public class AdvertisementController {
 
     @PatchMapping("/disableAdv/{id}")
     public ResponseEntity<?> disableAdvertisement(@PathVariable Long id) {
-        Optional<AdvertisementViewDTO> adv = advService.disableAdvertisement(id);
+        Optional<AdvertisementResponseDTO> adv = advService.disableAdvertisement(id);
 
         return adv.isPresent() ? ResponseEntity.ok().body(adv) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body("Advertisement not found!");
