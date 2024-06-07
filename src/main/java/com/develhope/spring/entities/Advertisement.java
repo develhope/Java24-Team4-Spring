@@ -1,26 +1,22 @@
 package com.develhope.spring.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "advertisements")
 public class Advertisement {
 
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)  //TODO TROVARE UN MODO PER FARLA FUNZIONARE CON FETCH TYPE "LAZY"
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "advertiser_id")
     @JsonBackReference
-    private User user;   //TODO CHANGE USER TO LISTENER
+    private Advertiser advertiser;
+
     private String advText;
     private String audioLink;
     private String imageLink;
@@ -36,25 +32,9 @@ public class Advertisement {
     public Advertisement() {
     }
 
-    public Advertisement(
-            Long id,
-            User user,
-            String advText,
-            String audioLink,
-            String imageLink,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            Integer orderedViews,
-            Float costPerDay,
-            Float costPerView,
-            Float finalCost,
-            int actualViews,
-            Boolean active
-
-    ) {
-
+    public Advertisement(Long id, Advertiser advertiser, String advText, String audioLink, String imageLink, LocalDateTime startDate, LocalDateTime endDate, Integer orderedViews, Float costPerDay, Float costPerView, Float finalCost, int actualViews, Boolean active) {
         this.id = id;
-        this.user = user;
+        this.advertiser = advertiser;
         this.advText = advText;
         this.audioLink = audioLink;
         this.imageLink = imageLink;
@@ -76,20 +56,20 @@ public class Advertisement {
         this.id = id;
     }
 
+    public Advertiser getAdvertiser() {
+        return advertiser;
+    }
+
+    public void setAdvertiser(Advertiser advertiser) {
+        this.advertiser = advertiser;
+    }
+
     public String getAdvText() {
         return advText;
     }
 
     public void setAdvText(String advText) {
         this.advText = advText;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getAudioLink() {
@@ -164,11 +144,12 @@ public class Advertisement {
         this.actualViews = actualViews;
     }
 
-    public Boolean isActive() {
+    public Boolean getActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
+
 }
