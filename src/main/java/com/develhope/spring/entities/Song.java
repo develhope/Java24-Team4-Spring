@@ -2,6 +2,8 @@ package com.develhope.spring.entities;
 
 import jakarta.persistence.*;
 
+import java.time.Duration;
+
 @Entity
 @Table(name = "songs")
 public class Song {
@@ -11,46 +13,30 @@ public class Song {
     @Column(nullable = false)
     private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id",nullable = false)
-    private User user;
-
-
     @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-
     @OneToOne
     @JoinColumn(name = "genre_id", referencedColumnName = "id")
     private Genre genre;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artist_id")
-    private int artist_id;
     @Column(nullable = false)
     private int year_release;
-    @Column
-    private int duration_time;
-    @Column
+    @Column(nullable = false)
+    private Duration duration_time;
+    @Column(nullable = false)
     private int number_of_plays;
-    @Column
+    @Column(nullable = false)
     private String link_audio;
 
     public Song() {
     }
 
-    public Song(Long id, String title, int artist_id) {
+    public Song(Long id, String title, Album album, Genre genre, int year_release, Duration duration_time, int number_of_plays, String link_audio) {
         this.id = id;
         this.title = title;
-        this.artist_id = artist_id;
-    }
-
-    public Song(Long id, String title, User user, int artist_id, int year_release, int duration_time, int number_of_plays, String link_audio) {
-        this.id = id;
-        this.title = title;
-        this.user = user;
-        this.artist_id = artist_id;
+        this.album = album;
+        this.genre = genre;
         this.year_release = year_release;
         this.duration_time = duration_time;
         this.number_of_plays = number_of_plays;
@@ -73,20 +59,20 @@ public class Song {
         this.title = title;
     }
 
-    public User getUser() {
-        return user;
+    public Album getAlbum() {
+        return album;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setAlbum(Album album) {
+        this.album = album;
     }
 
-    public int getArtist_id() {
-        return artist_id;
+    public Genre getGenre() {
+        return genre;
     }
 
-    public void setArtist_id(int artist_id) {
-        this.artist_id = artist_id;
+    public void setGenre(Genre genre) {
+        this.genre = genre;
     }
 
     public int getYear_release() {
@@ -97,11 +83,11 @@ public class Song {
         this.year_release = year_release;
     }
 
-    public int getDuration_time() {
+    public Duration getDuration_time() {
         return duration_time;
     }
 
-    public void setDuration_time(int duration_time) {
+    public void setDuration_time(Duration duration_time) {
         this.duration_time = duration_time;
     }
 
@@ -120,5 +106,4 @@ public class Song {
     public void setLink_audio(String link_audio) {
         this.link_audio = link_audio;
     }
-    
 }
