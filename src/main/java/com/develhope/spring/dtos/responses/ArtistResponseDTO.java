@@ -1,35 +1,37 @@
 package com.develhope.spring.dtos.responses;
 
+import com.develhope.spring.entities.Album;
+import com.develhope.spring.entities.User;
+
+import java.util.List;
+
 public class ArtistResponseDTO {
 
-    private Long id; // Identificatore univoco dell'artista
-    private String artistName; // Nome dell'artista
-    private String description; // Descrizione dell'artista
-    private String country; // Paese dell'artista
-    private Long userId; // Id dell'utente associato all'artista
+    private User user;
+    private String artistName;
+    private String description;
+    private String artistCountry;
+    private List<Album> albums;
 
-    // Costruttore vuoto richiesto da alcuni framework
     public ArtistResponseDTO() {
     }
 
-    // Costruttore con parametri per inizializzare gli attributi della classe
-    public ArtistResponseDTO(Long id, String artistName, String description, String country, Long userId) {
-        this.id = id;
+    public ArtistResponseDTO(User user, String artistName, String description, String artistCountry, List<Album> albums) {
+        this.user = user;
         this.artistName = artistName;
         this.description = description;
-        this.country = country;
-        this.userId = userId;
+        this.artistCountry = artistCountry;
+        this.albums = albums;
     }
 
-    // Metodi getter e setter per gli attributi della classe
-    // Ogni metodo restituisce o imposta il valore corrispondente dell'attributo
 
-    public Long getId() {
-        return id;
+
+    public User getUser() {
+        return user;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getArtistName() {
@@ -48,20 +50,19 @@ public class ArtistResponseDTO {
         this.description = description;
     }
 
-    public String getCountry() {
-        return country;
+    public String getArtistCountry() {
+        return artistCountry;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setArtistCountry(String artistCountry) {
+        this.artistCountry = artistCountry;
     }
 
-    public Long getUserId() {
-        return userId;
+    public List<Album> getAlbums() {
+        return albums;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setAlbums(List<Album> albums) {
+        this.albums = albums;
     }
 }
-
