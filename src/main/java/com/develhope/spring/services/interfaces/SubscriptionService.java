@@ -1,7 +1,7 @@
 package com.develhope.spring.services.interfaces;
 
-import com.develhope.spring.dtos.requests.SubscriptionCreateUpdateDTO;
-import com.develhope.spring.dtos.responses.SubscriptionViewDTO;
+import com.develhope.spring.dtos.requests.SubscriptionRequestDTO;
+import com.develhope.spring.dtos.responses.SubscriptionResponseDTO;
 import com.develhope.spring.entities.Subscription;
 import org.springframework.stereotype.Service;
 
@@ -11,22 +11,22 @@ import java.util.Optional;
 @Service
 public interface SubscriptionService {
 
-    Optional<SubscriptionViewDTO> getSubscriptionById(Long id);
+    Optional<SubscriptionResponseDTO> getSubscriptionById(Long id);
 
-    List<SubscriptionViewDTO> getAllSubscriptions();
+    List<SubscriptionResponseDTO> getAllSubscriptions();
 
-    List<SubscriptionViewDTO> getAllByActive(Boolean active);
+    List<SubscriptionResponseDTO> getAllByActive(Boolean active);
 
-    Optional<SubscriptionViewDTO> createSubscription(SubscriptionCreateUpdateDTO subscriptionCreateDTO, Long UserID);
+    Optional<SubscriptionResponseDTO> createSubscription(SubscriptionRequestDTO subscriptionCreateDTO, Long UserID);
 
-    Optional<SubscriptionViewDTO> updateSubscription(Long id, SubscriptionCreateUpdateDTO createUpdateDTO);
+    Optional<SubscriptionResponseDTO> updateSubscription(Long id, SubscriptionRequestDTO createUpdateDTO);
 
     Optional<Subscription> deleteSubscriptionById(Long id);
 
     void deleteAllSubscriptions();
 
-    Optional<SubscriptionViewDTO> enableSubscription(Long id);
+    Optional<SubscriptionResponseDTO> enableSubscription(Long id);
 
-    Optional<SubscriptionViewDTO> disableSubscription(Long id);
+    Optional<SubscriptionResponseDTO> disableSubscription(Long id);
 
 }

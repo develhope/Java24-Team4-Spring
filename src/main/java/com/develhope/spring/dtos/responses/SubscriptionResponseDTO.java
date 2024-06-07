@@ -1,13 +1,13 @@
 package com.develhope.spring.dtos.responses;
 
+import com.develhope.spring.entities.Listener;
 import com.develhope.spring.entities.Subscription;
-import com.develhope.spring.entities.User;
 
 import java.time.LocalDateTime;
 
-public class SubscriptionViewDTO {
+public class SubscriptionResponseDTO {
     private Long id;
-    private User listener;
+    private Listener listener;
     private Subscription.SubscrType type;
     private LocalDateTime start;
     private LocalDateTime end;
@@ -16,12 +16,12 @@ public class SubscriptionViewDTO {
     private float pricePerMonth;
     private Boolean active;
 
-    public SubscriptionViewDTO() {
+    public SubscriptionResponseDTO() {
     }
 
-    public SubscriptionViewDTO(
+    public SubscriptionResponseDTO(
             Long id,
-            User listener,
+            Listener listener,
             Subscription.SubscrType type,
             LocalDateTime start,
             LocalDateTime end,
@@ -49,11 +49,11 @@ public class SubscriptionViewDTO {
         this.id = id;
     }
 
-    public User getListener() {
+    public Listener getListener() {
         return listener;
     }
 
-    public void setListener(User listener) {
+    public void setListener(Listener listener) {
         this.listener = listener;
     }
 
