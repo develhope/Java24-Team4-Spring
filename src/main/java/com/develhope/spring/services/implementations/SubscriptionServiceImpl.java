@@ -1,10 +1,11 @@
 package com.develhope.spring.services.implementations;
 
-import com.develhope.spring.dtos.requests.SubscriptionCreateUpdateDTO;
-import com.develhope.spring.dtos.responses.SubscriptionViewDTO;
+import com.develhope.spring.dtos.requests.SubscriptionRequestDTO;
+import com.develhope.spring.dtos.responses.SubscriptionResponseDTO;
+import com.develhope.spring.dtos.responses.SubscriptionWithoutListenerDTO;
 import com.develhope.spring.entities.Subscription;
+import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.SubscriptionRepository;
-import com.develhope.spring.repositories.UserRepository;
 import com.develhope.spring.services.interfaces.SubscriptionService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,25 +25,25 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     //TODO CHANGE USER TI LISTENER!
 
     private final SubscriptionRepository subscrRepository;
-    private final UserRepository userRepository;
+    private final ListenerRepository listenerRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
     public SubscriptionServiceImpl(
             SubscriptionRepository subscrRepository,
-            UserRepository userRepository,
+            ListenerRepository listenerRepository,
             ModelMapper modelMapper
     ) {
         this.subscrRepository = subscrRepository;
-        this.userRepository = userRepository;
+        this.listenerRepository = listenerRepository;
         this.modelMapper = modelMapper;
     }
 
     @Override
-    public Optional<SubscriptionViewDTO> getSubscriptionById(Long id) {
+    public Optional<SubscriptionResponseDTO> getSubscriptionById(Long id) {
 
         return subscrRepository.findById(id).map(subscription -> {
-            SubscriptionViewDTO response = modelMapper.map(subscription, SubscriptionViewDTO.class);
+            SubscriptionResponseDTO response = modelMapper.map(subscription, SubscriptionResponseDTO.class);
             setCalculableFieldsViewDTO(response);
 
             return response;
@@ -50,10 +51,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public List<SubscriptionViewDTO> getAllSubscriptions() {
+    public List<SubscriptionResponseDTO> getAllSubscriptions() {
 
         return subscrRepository.findAll().stream().map(subscription -> {
-            SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
+            SubscriptionResponseDTO found = modelMapper.map(subscription, SubscriptionResponseDTO.class);
             setCalculableFieldsViewDTO(found);
 
             return found;
@@ -62,11 +63,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public List<SubscriptionViewDTO> getAllByActive(Boolean active) {
+    public List<SubscriptionResponseDTO> getAllByActive(Boolean active) {
 
         if (active) {
             return subscrRepository.findByActiveTrue().stream().map(subscription -> {
-                SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
+                SubscriptionResponseDTO found = modelMapper.map(subscription, SubscriptionResponseDTO.class);
                 setCalculableFieldsViewDTO(found);
 
                 return found;
@@ -74,7 +75,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             }).collect(Collectors.toList());
         } else {
             return subscrRepository.findByActiveFalse().stream().map(subscription -> {
-                SubscriptionViewDTO found = modelMapper.map(subscription, SubscriptionViewDTO.class);
+                SubscriptionResponseDTO found = modelMapper.map(subscription, SubscriptionResponseDTO.class);
                 setCalculableFieldsViewDTO(found);
 
                 return found;
@@ -84,40 +85,41 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public Optional<SubscriptionViewDTO> createSubscription(SubscriptionCreateUpdateDTO request, Long userID) {
+    public Optional<SubscriptionResponseDTO> createSubscription(SubscriptionRequestDTO request, Long userID) {
+        return listenerRepository.findById(userID).map(listener -> {
 
-
-        return userRepository.findById(userID).map(user -> {
             Subscription toSave = modelMapper.map(request, Subscription.class);
 
-            toSave.setListener(user);
+            toSave.setListener(listener);
             toSave.setTotalPrice(toSave.getType().getTotalPrice());
             setStartSetEnd(toSave);
+            controlAndEnableSubscription(toSave);
 
             Subscription saved = subscrRepository.saveAndFlush(toSave);
-            SubscriptionViewDTO response = modelMapper.map(saved, SubscriptionViewDTO.class);
-
+            SubscriptionResponseDTO response = modelMapper.map(saved, SubscriptionResponseDTO.class);
             setCalculableFieldsViewDTO(response);
             return response;
+
         });
 
     }
 
     @Override
-    public Optional<SubscriptionViewDTO> updateSubscription(Long id, SubscriptionCreateUpdateDTO request) {
+    public Optional<SubscriptionResponseDTO> updateSubscription(Long id, SubscriptionRequestDTO request) {
 
         return subscrRepository.findById(id).map(subscription -> {
-            modelMapper.map(request, subscription);
 
-            //TODO FORSE BISOGNO CAMBIARE LA LOGICA DI CALCOLO START/END DATE DURANTE AGGIORNAMENTO ?
-            setStartSetEnd(subscription);
+            if (incomingDtoIsValid(request)) {
+                modelMapper.map(request, subscription);
+                setStartSetEnd(subscription);
 
-            subscrRepository.saveAndFlush(subscription);
+                subscrRepository.saveAndFlush(subscription);
+                SubscriptionResponseDTO response = modelMapper.map(subscription, SubscriptionResponseDTO.class);
+                setCalculableFieldsViewDTO(response);
 
-            SubscriptionViewDTO response = modelMapper.map(subscription, SubscriptionViewDTO.class);
-            setCalculableFieldsViewDTO(response);
+                return response;
+            } else throw new IllegalArgumentException("Invalid subscription type. Allowed types are: ANNUAL, HALF_YEAR, MONTHLY.");
 
-            return response;
         });
     }
 
@@ -137,29 +139,29 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public Optional<SubscriptionViewDTO> enableSubscription(Long id) {
+    public Optional<SubscriptionResponseDTO> enableSubscription(Long id) {
 
         return subscrRepository.findById(id).map(subscr -> {
 
             subscr.setActive(true);
-            subscrRepository.saveAndFlush(subscr);
+            subscr = subscrRepository.saveAndFlush(subscr);
 
-            SubscriptionViewDTO response = modelMapper.map(subscr, SubscriptionViewDTO.class);
+            SubscriptionResponseDTO response = modelMapper.map(subscr, SubscriptionResponseDTO.class);
             setCalculableFieldsViewDTO(response);
 
             return response;
         });
     }
 
-    @Override
-    public Optional<SubscriptionViewDTO> disableSubscription(Long id) {
 
+    @Override
+    public Optional<SubscriptionResponseDTO> disableSubscription(Long id) {
         return subscrRepository.findById(id).map(subscr -> {
 
             subscr.setActive(false);
-            subscrRepository.saveAndFlush(subscr);
+            subscr = subscrRepository.saveAndFlush(subscr);
 
-            SubscriptionViewDTO response = modelMapper.map(subscr, SubscriptionViewDTO.class);
+            SubscriptionResponseDTO response = modelMapper.map(subscr, SubscriptionResponseDTO.class);
             setCalculableFieldsViewDTO(response);
 
             return response;
@@ -197,20 +199,51 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return Duration.between(LocalDateTime.now().minusDays(1), end).toDays();
     }
 
-    private float calculatePricePerMonth(SubscriptionViewDTO subscriptionViewDTO) {
 
-        float pricePerMonth = subscriptionViewDTO.getTotalPrice() /
-                ((float) subscriptionViewDTO.getType().getDuration().toDays() / 30);
+    private float calculatePricePerMonth(SubscriptionResponseDTO subscriptionResponseDTO) {
+
+        float pricePerMonth = subscriptionResponseDTO.getTotalPrice() /
+                ((float) subscriptionResponseDTO.getType().getDuration().toDays() / 30);
         DecimalFormat df = new DecimalFormat("#.##");
 
         return Float.parseFloat(df.format(pricePerMonth));
     }
 
-    private void setCalculableFieldsViewDTO(SubscriptionViewDTO dtoView) {
+    //Overloaded method for SubscriptionWithoutListenerDTO
+    private float calculatePricePerMonth(SubscriptionWithoutListenerDTO withoutListenerDTO) {
+
+        float pricePerMonth = withoutListenerDTO.getTotalPrice() /
+                ((float) withoutListenerDTO.getType().getDuration().toDays() / 30);
+        DecimalFormat df = new DecimalFormat("#.##");
+
+        return Float.parseFloat(df.format(pricePerMonth));
+    }
+
+    private void setCalculableFieldsViewDTO(SubscriptionResponseDTO dtoView) {
 
         dtoView.setDaysLeft(daysUntilTheEnd(dtoView.getEnd()));
         dtoView.setPricePerMonth(calculatePricePerMonth(dtoView));
     }
+
+    //Overloaded method for SubscriptionWithoutListenerDTO
+    private void setCalculableFieldsViewDTO(SubscriptionWithoutListenerDTO withoutListenerDTO) {
+
+        withoutListenerDTO.setDaysLeft(daysUntilTheEnd(withoutListenerDTO.getEnd()));
+        withoutListenerDTO.setPricePerMonth(calculatePricePerMonth(withoutListenerDTO));
+    }
+
+    private boolean incomingDtoIsValid(SubscriptionRequestDTO request) {
+
+        return request.getType() == Subscription.SubscrType.ANNUAL ||
+                request.getType() == Subscription.SubscrType.HALF_YEAR ||
+                request.getType() == Subscription.SubscrType.MONTHLY;
+
+    }
+
+    public void invokeFromOutsideSetCalculableFieldsDTO(SubscriptionWithoutListenerDTO withoutListenerDTO) {
+        setCalculableFieldsViewDTO(withoutListenerDTO);
+    }
+
 
 }
 

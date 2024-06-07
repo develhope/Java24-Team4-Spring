@@ -1,25 +1,21 @@
 package com.develhope.spring.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-//TODO
+
 @Entity
 @Table(name = "subscriptions")
 public class Subscription {
 
     public enum SubscrType {
-
         MONTHLY(20f, Duration.ofDays(30)),
         HALF_YEAR(100f, Duration.ofDays(180)),
         ANNUAL(180f, Duration.ofDays(365));
 
         private final float totalPrice;
         private final Duration duration;
-
 
         SubscrType(float totalPrice, Duration duration) {
             this.totalPrice = totalPrice;
@@ -36,13 +32,12 @@ public class Subscription {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "listener_id", nullable = false)
-    @JsonBackReference
-    private User listener; //TODO CHANGE USER TI LISTENER
+    @MapsId
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id", nullable = false)
+    private Listener listener;
 
     @Enumerated(EnumType.STRING)
     private SubscrType type;
@@ -54,15 +49,7 @@ public class Subscription {
     public Subscription() {
     }
 
-    public Subscription(
-            Long id,
-            User listener,
-            SubscrType type,
-            Float totalPrice,
-            LocalDateTime start,
-            LocalDateTime end,
-            Boolean active
-    ) {
+    public Subscription(Long id, Listener listener, SubscrType type, Float totalPrice, LocalDateTime start, LocalDateTime end, Boolean active) {
         this.id = id;
         this.listener = listener;
         this.type = type;
@@ -80,11 +67,11 @@ public class Subscription {
         this.id = id;
     }
 
-    public User getListener() {
+    public Listener getListener() {
         return listener;
     }
 
-    public void setListener(User listener) {
+    public void setListener(Listener listener) {
         this.listener = listener;
     }
 
