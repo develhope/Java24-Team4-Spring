@@ -43,7 +43,7 @@ public class PlaylistController {
 
     @PostMapping
     public ResponseEntity<Response> createPlaylist(@RequestBody PlaylistRequestDTO request) {
-       PlaylistResponseDTO playlist = playlistService.createPlaylist(request);
+        PlaylistResponseDTO playlist = playlistService.createPlaylist(request);
 
         return ResponseEntity.ok().body(
                 new Response(HttpStatus.OK.value(), "Playlist created successfully.", playlist)
@@ -51,13 +51,12 @@ public class PlaylistController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePlaylist(@PathVariable Long id, @RequestBody PlaylistRequestDTO request) {
+    public ResponseEntity<Response> updatePlaylist(@PathVariable Long id, @RequestBody PlaylistRequestDTO request) {
         Optional<PlaylistResponseDTO> playlist = playlistService.updatePlaylist(id, request);
 
-        return playlist.isPresent() ? ResponseEntity.ok(playlist) :
-                ResponseEntity.status(HttpStatus.OK).body(
-                        new Response(HttpStatus.OK.value(), "Playlist update successfully.")
-                );
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "Playlist update successfully.", playlist)
+        );
     }
 
     @DeleteMapping("/{id}")
@@ -70,7 +69,7 @@ public class PlaylistController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteAllPlaylists() {
+    public ResponseEntity<Response> deleteAllPlaylists() {
         playlistService.deleteAllPlaylists();
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
