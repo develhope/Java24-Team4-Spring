@@ -35,7 +35,7 @@ public class SubscriptionController {
     public ResponseEntity<?> getAllSubscriptions() {
         List<SubscriptionResponseDTO> subscrList = subscriptionService.getAllSubscriptions();
 
-        return ! subscrList.isEmpty() ? ResponseEntity.ok(subscrList) :
+        return !subscrList.isEmpty() ? ResponseEntity.ok(subscrList) :
                 ResponseEntity.status(HttpStatus.NO_CONTENT).body("Subscriptions list is empty!");
     }
 
@@ -43,7 +43,7 @@ public class SubscriptionController {
     public ResponseEntity<?> getAllByActive(@RequestParam Boolean active) {
         List<SubscriptionResponseDTO> advList = subscriptionService.getAllByActive(active);
 
-        return ! advList.isEmpty() ? ResponseEntity.ok(advList) :
+        return !advList.isEmpty() ? ResponseEntity.ok(advList) :
                 ResponseEntity.status(HttpStatus.NO_CONTENT).body("Subscriptions list" + "(Active = " + active +
                         ") is empty");
     }
@@ -53,9 +53,9 @@ public class SubscriptionController {
             @RequestBody SubscriptionRequestDTO subscriptionCreateDTO,
             @RequestParam Long userID
     ) {
-        Optional <SubscriptionResponseDTO> subscription = subscriptionService.createSubscription(subscriptionCreateDTO, userID);
+        Optional<SubscriptionResponseDTO> subscription = subscriptionService.createSubscription(subscriptionCreateDTO, userID);
 
-        return subscription.isPresent() ?  ResponseEntity.ok(subscription):  ResponseEntity.badRequest().build();
+        return subscription.isPresent() ? ResponseEntity.ok(subscription) : ResponseEntity.badRequest().build();
     }
 
 
@@ -71,7 +71,7 @@ public class SubscriptionController {
     }
 
     @PatchMapping("/enableSubscr/{id}")
-    public ResponseEntity<?> enableSubscription(@PathVariable Long id){
+    public ResponseEntity<?> enableSubscription(@PathVariable Long id) {
         Optional<SubscriptionResponseDTO> subscription = subscriptionService.enableSubscription(id);
 
         return subscription.isPresent() ? ResponseEntity.ok(subscription) :
@@ -81,7 +81,7 @@ public class SubscriptionController {
 
     // TODO METTERE SUBSCR. IN PAUSA SE NON ATTIVO
     @PatchMapping("/disableSubscr/{id}")
-    public ResponseEntity<?> disableSubscription(@PathVariable Long id){
+    public ResponseEntity<?> disableSubscription(@PathVariable Long id) {
         Optional<SubscriptionResponseDTO> subscription = subscriptionService.disableSubscription(id);
 
         return subscription.isPresent() ? ResponseEntity.ok(subscription) :

@@ -10,7 +10,7 @@ public interface GenreService {
     // -Interfaccia per il servizio di gestione dei generi musicali-
 
     // Metodo per creare un nuovo genere musicale
-    Genre createGenre(Genre genre );
+    Genre createGenre(Genre genre);
 
     // Metodo per ottenere tutti i generi
     List<Genre> getAllGenres();

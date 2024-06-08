@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SubscriptionRepository extends JpaRepository <Subscription, Long> {
+public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
-   List<Subscription> findByActiveTrue();
+    List<Subscription> findByActiveTrue();
 
-   List<Subscription> findByActiveFalse();
+    List<Subscription> findByActiveFalse();
 }

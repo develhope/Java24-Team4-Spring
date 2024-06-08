@@ -3,7 +3,6 @@ package com.develhope.spring.controllers;
 
 import com.develhope.spring.entities.Album;
 import com.develhope.spring.services.interfaces.AlbumService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,24 +15,29 @@ public class AlbumController {
 
     @Autowired
     private AlbumService albumService;
+
     @PostMapping("/")
-    public Album albumCreate(Album album){
+    public Album albumCreate(Album album) {
         return albumService.createAlbum(album);
     }
+
     @GetMapping("/")
-    public List<Album> getAllAlbums(){
+    public List<Album> getAllAlbums() {
         return albumService.getAllAlbums();
     }
+
     @GetMapping("/{id}")
-    public Optional<Album> albumById(Long id){
+    public Optional<Album> albumById(Long id) {
         return albumService.albumById(id);
     }
+
     @PutMapping("/{id}")
-    public Album updateAlbum(Long id, Album album){
+    public Album updateAlbum(Long id, Album album) {
         return albumService.updateAlbum(id, album);
     }
+
     @DeleteMapping("/{id}")
-    public void albumDelete(Long id){
+    public void albumDelete(Long id) {
         albumService.albumDelete(id);
     }
 

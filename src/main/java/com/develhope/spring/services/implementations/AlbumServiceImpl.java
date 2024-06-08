@@ -6,9 +6,10 @@ import com.develhope.spring.services.interfaces.AlbumService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
-import org.modelmapper.ModelMapper;
+
 @Service
 public class AlbumServiceImpl implements AlbumService {
     private final ModelMapper modelMapper;
@@ -19,19 +20,23 @@ public class AlbumServiceImpl implements AlbumService {
         this.modelMapper = modelMapper;
     }
 
-    public Album createAlbum(Album album){
+    public Album createAlbum(Album album) {
         return albumRepository.saveAndFlush(album);
     }
-    public List<Album> getAllAlbums(){
+
+    public List<Album> getAllAlbums() {
         return albumRepository.findAll();
     }
-    public Optional<Album> albumById(Long id){
+
+    public Optional<Album> albumById(Long id) {
         return albumRepository.findById(id);
     }
-    public Album updateAlbum(Long id, Album album){
+
+    public Album updateAlbum(Long id, Album album) {
         return albumRepository.saveAndFlush(album);
     }
-    public void albumDelete(Long id){
+
+    public void albumDelete(Long id) {
         albumRepository.deleteById(id);
     }
 }

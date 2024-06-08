@@ -19,13 +19,14 @@ public class Response {
     public Response(int status, String message) {
         this.status = status; // Inizializza il codice di stato con il valore fornito
         this.message = message; // Inizializza il messaggio con il valore fornito
-    } 
+    }
 
 
     // Metodo getter per ottenere il codice di stato della risposta
     public int getStatus() {
         return status;
     }
+
     // Metodo getter per ottenere il messaggio della risposta
     public String getMessage() {
         return message;

@@ -118,7 +118,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 setCalculableFieldsViewDTO(response);
 
                 return response;
-            } else throw new IllegalArgumentException("Invalid subscription type. Allowed types are: ANNUAL, HALF_YEAR, MONTHLY.");
+            } else
+                throw new IllegalArgumentException("Invalid subscription type. Allowed types are: ANNUAL, HALF_YEAR, MONTHLY.");
 
         });
     }

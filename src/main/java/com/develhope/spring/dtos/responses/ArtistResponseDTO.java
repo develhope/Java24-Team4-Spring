@@ -25,7 +25,6 @@ public class ArtistResponseDTO {
     }
 
 
-
     public User getUser() {
         return user;
     }

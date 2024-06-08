@@ -1,15 +1,21 @@
 package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.dtos.requests.AdvertisementRequestDTO;
+import com.develhope.spring.dtos.requests.AdvertisementUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementResponseDTO;
 import com.develhope.spring.entities.Advertisement;
+import com.develhope.spring.entities.Advertiser;
+import com.develhope.spring.exceptions.NegativeIdException;
 import com.develhope.spring.repositories.AdvertisementRepository;
 import com.develhope.spring.repositories.AdvertiserRepository;
+import com.develhope.spring.services.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.AdvertisementService;
+import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,49 +26,78 @@ import java.util.stream.Collectors;
 public class AdvertisementServiceImpl implements AdvertisementService {
 
     private final ModelMapper modelMapper;
-    private final AdvertisementRepository advRepository;
+    private final AdvertisementRepository advertisementRepository;
     private final AdvertiserRepository advertiserRepository;
 
     @Autowired
-    public AdvertisementServiceImpl(ModelMapper modelMapper, AdvertisementRepository advRepository, AdvertiserRepository advertiserRepository) {
+    public AdvertisementServiceImpl(ModelMapper modelMapper, AdvertisementRepository advertisementRepository, AdvertiserRepository advertiserRepository) {
         this.modelMapper = modelMapper;
-        this.advRepository = advRepository;
+        this.advertisementRepository = advertisementRepository;
         this.advertiserRepository = advertiserRepository;
     }
 
     @Override
-    public Optional<AdvertisementResponseDTO> createAdvertisement(AdvertisementRequestDTO request, Long advertiserID) {
-        return advertiserRepository.findById(advertiserID).map(advertiser -> {
-            Advertisement newAdv = modelMapper.map(request, Advertisement.class);
-            newAdv.setAdvertiser(advertiser);
-            initializeAdvertisement(newAdv);
-            advRepository.saveAndFlush(newAdv);
+    public AdvertisementResponseDTO createAdvertisement(AdvertisementRequestDTO request) {
+        Optional<Advertiser> advertiser = advertiserRepository.findById(request.getAdvertiserUserId());
 
-            AdvertisementResponseDTO response = modelMapper.map(newAdv, AdvertisementResponseDTO.class);
-            setCalculableFieldsAdvViewDTO(response);
-            return response;
-        });
+        if (request.getAdvertiserUserId() < 0) {
+            throw new NegativeIdException("[Creation failed] Advertiser ID cannot be negative. Now: " + request.getAdvertiserUserId());
+        }
+
+        if (advertiser.isEmpty()) {
+            throw new EntityNotFoundException("[Creation failed] Advertiser with ID " + request.getAdvertiserUserId() +
+                    " not found in the database");
+        }
+
+        Advertisement newAdvertisement = modelMapper.map(request, Advertisement.class);
+
+        newAdvertisement.setAdvertiser(advertiser.get());
+        initializeAdvertisement(newAdvertisement);
+
+        var advSaved = advertisementRepository.saveAndFlush(newAdvertisement);
+
+        var responseDTO = modelMapper.map(newAdvertisement, AdvertisementResponseDTO.class);
+
+        setCalculableFieldsAdvViewDTO(responseDTO);
+
+        return responseDTO;
     }
 
     @Override
-    public Optional<AdvertisementResponseDTO> updateAdvertisement(AdvertisementRequestDTO request, Long id) {
-        return advRepository.findById(id).map(adv -> {
-            modelMapper.map(request, adv);
-            controlAndEnableAdvertisement(adv);
-            advRepository.saveAndFlush(adv);
+    public AdvertisementResponseDTO updateAdvertisement(AdvertisementUpdateDTO request, Long id) {
 
-            AdvertisementResponseDTO response = modelMapper.map(adv, AdvertisementResponseDTO.class);
-            setCalculableFieldsAdvViewDTO(response);
+        Optional<Advertisement> advertisement = advertisementRepository.findById(id);
 
-            return response;
-        });
+        if (advertisement.isEmpty()){
+            throw new EntityNotFoundException("[Update failed] Advertisement with ID " + id +
+                    " not found in the database");
+        }
+
+        var toUpdate = advertisement.get();
+
+        try {
+            UniversalFieldUpdater.checkFieldsAndUpdate(request, toUpdate);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        initializeAdvertisement(toUpdate);
+
+        var updated = advertisementRepository.saveAndFlush(toUpdate);
+        var responseDto = modelMapper.map(updated, AdvertisementResponseDTO.class);
+
+        setCalculableFieldsAdvViewDTO(responseDto);
+
+        return responseDto;
     }
 
     @Override
     public Optional<AdvertisementResponseDTO> displayAdvertisementToUser(Long id) {
-        return advRepository.findById(id).map(adv -> {
+        return advertisementRepository.findById(id).map(adv -> {
             incrementActualViews(adv);
-            advRepository.saveAndFlush(adv);
+            advertisementRepository.saveAndFlush(adv);
             AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(found);
 
@@ -72,7 +107,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public List<AdvertisementResponseDTO> getAllAdvertisements() {
-        return advRepository.findAll().stream()
+        return advertisementRepository.findAll().stream()
                 .map(adv -> {
                     AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
                     setCalculableFieldsAdvViewDTO(found);
@@ -82,7 +117,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public Optional<AdvertisementResponseDTO> getAdvertisementById(Long id) {
-        return advRepository.findById(id).map(adv -> {
+        return advertisementRepository.findById(id).map(adv -> {
             AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(found);
             return found;
@@ -91,7 +126,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public List<AdvertisementResponseDTO> getAllByActive(Boolean active) {
-        List<Advertisement> ads = active ? advRepository.findByActiveTrue() : advRepository.findByActiveFalse();
+        List<Advertisement> ads = active ? advertisementRepository.findByActiveTrue() : advertisementRepository.findByActiveFalse();
         return ads.stream()
                 .map(adv -> {
                     AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
@@ -102,22 +137,22 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public Optional<Advertisement> deleteAdvertisement(Long id) {
-        return advRepository.findById(id).map(advToDelete -> {
-            advRepository.deleteById(id);
+        return advertisementRepository.findById(id).map(advToDelete -> {
+            advertisementRepository.deleteById(id);
             return advToDelete;
         });
     }
 
     @Override
     public void deleteAllAdvertisements() {
-        advRepository.deleteAll();
+        advertisementRepository.deleteAll();
     }
 
     @Override
     public Optional<AdvertisementResponseDTO> enableAdvertisement(Long id) {
-        return advRepository.findById(id).map(adv -> {
+        return advertisementRepository.findById(id).map(adv -> {
             adv.setActive(true);
-            advRepository.saveAndFlush(adv);
+            advertisementRepository.saveAndFlush(adv);
             AdvertisementResponseDTO response = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(response);
             return response;
@@ -126,9 +161,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public Optional<AdvertisementResponseDTO> disableAdvertisement(Long id) {
-        return advRepository.findById(id).map(adv -> {
+        return advertisementRepository.findById(id).map(adv -> {
             adv.setActive(false);
-            advRepository.saveAndFlush(adv);
+            advertisementRepository.saveAndFlush(adv);
             AdvertisementResponseDTO response = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(response);
             return response;

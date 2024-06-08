@@ -1,6 +1,5 @@
 package com.develhope.spring.dtos.responses;
 
-import com.develhope.spring.entities.Subscription;
 import com.develhope.spring.entities.User;
 
 public class ListenerResponseDTO {

@@ -13,7 +13,7 @@ public class Song {
     @Column(nullable = false)
     private String title;
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 

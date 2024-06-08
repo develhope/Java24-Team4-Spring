@@ -1,8 +1,5 @@
 package com.develhope.spring.dtos.requests;
 
-import com.develhope.spring.entities.Album;
-import com.develhope.spring.entities.Genre;
-
 import java.time.Duration;
 
 public class SongRequestDTO {

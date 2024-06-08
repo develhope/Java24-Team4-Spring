@@ -60,7 +60,7 @@ public class AdvertisementController {
     public ResponseEntity<?> createAdvertisement(@RequestBody AdvertisementRequestDTO creationDTO,
                                                  @RequestParam Long userID
     ) {
-        Optional <AdvertisementResponseDTO> response = advService.createAdvertisement(creationDTO, userID);
+        Optional<AdvertisementResponseDTO> response = advService.createAdvertisement(creationDTO, userID);
 
         return response.isPresent() ? ResponseEntity.badRequest().body("Error creating advertisement") :
                 ResponseEntity.ok(response);

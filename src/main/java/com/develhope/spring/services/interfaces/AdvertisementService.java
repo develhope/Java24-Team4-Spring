@@ -1,6 +1,7 @@
 package com.develhope.spring.services.interfaces;
 
 import com.develhope.spring.dtos.requests.AdvertisementRequestDTO;
+import com.develhope.spring.dtos.requests.AdvertisementUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementResponseDTO;
 import com.develhope.spring.entities.Advertisement;
 
@@ -9,9 +10,9 @@ import java.util.Optional;
 
 public interface AdvertisementService {
 
-    Optional <AdvertisementResponseDTO> createAdvertisement(AdvertisementRequestDTO creationDTO, Long userID);
+    AdvertisementResponseDTO createAdvertisement(AdvertisementRequestDTO creationDTO);
 
-    Optional<AdvertisementResponseDTO> updateAdvertisement(AdvertisementRequestDTO request, Long id);
+    AdvertisementResponseDTO updateAdvertisement(AdvertisementUpdateDTO request, Long id);
 
     Optional<AdvertisementResponseDTO> displayAdvertisementToUser(Long id);
 

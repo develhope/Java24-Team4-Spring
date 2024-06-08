@@ -7,6 +7,7 @@ import com.develhope.spring.entities.Playlist;
 import com.develhope.spring.entities.Song;
 import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.EmptySongsListOnUpdateException;
+import com.develhope.spring.exceptions.NegativeIdException;
 import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.PlaylistRepository;
 import com.develhope.spring.repositories.SongRepository;
@@ -47,21 +48,9 @@ public class PlaylistServiceImpl implements PlaylistService {
     public PlaylistResponseDTO getPlaylistById(Long id) {
 
         return playlistRepository.findById(id)
-                .map(playlist -> {
-                    var playlistDto = modelMapper.map(playlist, PlaylistResponseDTO.class);
+                .map(playlist -> modelMapper.map(playlist, PlaylistResponseDTO.class)
 
-                    Long listenerId = playlist.getListener().getId();
-                    List<Long> songIds = playlist.getSongs()
-                            .stream()
-                            .map(Song::getId)
-                            .toList();
-
-                    playlistDto.setListener(playlist.getListener());
-                    playlistDto.setSongs(playlist.getSongs());
-
-                    return playlistDto;
-
-                }).orElseThrow(() -> new EntityNotFoundException
+                ).orElseThrow(() -> new EntityNotFoundException
                         ("Playlist with ID " + id + " not found in the database"));
     }
 
@@ -69,21 +58,9 @@ public class PlaylistServiceImpl implements PlaylistService {
     public List<PlaylistResponseDTO> getAllPlaylists() {
         var playlists = playlistRepository.findAll()
                 .stream()
-                .map(playlist -> {
-                    var playlistDto = modelMapper.map(playlist, PlaylistResponseDTO.class);
+                .map(playlist -> modelMapper.map(playlist, PlaylistResponseDTO.class)
 
-                    Long listenerId = playlist.getListener().getId();
-                    List<Long> songIds = playlist.getSongs()
-                            .stream()
-                            .map(Song::getId)
-                            .toList();
-
-                    playlistDto.setListener(playlist.getListener());
-                    playlistDto.setSongs(playlist.getSongs());
-
-                    return playlistDto;
-
-                }).toList();
+                ).toList();
 
         if (playlists.isEmpty()) {
             throw new EmptyResultException("No playlists found in the database.");
@@ -94,17 +71,33 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     @Override
     public PlaylistResponseDTO createPlaylist(PlaylistRequestDTO request) {
+
+        if (request.getListenerId() < 0) {
+            throw new NegativeIdException(
+                    "[Creation failed] Listener ID cannot be negative. Now: " + request.getListenerId());
+        }
+
+        request.getSongIds().forEach(SongId -> {
+            if (SongId < 0) {
+                throw new NegativeIdException(
+                        "[Creation failed] One or more of Song IDs is negative. IDs Now: " + request.getSongIds()
+                );
+            }
+        });
+
         Optional<Listener> listener = listenerRepository.findById(request.getListenerId());
         List<Song> songs = songRepository.findAllById(request.getSongIds());
 
         if (listener.isEmpty()) {
-            throw new EntityNotFoundException("[Creation failed] Listener with ID " + request.getListenerId() +
-                    " not found in the database");
+            throw new EntityNotFoundException(
+                    "[Creation failed] Listener with ID " + request.getListenerId() + " not found in the database"
+            );
         }
 
         if (songs.isEmpty()) {
-            throw new EmptyResultException("[Creation failed] Songs with IDs " + request.getSongIds() +
-                    " not found in the database");
+            throw new EmptyResultException(
+                    "[Creation failed] Songs with IDs " + request.getSongIds() + " not found in the database"
+            );
         }
 
         Playlist playlist = modelMapper.map(request, Playlist.class);
@@ -114,20 +107,21 @@ public class PlaylistServiceImpl implements PlaylistService {
         playlist.setCreationDate(LocalDate.now());
         playlist.setUpdateDate(LocalDate.now());
 
-        Playlist savedPlaylist = playlistRepository.saveAndFlush(playlist);
+        var savedPlaylist = playlistRepository.saveAndFlush(playlist);
+        var responseDTO = modelMapper.map(savedPlaylist, PlaylistResponseDTO.class);
 
-        PlaylistResponseDTO response = modelMapper.map(savedPlaylist, PlaylistResponseDTO.class);
+        responseDTO.setSongs(savedPlaylist.getSongs());
+        responseDTO.setListener(savedPlaylist.getListener());
 
-        response.setSongs(savedPlaylist.getSongs());
-
-        response.setListener(savedPlaylist.getListener());
-
-        return response;
+        return responseDTO;
     }
 
     @Override
     public Optional<PlaylistResponseDTO> updatePlaylist(Long id, PlaylistRequestDTO request) {
-
+        if (id < 0) {
+            throw new NegativeIdException(
+                    "[Update failed] Playlist ID cannot be negative. Now: " + id);
+        }
         Optional<Listener> listener = listenerRepository.findById(request.getListenerId());
         List<Song> songs = songRepository.findAllById(request.getSongIds());
 
@@ -153,7 +147,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                         throw new RuntimeException(e);
                     }
 
-                    Playlist updatedPlaylist = playlistRepository.saveAndFlush(existingPlaylist);
+                    var updatedPlaylist = playlistRepository.saveAndFlush(existingPlaylist);
 
                     return modelMapper.map(updatedPlaylist, PlaylistResponseDTO.class);
                 });
