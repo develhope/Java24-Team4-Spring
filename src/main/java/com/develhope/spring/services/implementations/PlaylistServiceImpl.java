@@ -5,17 +5,22 @@ import com.develhope.spring.dtos.responses.PlaylistResponseDTO;
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.entities.Playlist;
 import com.develhope.spring.entities.Song;
+import com.develhope.spring.exceptions.EmptyResultException;
+import com.develhope.spring.exceptions.EmptySongsListOnUpdateException;
 import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.PlaylistRepository;
 import com.develhope.spring.repositories.SongRepository;
-import com.develhope.spring.services.PlaylistService;
+import com.develhope.spring.services.UniversalFieldUpdater;
+import com.develhope.spring.services.interfaces.PlaylistService;
+import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PlaylistServiceImpl implements PlaylistService {
@@ -39,57 +44,128 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
-    public Optional<PlaylistResponseDTO> getPlaylistById(Long id) {
+    public PlaylistResponseDTO getPlaylistById(Long id) {
+
         return playlistRepository.findById(id)
-                .map(playlist -> modelMapper.map(playlist, PlaylistResponseDTO.class));
+                .map(playlist -> {
+                    var playlistDto = modelMapper.map(playlist, PlaylistResponseDTO.class);
+
+                    Long listenerId = playlist.getListener().getId();
+                    List<Long> songIds = playlist.getSongs()
+                            .stream()
+                            .map(Song::getId)
+                            .toList();
+
+                    playlistDto.setListener(playlist.getListener());
+                    playlistDto.setSongs(playlist.getSongs());
+
+                    return playlistDto;
+
+                }).orElseThrow(() -> new EntityNotFoundException
+                        ("Playlist with ID " + id + " not found in the database"));
     }
 
     @Override
     public List<PlaylistResponseDTO> getAllPlaylists() {
-        return playlistRepository.findAll()
+        var playlists = playlistRepository.findAll()
                 .stream()
-                .map(playlist -> modelMapper.map(playlist, PlaylistResponseDTO.class))
-                .collect(Collectors.toList());
+                .map(playlist -> {
+                    var playlistDto = modelMapper.map(playlist, PlaylistResponseDTO.class);
+
+                    Long listenerId = playlist.getListener().getId();
+                    List<Long> songIds = playlist.getSongs()
+                            .stream()
+                            .map(Song::getId)
+                            .toList();
+
+                    playlistDto.setListener(playlist.getListener());
+                    playlistDto.setSongs(playlist.getSongs());
+
+                    return playlistDto;
+
+                }).toList();
+
+        if (playlists.isEmpty()) {
+            throw new EmptyResultException("No playlists found in the database.");
+        } else {
+            return playlists;
+        }
     }
 
     @Override
-    public Optional<PlaylistResponseDTO> createPlaylist(PlaylistRequestDTO request) {
+    public PlaylistResponseDTO createPlaylist(PlaylistRequestDTO request) {
         Optional<Listener> listener = listenerRepository.findById(request.getListenerId());
         List<Song> songs = songRepository.findAllById(request.getSongIds());
 
-        if (listener.isPresent()) {
-            Playlist playlist = modelMapper.map(request, Playlist.class);
-            playlist.setListener(listener.get());
-            playlist.setSongs(songs);
-
-            Playlist savedPlaylist = playlistRepository.saveAndFlush(playlist);
-            return Optional.of(modelMapper.map(savedPlaylist, PlaylistResponseDTO.class));
+        if (listener.isEmpty()) {
+            throw new EntityNotFoundException("[Creation failed] Listener with ID " + request.getListenerId() +
+                    " not found in the database");
         }
 
-        return Optional.empty();
+        if (songs.isEmpty()) {
+            throw new EmptyResultException("[Creation failed] Songs with IDs " + request.getSongIds() +
+                    " not found in the database");
+        }
+
+        Playlist playlist = modelMapper.map(request, Playlist.class);
+
+        playlist.setListener(listener.get());
+        playlist.setSongs(songs);
+        playlist.setCreationDate(LocalDate.now());
+        playlist.setUpdateDate(LocalDate.now());
+
+        Playlist savedPlaylist = playlistRepository.saveAndFlush(playlist);
+
+        PlaylistResponseDTO response = modelMapper.map(savedPlaylist, PlaylistResponseDTO.class);
+
+        response.setSongs(savedPlaylist.getSongs());
+
+        response.setListener(savedPlaylist.getListener());
+
+        return response;
     }
 
     @Override
     public Optional<PlaylistResponseDTO> updatePlaylist(Long id, PlaylistRequestDTO request) {
+
         Optional<Listener> listener = listenerRepository.findById(request.getListenerId());
         List<Song> songs = songRepository.findAllById(request.getSongIds());
 
+        if (songs.isEmpty()) {
+            throw new EmptySongsListOnUpdateException("[Update failed] Cannot insert empty song list during update");
+        }
+
+        if (listener.isEmpty()) {
+            throw new EntityNotFoundException("[Update failed] Listener with ID " + request.getListenerId() +
+                    " not found in the database");
+        }
+
         return playlistRepository.findById(id)
                 .map(existingPlaylist -> {
-                    modelMapper.map(request, existingPlaylist);
-                    existingPlaylist.setListener(listener.orElse(null));
                     existingPlaylist.setSongs(songs);
+                    existingPlaylist.setUpdateDate(LocalDate.now());
+
+                    try {
+                        UniversalFieldUpdater.checkFieldsAndUpdate(request, existingPlaylist);
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
 
                     Playlist updatedPlaylist = playlistRepository.saveAndFlush(existingPlaylist);
+
                     return modelMapper.map(updatedPlaylist, PlaylistResponseDTO.class);
                 });
     }
 
     @Override
     public Optional<PlaylistResponseDTO> deletePlaylistById(Long id) {
+
         return playlistRepository.findById(id)
                 .map(playlist -> {
                     playlistRepository.deleteById(id);
+
                     return modelMapper.map(playlist, PlaylistResponseDTO.class);
                 });
     }

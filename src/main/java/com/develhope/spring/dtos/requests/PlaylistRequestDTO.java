@@ -7,18 +7,15 @@ public class PlaylistRequestDTO {
     private String title;
     private Long listenerId;
     private List<Long> songIds;
-    private LocalDate creationDate;
-    private LocalDate updateDate;
 
     public PlaylistRequestDTO() {
     }
 
-    public PlaylistRequestDTO(String title, Long listenerId, List<Long> songIds, LocalDate creationDate, LocalDate updateDate) {
+
+    public PlaylistRequestDTO(String title, Long listenerId, List<Long> songIds) {
         this.title = title;
         this.listenerId = listenerId;
         this.songIds = songIds;
-        this.creationDate = creationDate;
-        this.updateDate = updateDate;
     }
 
     public String getTitle() {
@@ -43,21 +40,5 @@ public class PlaylistRequestDTO {
 
     public void setSongIds(List<Long> songIds) {
         this.songIds = songIds;
-    }
-
-    public LocalDate getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(LocalDate creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public LocalDate getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(LocalDate updateDate) {
-        this.updateDate = updateDate;
     }
 }
