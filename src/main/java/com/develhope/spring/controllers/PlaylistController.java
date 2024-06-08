@@ -2,8 +2,8 @@ package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.PlaylistRequestDTO;
 import com.develhope.spring.dtos.responses.PlaylistResponseDTO;
+import com.develhope.spring.models.Response;
 import com.develhope.spring.services.implementations.PlaylistServiceImpl;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,48 +24,56 @@ public class PlaylistController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPlaylistById(@PathVariable Long id) {
-        Optional<PlaylistResponseDTO> playlist = playlistService.getPlaylistById(id);
+    public ResponseEntity<Response> getPlaylistById(@PathVariable Long id) {
+        PlaylistResponseDTO playlist = playlistService.getPlaylistById(id);
 
-        return playlist.isPresent() ? ResponseEntity.ok(playlist) :
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Playlist not found!");
+        return ResponseEntity.ok().body(
+                new Response(HttpStatus.OK.value(), "Playlist found.", playlist)
+        );
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllPlaylists() {
+    public ResponseEntity<Response> getAllPlaylists() {
         List<PlaylistResponseDTO> playlists = playlistService.getAllPlaylists();
 
-        return !playlists.isEmpty() ? ResponseEntity.ok(playlists) :
-                ResponseEntity.status(HttpStatus.NO_CONTENT).body("Playlists list is empty!");
+        return ResponseEntity.ok().body(
+                new Response(HttpStatus.OK.value(), "Playlists found.", playlists)
+        );
     }
 
     @PostMapping
-    public ResponseEntity<?> createPlaylist(@RequestBody PlaylistRequestDTO request) {
-        Optional<PlaylistResponseDTO> playlist = playlistService.createPlaylist(request);
+    public ResponseEntity<Response> createPlaylist(@RequestBody PlaylistRequestDTO request) {
+        PlaylistResponseDTO playlist = playlistService.createPlaylist(request);
 
-        return playlist.isPresent() ? ResponseEntity.ok(playlist) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok().body(
+                new Response(HttpStatus.OK.value(), "Playlist created successfully.", playlist)
+        );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePlaylist(@PathVariable Long id, @RequestBody PlaylistRequestDTO request) {
+    public ResponseEntity<Response> updatePlaylist(@PathVariable Long id, @RequestBody PlaylistRequestDTO request) {
         Optional<PlaylistResponseDTO> playlist = playlistService.updatePlaylist(id, request);
 
-        return playlist.isPresent() ? ResponseEntity.ok(playlist) :
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Playlist not found!");
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "Playlist update successfully.", playlist)
+        );
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePlaylist(@PathVariable Long id) {
         Optional<PlaylistResponseDTO> playlist = playlistService.deletePlaylistById(id);
 
-        return playlist.isPresent() ? ResponseEntity.noContent().build() :
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Playlist not found!");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                new Response(HttpStatus.NO_CONTENT.value(), "Playlist deleted successfully.", playlist)
+        );
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteAllPlaylists() {
+    public ResponseEntity<Response> deleteAllPlaylists() {
         playlistService.deleteAllPlaylists();
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                new Response(HttpStatus.NO_CONTENT.value(), "All playlists deleted.")
+        );
     }
 }
