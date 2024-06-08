@@ -27,21 +27,27 @@ public class PlaylistController {
     public ResponseEntity<Response> getPlaylistById(@PathVariable Long id) {
         PlaylistResponseDTO playlist = playlistService.getPlaylistById(id);
 
-        return ResponseEntity.ok().body(new Response(200, "Playlist found.", playlist));
+        return ResponseEntity.ok().body(
+                new Response(HttpStatus.OK.value(), "Playlist found.", playlist)
+        );
     }
 
     @GetMapping
     public ResponseEntity<Response> getAllPlaylists() {
         List<PlaylistResponseDTO> playlists = playlistService.getAllPlaylists();
 
-        return ResponseEntity.ok().body(new Response(200, "Playlists found.", playlists));
+        return ResponseEntity.ok().body(
+                new Response(HttpStatus.OK.value(), "Playlists found.", playlists)
+        );
     }
 
     @PostMapping
     public ResponseEntity<Response> createPlaylist(@RequestBody PlaylistRequestDTO request) {
        PlaylistResponseDTO playlist = playlistService.createPlaylist(request);
 
-        return ResponseEntity.ok().body(new Response(200, "Playlist created successfully.", playlist));
+        return ResponseEntity.ok().body(
+                new Response(HttpStatus.OK.value(), "Playlist created successfully.", playlist)
+        );
     }
 
     @PutMapping("/{id}")
@@ -49,20 +55,26 @@ public class PlaylistController {
         Optional<PlaylistResponseDTO> playlist = playlistService.updatePlaylist(id, request);
 
         return playlist.isPresent() ? ResponseEntity.ok(playlist) :
-                ResponseEntity.status(HttpStatus.OK).body(new Response(200, "Playlist update successfully."));
+                ResponseEntity.status(HttpStatus.OK).body(
+                        new Response(HttpStatus.OK.value(), "Playlist update successfully.")
+                );
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePlaylist(@PathVariable Long id) {
         Optional<PlaylistResponseDTO> playlist = playlistService.deletePlaylistById(id);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new Response(HttpStatus.NO_CONTENT.value(), "Playlist deleted successfully.", playlist));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                new Response(HttpStatus.NO_CONTENT.value(), "Playlist deleted successfully.", playlist)
+        );
     }
 
     @DeleteMapping
     public ResponseEntity<?> deleteAllPlaylists() {
         playlistService.deleteAllPlaylists();
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                new Response(HttpStatus.NO_CONTENT.value(), "All playlists deleted.")
+        );
     }
 }
