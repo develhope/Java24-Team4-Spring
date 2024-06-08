@@ -2,7 +2,6 @@ package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.UserCreationDTO;
 import com.develhope.spring.dtos.responses.UserWithRoleDetailsResponseDTO;
-import com.develhope.spring.models.ExHandler;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.UserService;
 import org.modelmapper.ModelMapper;
@@ -16,7 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/user")
-public class UserController extends ExHandler {
+public class UserController{
 
     @Autowired
     private UserService userService; // Servizio responsabile delle operazioni relative agli utenti

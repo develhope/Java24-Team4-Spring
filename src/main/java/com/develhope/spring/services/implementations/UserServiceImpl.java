@@ -425,23 +425,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void updateUserRole(UserCreationDTO request, User toUpdate) throws InvocationTargetException, IllegalAccessException {
-        Method getRoleMethod;
-        try {
-            getRoleMethod = request.getClass().getMethod("getRole");
-            Object roleValue = getRoleMethod.invoke(request);
-            if (roleValue != null && roleValue instanceof User.Role) {
-
-                Method setRoleMethod = User.class.getMethod("setRole", User.Role.class);
-                setRoleMethod.invoke(toUpdate, roleValue);
-            }
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Role getter or setter not found!");
-        }
-    }
-
-
     public void checkFieldsAndUpdateArtist(UserCreationDTO request, Artist artist) throws InvocationTargetException, IllegalAccessException {
         String[] fieldsToCheck = {
                 "getArtistName",

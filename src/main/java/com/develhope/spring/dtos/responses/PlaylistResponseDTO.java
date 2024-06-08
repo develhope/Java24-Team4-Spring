@@ -1,13 +1,16 @@
 package com.develhope.spring.dtos.responses;
 
+import com.develhope.spring.entities.Listener;
+import com.develhope.spring.entities.Song;
+
 import java.time.LocalDate;
 import java.util.List;
 
 public class PlaylistResponseDTO {
     private Long id;
     private String title;
-    private Long listenerId;
-    private List<Long> songIds;
+    private Listener listener;
+    private List<Song> songs;
     private LocalDate creationDate;
     private LocalDate updateDate;
 
@@ -15,13 +18,14 @@ public class PlaylistResponseDTO {
 
     }
 
-    public PlaylistResponseDTO(Long id, String title, Long listenerId, List<Long> songIds, LocalDate creationDate, LocalDate updateDate) {
+    public PlaylistResponseDTO(Long id, String title, Listener listener, List<Song> songs, LocalDate creationDate, LocalDate updateDate) {
         this.id = id;
         this.title = title;
-        this.listenerId = listenerId;
-        this.songIds = songIds;
+        this.listener = listener;
+        this.songs = songs;
         this.creationDate = creationDate;
         this.updateDate = updateDate;
+
     }
 
     public Long getId() {
@@ -40,20 +44,20 @@ public class PlaylistResponseDTO {
         this.title = title;
     }
 
-    public Long getListenerId() {
-        return listenerId;
+    public Listener getListener() {
+        return listener;
     }
 
-    public void setListenerId(Long listenerId) {
-        this.listenerId = listenerId;
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
-    public List<Long> getSongIds() {
-        return songIds;
+    public List<Song> getSongs() {
+        return songs;
     }
 
-    public void setSongIds(List<Long> songIds) {
-        this.songIds = songIds;
+    public void setSongs(List<Song> songs) {
+        this.songs = songs;
     }
 
     public LocalDate getCreationDate() {
@@ -72,3 +76,5 @@ public class PlaylistResponseDTO {
         this.updateDate = updateDate;
     }
 }
+
+
