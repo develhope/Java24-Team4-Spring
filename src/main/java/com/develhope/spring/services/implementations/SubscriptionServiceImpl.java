@@ -48,6 +48,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public SubscriptionResponseDTO getSubscriptionById(Long id) {
 
+        if (id < 0){
+            throw new NegativeIdException(
+                    "[Update failed] Subscription ID cannot be negative. Now: " + id);
+        }
+
         return subscrRepository.findById(id).map(subscription -> {
             SubscriptionResponseDTO response = modelMapper.map(subscription, SubscriptionResponseDTO.class);
             setCalculableFieldsViewDTO(response);
