@@ -1,55 +1,66 @@
 package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.SongRequestDTO;
-import com.develhope.spring.entities.Song;
+import com.develhope.spring.dtos.responses.SongResponseDTO;
 import com.develhope.spring.models.Response;
-import com.develhope.spring.services.interfaces.SongService;
+import com.develhope.spring.services.implementations.SongServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/vi/song")
 public class SongController {
     @Autowired
-    private SongService songService;
+    private SongServiceImpl songService;
 
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping("/")
-    public List<Song> getAllSongs(){
-        return songService.getAllSong();
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<Response> getSongById(@PathVariable int id) {
-        Optional<Song> song = songService.findSongById(id);
-        if (song.isPresent()) {
-            return ResponseEntity.ok().body(new Response(200, "song found", song));
-        } else {
-            return ResponseEntity.status(404).body(new Response(404, "song not found"));
-        }
-    }
-    @PostMapping("/")
-    public ResponseEntity<Response> createSong(@RequestBody SongRequestDTO songDTO) {
-       Song song = modelMapper.map(songDTO,Song.class);
-        Song newSong = songService.createSong(song);
+    @GetMapping
+    public ResponseEntity<Response> getAllSongs() {
+        List<SongResponseDTO> songs = songService.getAllSong();
 
-        if (newSong != null) {
-            return ResponseEntity.ok().body(
-                    new Response(
-                            200, "song created successfully", newSong));
-        } else {
-            return ResponseEntity.status(400).body(
-                    new Response(
-                            400,
-                            "Failed to create song"
-                    )
-            );
-        }
+        return ResponseEntity.ok().body(new Response(200,
+                songs.size() + " song(s) found in the database.", songs));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Response> getSongById(@PathVariable Long id) {
+        SongResponseDTO song = songService.findSongById(id);
+
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "Song found.", song));
+    }
+
+    @PostMapping
+    public ResponseEntity<Response> createSong(@RequestBody SongRequestDTO request) {
+        SongResponseDTO song = songService.createSong(request);
+
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "Song created successfully.", song));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Response> updateSong(Long id, @RequestBody SongRequestDTO request) {
+        SongResponseDTO song = songService.updateSong(id, request);
+
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "Song updated successfully.", song));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response> deleteSongById(Long id) {
+        SongResponseDTO songDeleted = songService.deleteSongById(id);
+
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "Song deleted successfully.", songDeleted));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Response> deleteAllSongs() {
+        songService.delteteAllSongs();
+
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "All songs have been removed."));
     }
 }
