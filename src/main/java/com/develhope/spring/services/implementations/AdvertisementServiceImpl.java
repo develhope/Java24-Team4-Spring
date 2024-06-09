@@ -39,11 +39,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public AdvertisementResponseDTO createAdvertisement(AdvertisementRequestDTO request) {
-        Optional<Advertiser> advertiser = advertiserRepository.findById(request.getAdvertiserUserId());
 
         if (request.getAdvertiserUserId() < 0) {
             throw new NegativeIdException("[Creation failed] Advertiser ID cannot be negative. Now: " + request.getAdvertiserUserId());
         }
+
+        Optional<Advertiser> advertiser = advertiserRepository.findById(request.getAdvertiserUserId()); //todo update
 
         if (advertiser.isEmpty()) {
             throw new EntityNotFoundException("[Creation failed] Advertiser with ID " + request.getAdvertiserUserId() +
@@ -66,8 +67,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public AdvertisementResponseDTO updateAdvertisement(AdvertisementUpdateDTO request, Long id) {
+
         if (id < 0) {
-            throw new NegativeIdException("[Creation failed] Advertiser ID cannot be negative. Now: " + id);
+            throw new NegativeIdException("[Creation failed] Advertisement ID cannot be negative. Now: " + id);
         }
 
         Optional<Advertisement> advertisement = advertisementRepository.findById(id);
@@ -100,6 +102,10 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     public AdvertisementResponseDTO displayAdvertisementToUser(Long id) {
 
+        if (id < 0) {
+            throw new NegativeIdException("[Search failed] Advertisement ID cannot be negative. Now: " + id);
+        }
+
         return advertisementRepository.findById(id).map(adv -> {
 
             incrementActualViews(adv);
@@ -128,7 +134,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
                 }).toList();
 
         if (advList.isEmpty()) {
-            throw new EmptyResultException("No advertisements found in the database.");
+            throw new EmptyResultException("[Search failed] No advertisements found in the database.");
         }
 
         return advList;
@@ -137,6 +143,10 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     public AdvertisementResponseDTO getAdvertisementById(Long id) {
 
+        if (id < 0) {
+            throw new NegativeIdException("[Search failed] Advertisement ID cannot be negative. Now: " + id);
+        }
+
         return advertisementRepository.findById(id).map(adv -> {
 
             var responseDTO = modelMapper.map(adv, AdvertisementResponseDTO.class);
@@ -144,26 +154,38 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
             return responseDTO;
 
-        }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
+        }).orElseThrow(() -> new EntityNotFoundException("[Search failed] Advertisement with ID " + id +
                 " not found in the database"));
     }
 
     @Override
     public List<AdvertisementResponseDTO> getAllByActive(Boolean active) {
+
         List<Advertisement> ads = active ? advertisementRepository.findByActiveTrue() : advertisementRepository.findByActiveFalse();
 
-        return ads.stream()
+        var advertisements =  ads.stream()
                 .map(adv -> {
                     var responseDTO = modelMapper.map(adv, AdvertisementResponseDTO.class);
                     setCalculableFieldsAdvViewDTO(responseDTO);
 
                     return responseDTO;
 
-                }).collect(Collectors.toList());
+                }).toList();
+
+        if (advertisements.isEmpty()){
+            throw new EmptyResultException("[Search failed] No advertisements(active = " + active +
+                    ") found in the database.");
+        } else {
+            return advertisements;
+        }
     }
 
     @Override
     public AdvertisementResponseDTO deleteAdvertisement(Long id) {
+
+        if (id < 0) {
+            throw new NegativeIdException("[Delete failed] Advertisement ID cannot be negative. Now: " + id);
+        }
 
         return advertisementRepository.findById(id).map(advToDelete -> {
 
@@ -173,7 +195,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
             return responseDTO;
 
-        }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
+        }).orElseThrow(() -> new EntityNotFoundException("[Delete failed] Advertisement with ID " + id +
                 " not found in the database"));
     }
 
@@ -185,6 +207,10 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     public AdvertisementResponseDTO enableAdvertisement(Long id) {
 
+        if (id < 0) {
+            throw new NegativeIdException("[Activation failed] Advertisement ID cannot be negative. Now: " + id);
+        }
+
         return advertisementRepository.findById(id).map(adv -> {
 
             adv.setActive(true);
@@ -194,12 +220,17 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
             return response;
 
-        }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
+        }).orElseThrow(() -> new EntityNotFoundException("[Activation failed] Advertisement with ID " + id +
                 " not found in the database"));
     }
 
     @Override
     public AdvertisementResponseDTO disableAdvertisement(Long id) {
+
+        if (id < 0) {
+            throw new NegativeIdException("[Deactivation failed] Advertisement ID cannot be negative. Now: " + id);
+        }
+
         return advertisementRepository.findById(id).map(adv -> {
 
             adv.setActive(false);
@@ -209,7 +240,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
             return response;
 
-        }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
+        }).orElseThrow(() -> new EntityNotFoundException("[Deactivation failed] Advertisement with ID " + id +
                 " not found in the database"));
     }
 
