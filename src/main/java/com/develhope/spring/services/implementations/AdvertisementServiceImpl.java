@@ -5,6 +5,7 @@ import com.develhope.spring.dtos.requests.AdvertisementUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementResponseDTO;
 import com.develhope.spring.entities.Advertisement;
 import com.develhope.spring.entities.Advertiser;
+import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.NegativeIdException;
 import com.develhope.spring.repositories.AdvertisementRepository;
 import com.develhope.spring.repositories.AdvertiserRepository;
@@ -65,10 +66,13 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public AdvertisementResponseDTO updateAdvertisement(AdvertisementUpdateDTO request, Long id) {
+        if (id < 0) {
+            throw new NegativeIdException("[Creation failed] Advertiser ID cannot be negative. Now: " + id);
+        }
 
         Optional<Advertisement> advertisement = advertisementRepository.findById(id);
 
-        if (advertisement.isEmpty()){
+        if (advertisement.isEmpty()) {
             throw new EntityNotFoundException("[Update failed] Advertisement with ID " + id +
                     " not found in the database");
         }
@@ -94,53 +98,82 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public Optional<AdvertisementResponseDTO> displayAdvertisementToUser(Long id) {
+    public AdvertisementResponseDTO displayAdvertisementToUser(Long id) {
         return advertisementRepository.findById(id).map(adv -> {
-            incrementActualViews(adv);
-            advertisementRepository.saveAndFlush(adv);
-            AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
-            setCalculableFieldsAdvViewDTO(found);
 
-            return found;
-        });
+            incrementActualViews(adv);
+            adv = advertisementRepository.saveAndFlush(adv);
+
+            var responseDTO = modelMapper.map(adv, AdvertisementResponseDTO.class);
+            setCalculableFieldsAdvViewDTO(responseDTO);
+
+            return responseDTO;
+
+        }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
+                " not found in the database"));
     }
 
     @Override
     public List<AdvertisementResponseDTO> getAllAdvertisements() {
-        return advertisementRepository.findAll().stream()
+
+        var advList = advertisementRepository.findAll()
+                .stream()
                 .map(adv -> {
-                    AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
-                    setCalculableFieldsAdvViewDTO(found);
-                    return found;
-                }).collect(Collectors.toList());
+                    var responseDTO = modelMapper.map(adv, AdvertisementResponseDTO.class);
+                    setCalculableFieldsAdvViewDTO(responseDTO);
+
+                    return responseDTO;
+
+                }).toList();
+
+        if (advList.isEmpty()) {
+            throw new EmptyResultException("No advertisements found in the database.");
+        }
+
+        return advList;
     }
 
     @Override
-    public Optional<AdvertisementResponseDTO> getAdvertisementById(Long id) {
+    public AdvertisementResponseDTO getAdvertisementById(Long id) {
+
         return advertisementRepository.findById(id).map(adv -> {
-            AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
-            setCalculableFieldsAdvViewDTO(found);
-            return found;
-        });
+
+            var responseDTO = modelMapper.map(adv, AdvertisementResponseDTO.class);
+            setCalculableFieldsAdvViewDTO(responseDTO);
+
+            return responseDTO;
+
+        }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
+                " not found in the database"));
     }
 
     @Override
     public List<AdvertisementResponseDTO> getAllByActive(Boolean active) {
         List<Advertisement> ads = active ? advertisementRepository.findByActiveTrue() : advertisementRepository.findByActiveFalse();
+
         return ads.stream()
                 .map(adv -> {
-                    AdvertisementResponseDTO found = modelMapper.map(adv, AdvertisementResponseDTO.class);
-                    setCalculableFieldsAdvViewDTO(found);
-                    return found;
+                    var responseDTO = modelMapper.map(adv, AdvertisementResponseDTO.class);
+                    setCalculableFieldsAdvViewDTO(responseDTO);
+
+                    return responseDTO;
+
                 }).collect(Collectors.toList());
     }
 
     @Override
-    public Optional<Advertisement> deleteAdvertisement(Long id) {
+    public AdvertisementResponseDTO deleteAdvertisement(Long id) {
+
         return advertisementRepository.findById(id).map(advToDelete -> {
+
             advertisementRepository.deleteById(id);
-            return advToDelete;
-        });
+            var responseDTO = modelMapper.map(advToDelete, AdvertisementResponseDTO.class);
+            setCalculableFieldsAdvViewDTO(responseDTO);
+
+            return responseDTO;
+
+        }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
+                " not found in the database"));;
     }
 
     @Override
@@ -149,25 +182,34 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public Optional<AdvertisementResponseDTO> enableAdvertisement(Long id) {
+    public AdvertisementResponseDTO enableAdvertisement(Long id) {
+
         return advertisementRepository.findById(id).map(adv -> {
+
             adv.setActive(true);
-            advertisementRepository.saveAndFlush(adv);
+            adv = advertisementRepository.saveAndFlush(adv);
             AdvertisementResponseDTO response = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(response);
+
             return response;
-        });
+
+        }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
+                " not found in the database"));
     }
 
     @Override
-    public Optional<AdvertisementResponseDTO> disableAdvertisement(Long id) {
+    public AdvertisementResponseDTO disableAdvertisement(Long id) {
         return advertisementRepository.findById(id).map(adv -> {
+
             adv.setActive(false);
-            advertisementRepository.saveAndFlush(adv);
+            adv = advertisementRepository.saveAndFlush(adv);
             AdvertisementResponseDTO response = modelMapper.map(adv, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(response);
+
             return response;
-        });
+
+        }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
+                " not found in the database"));
     }
 
     private void controlAndEnableAdvertisement(Advertisement advertisement) {

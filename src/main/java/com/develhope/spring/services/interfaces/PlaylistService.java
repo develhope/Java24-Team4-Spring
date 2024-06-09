@@ -13,7 +13,7 @@ public interface PlaylistService {
 
     PlaylistResponseDTO createPlaylist(PlaylistRequestDTO request);
 
-    Optional<PlaylistResponseDTO> updatePlaylist(Long id, PlaylistRequestDTO request);
+    PlaylistResponseDTO updatePlaylist(Long id, PlaylistRequestDTO request);
 
     Optional<PlaylistResponseDTO> deletePlaylistById(Long id);
 

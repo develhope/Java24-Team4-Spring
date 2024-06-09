@@ -14,19 +14,19 @@ public interface AdvertisementService {
 
     AdvertisementResponseDTO updateAdvertisement(AdvertisementUpdateDTO request, Long id);
 
-    Optional<AdvertisementResponseDTO> displayAdvertisementToUser(Long id);
+    AdvertisementResponseDTO displayAdvertisementToUser(Long id);
 
     List<AdvertisementResponseDTO> getAllAdvertisements();
 
-    Optional<AdvertisementResponseDTO> getAdvertisementById(Long id);
+    AdvertisementResponseDTO getAdvertisementById(Long id);
 
     List<AdvertisementResponseDTO> getAllByActive(Boolean active);
 
-    Optional<Advertisement> deleteAdvertisement(Long id);
+    AdvertisementResponseDTO deleteAdvertisement(Long id);
 
     void deleteAllAdvertisements();
 
-    Optional<AdvertisementResponseDTO> enableAdvertisement(Long id);
+    AdvertisementResponseDTO enableAdvertisement(Long id);
 
-    Optional<AdvertisementResponseDTO> disableAdvertisement(Long id);
+    AdvertisementResponseDTO disableAdvertisement(Long id);
 }

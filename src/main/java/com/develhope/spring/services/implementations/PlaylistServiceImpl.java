@@ -117,7 +117,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
-    public Optional<PlaylistResponseDTO> updatePlaylist(Long id, PlaylistRequestDTO request) {
+    public PlaylistResponseDTO updatePlaylist(Long id, PlaylistRequestDTO request) {
         if (id < 0) {
             throw new NegativeIdException(
                     "[Update failed] Playlist ID cannot be negative. Now: " + id);
@@ -150,7 +150,9 @@ public class PlaylistServiceImpl implements PlaylistService {
                     var updatedPlaylist = playlistRepository.saveAndFlush(existingPlaylist);
 
                     return modelMapper.map(updatedPlaylist, PlaylistResponseDTO.class);
-                });
+                }).orElseThrow(() -> new EntityNotFoundException(
+                        "[Update failed] Playlist to update with ID " + id + " not found in the database.")
+                );
     }
 
     @Override
