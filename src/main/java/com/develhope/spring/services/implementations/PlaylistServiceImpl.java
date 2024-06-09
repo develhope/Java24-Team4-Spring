@@ -56,6 +56,7 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     @Override
     public List<PlaylistResponseDTO> getAllPlaylists() {
+
         var playlists = playlistRepository.findAll()
                 .stream()
                 .map(playlist -> modelMapper.map(playlist, PlaylistResponseDTO.class)

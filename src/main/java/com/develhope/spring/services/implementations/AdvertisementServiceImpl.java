@@ -39,11 +39,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public AdvertisementResponseDTO createAdvertisement(AdvertisementRequestDTO request) {
-        Optional<Advertiser> advertiser = advertiserRepository.findById(request.getAdvertiserUserId());
 
         if (request.getAdvertiserUserId() < 0) {
             throw new NegativeIdException("[Creation failed] Advertiser ID cannot be negative. Now: " + request.getAdvertiserUserId());
         }
+
+        Optional<Advertiser> advertiser = advertiserRepository.findById(request.getAdvertiserUserId()); //todo update
 
         if (advertiser.isEmpty()) {
             throw new EntityNotFoundException("[Creation failed] Advertiser with ID " + request.getAdvertiserUserId() +
@@ -152,18 +153,29 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     public List<AdvertisementResponseDTO> getAllByActive(Boolean active) {
         List<Advertisement> ads = active ? advertisementRepository.findByActiveTrue() : advertisementRepository.findByActiveFalse();
 
-        return ads.stream()
+        var advertisements =  ads.stream()
                 .map(adv -> {
                     var responseDTO = modelMapper.map(adv, AdvertisementResponseDTO.class);
                     setCalculableFieldsAdvViewDTO(responseDTO);
 
                     return responseDTO;
 
-                }).collect(Collectors.toList());
+                }).toList();
+
+        if (advertisements.isEmpty()){
+            throw new EmptyResultException("No advertisements(active = " + active +
+                    ") found in the database.");
+        } else {
+            return advertisements;
+        }
     }
 
     @Override
     public AdvertisementResponseDTO deleteAdvertisement(Long id) {
+
+        if (id < 0) {
+            throw new NegativeIdException("[Delete failed] Advertisement ID cannot be negative. Now: " + id);
+        }
 
         return advertisementRepository.findById(id).map(advToDelete -> {
 

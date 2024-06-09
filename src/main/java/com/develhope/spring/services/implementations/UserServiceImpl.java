@@ -251,8 +251,6 @@ public class UserServiceImpl implements UserService {
         advertiserRepository.deleteAll();
     }
 
-    // TODO ADD METHOD DELETE ALL BY ROLE
-
     private UserWithRoleDetailsResponseDTO handleListenerRole(User user, UserWithRoleDetailsResponseDTO response) {
         Optional<Listener> listener = listenerRepository.findById(user.getId());
 
