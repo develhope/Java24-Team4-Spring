@@ -193,6 +193,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public SubscriptionResponseDTO enableSubscription(Long id) {
 
+        if (id < 0){
+            throw new NegativeIdException(
+                    "[Subscription not enabled] Subscription ID cannot be negative. Now: " + id);
+        }
+
         return subscrRepository.findById(id).map(subscription -> {
 
             subscription.setActive(true);
@@ -210,6 +215,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public SubscriptionResponseDTO disableSubscription(Long id) {
+
+        if (id < 0){
+            throw new NegativeIdException(
+                    "[Subscription not disabled] Subscription ID cannot be negative. Now: " + id);
+        }
 
         return subscrRepository.findById(id).map(subscription -> {
 
