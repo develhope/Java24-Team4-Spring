@@ -173,7 +173,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
             return responseDTO;
 
         }).orElseThrow(() -> new EntityNotFoundException("Advertisement with ID " + id +
-                " not found in the database"));;
+                " not found in the database"));
     }
 
     @Override

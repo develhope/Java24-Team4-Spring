@@ -15,7 +15,7 @@ public interface PlaylistService {
 
     PlaylistResponseDTO updatePlaylist(Long id, PlaylistRequestDTO request);
 
-    Optional<PlaylistResponseDTO> deletePlaylistById(Long id);
+    PlaylistResponseDTO deletePlaylistById(Long id);
 
     void deleteAllPlaylists();
 }
