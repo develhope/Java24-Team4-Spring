@@ -1,6 +1,7 @@
 package com.develhope.spring.services.interfaces;
 
 import com.develhope.spring.dtos.requests.PlaylistRequestDTO;
+import com.develhope.spring.dtos.requests.PlaylistUpdateDTO;
 import com.develhope.spring.dtos.responses.PlaylistResponseDTO;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface PlaylistService {
 
     PlaylistResponseDTO createPlaylist(PlaylistRequestDTO request);
 
-    PlaylistResponseDTO updatePlaylist(Long id, PlaylistRequestDTO request);
+    PlaylistResponseDTO updatePlaylist(Long id, PlaylistUpdateDTO request);
 
     PlaylistResponseDTO deletePlaylistById(Long id);
 
