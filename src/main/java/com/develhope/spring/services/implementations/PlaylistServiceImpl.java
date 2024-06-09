@@ -156,14 +156,17 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
-    public Optional<PlaylistResponseDTO> deletePlaylistById(Long id) {
+    public PlaylistResponseDTO deletePlaylistById(Long id) {
 
         return playlistRepository.findById(id)
                 .map(playlist -> {
                     playlistRepository.deleteById(id);
 
                     return modelMapper.map(playlist, PlaylistResponseDTO.class);
-                });
+
+                }).orElseThrow(() -> new EntityNotFoundException(
+                        "[Delete failed] Playlist with ID " + id + " not found in the database."
+                ));
     }
 
     @Override
