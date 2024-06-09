@@ -2,16 +2,14 @@ package com.develhope.spring.dtos.requests;
 
 import com.develhope.spring.entities.Subscription;
 
-import java.time.LocalDateTime;
-
-public class SubscriptionCreateUpdateDTO {
+public class SubscriptionRequestDTO {
 
     private Subscription.SubscrType type;
 
-    public SubscriptionCreateUpdateDTO() {
+    public SubscriptionRequestDTO() {
     }
 
-    public SubscriptionCreateUpdateDTO(Subscription.SubscrType type) {
+    public SubscriptionRequestDTO(Subscription.SubscrType type) {
         this.type = type;
     }
 
