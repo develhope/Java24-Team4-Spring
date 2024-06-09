@@ -1,35 +1,30 @@
 package com.develhope.spring.entities;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "listeners")
 public class Listener {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Identificatore univoco dell'artista
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @MapsId
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private String listenerName;
+    @OneToMany(mappedBy = "listener", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Playlist> playlists;
 
-    // Costruttore vuoto che non fa mai male
-    public Listener() {
-    }
-
-    // Costruttore con parametri per inizializzare gli attributi della classe
-    public Listener(Long id, User user, String listenerName) {
+    public Listener(Long id, User user) {
         this.id = id;
         this.user = user;
-        this.listenerName = listenerName;
     }
 
-    // Metodi getter e setter per gli attributi della classe
-    // Ogni metodo restituisce o imposta il valore corrispondente dell'attributo
+    public Listener() {
+    }
 
     public Long getId() {
         return id;
@@ -47,12 +42,21 @@ public class Listener {
         this.user = user;
     }
 
-    public String getListenerName() {
-        return listenerName;
+    public List<Playlist> getPlaylists() {
+        return playlists;
     }
 
-    public void setListenerName(String listenerName) {
-        this.listenerName = listenerName;
+    public void setPlaylists(List<Playlist> playlists) {
+        this.playlists = playlists;
     }
 
+    public void addPlaylist(Playlist playlist) {
+        this.playlists.add(playlist);
+        playlist.setListener(this);
+    }
+
+    public void removePlaylist(Playlist playlist) {
+        this.playlists.remove(playlist);
+        playlist.setListener(null);
+    }
 }
