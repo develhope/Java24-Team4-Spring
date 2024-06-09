@@ -1,7 +1,7 @@
 package com.develhope.spring.services.interfaces;
 
-import com.develhope.spring.dtos.requests.AdvertisementCreateUpdateDTO;
-import com.develhope.spring.dtos.responses.AdvertisementViewDTO;
+import com.develhope.spring.dtos.requests.AdvertisementRequestDTO;
+import com.develhope.spring.dtos.responses.AdvertisementResponseDTO;
 import com.develhope.spring.entities.Advertisement;
 
 import java.util.List;
@@ -9,23 +9,23 @@ import java.util.Optional;
 
 public interface AdvertisementService {
 
-    Optional <AdvertisementViewDTO> createAdvertisement(AdvertisementCreateUpdateDTO creationDTO, Long userID);
+    Optional <AdvertisementResponseDTO> createAdvertisement(AdvertisementRequestDTO creationDTO, Long userID);
 
-    Optional<AdvertisementViewDTO> updateAdvertisement(AdvertisementCreateUpdateDTO request, Long id);
+    Optional<AdvertisementResponseDTO> updateAdvertisement(AdvertisementRequestDTO request, Long id);
 
-    Optional<AdvertisementViewDTO> displayAdvertisementToUser(Long id);
+    Optional<AdvertisementResponseDTO> displayAdvertisementToUser(Long id);
 
-    List<AdvertisementViewDTO> getAllAdvertisements();
+    List<AdvertisementResponseDTO> getAllAdvertisements();
 
-    Optional<AdvertisementViewDTO> getAdvertisementById(Long id);
+    Optional<AdvertisementResponseDTO> getAdvertisementById(Long id);
 
-    List<AdvertisementViewDTO> getAllByActive(Boolean active);
+    List<AdvertisementResponseDTO> getAllByActive(Boolean active);
 
     Optional<Advertisement> deleteAdvertisement(Long id);
 
     void deleteAllAdvertisements();
 
-    Optional<AdvertisementViewDTO> enableAdvertisement(Long id);
+    Optional<AdvertisementResponseDTO> enableAdvertisement(Long id);
 
-    Optional<AdvertisementViewDTO> disableAdvertisement(Long id);
+    Optional<AdvertisementResponseDTO> disableAdvertisement(Long id);
 }
