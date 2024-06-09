@@ -99,6 +99,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     public AdvertisementResponseDTO displayAdvertisementToUser(Long id) {
+
         return advertisementRepository.findById(id).map(adv -> {
 
             incrementActualViews(adv);
