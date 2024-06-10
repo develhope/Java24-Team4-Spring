@@ -19,5 +19,5 @@ public interface SongService {
 
     SongResponseDTO deleteSongById(Long id);
 
-    void delteteAllSongs();
+    void deleteAllSongs();
 }

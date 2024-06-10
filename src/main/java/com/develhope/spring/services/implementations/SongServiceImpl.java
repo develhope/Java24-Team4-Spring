@@ -121,7 +121,7 @@ public class SongServiceImpl implements SongService {
     }
 
     @Override
-    public void delteteAllSongs() {
+    public void deleteAllSongs() {
         songRepository.deleteAll();
     }
 
