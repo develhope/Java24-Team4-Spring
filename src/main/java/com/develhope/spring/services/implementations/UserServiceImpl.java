@@ -282,21 +282,25 @@ public class UserServiceImpl implements UserService {
         switch (userOptional.get().getRole()) {
 
             case ARTIST -> {
+                handleArtistRole(userOptional.get(), responseDTO);
                 artistRepository.deleteById(id);
                 userRepository.deleteById(id);
-                return handleArtistRole(userOptional.get(), responseDTO);
+                return responseDTO;
             }
 
             case LISTENER -> {
+                handleListenerRole(userOptional.get(), responseDTO);
+                subscriptionRepository.deleteById(id);
                 listenerRepository.deleteById(id);
                 userRepository.deleteById(id);
-                return handleListenerRole(userOptional.get(), responseDTO);
+                return responseDTO;
             }
 
             case ADVERTISER -> {
+                handleAdvertiserRole(userOptional.get(), responseDTO);
                 advertiserRepository.deleteById(id);
                 userRepository.deleteById(id);
-                return handleAdvertiserRole(userOptional.get(), responseDTO);
+                return responseDTO;
             }
 
             default ->
