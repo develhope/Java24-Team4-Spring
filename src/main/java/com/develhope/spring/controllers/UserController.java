@@ -2,11 +2,12 @@ package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.UserCreationDTO;
 import com.develhope.spring.dtos.responses.UserWithRoleDetailsResponseDTO;
-import com.develhope.spring.models.ExHandler;
+import com.develhope.spring.entities.User;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,14 +16,14 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/user")
-public class UserController extends ExHandler {
+@RequestMapping("/api/v1/users")
+public class UserController {
 
     @Autowired
-    private UserService userService; // Servizio responsabile delle operazioni relative agli utenti
+    private UserService userService;
 
     @Autowired
-    private ModelMapper modelMapper; // Mapper per la conversione tra DTO ed entità
+    private ModelMapper modelMapper;
 
 
     @GetMapping
@@ -30,58 +31,69 @@ public class UserController extends ExHandler {
 
         List<UserWithRoleDetailsResponseDTO> users = userService.getAllUsers();
 
-        return !users.isEmpty() ? ResponseEntity.ok().body(new Response(200, "users found", users)) :
-                ResponseEntity.status(404).body(new Response(404, "User list is empty"));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "Users found: " + users.size() + ".", users)
+        );
+    }
+
+    @GetMapping("/byRole")
+    public ResponseEntity<Response> getAllByRole(@RequestParam User.Role role) {
+        List<UserWithRoleDetailsResponseDTO> users = userService.getAllByRole(role);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "Users with role " +
+                        role + " found: " + users.size() + ".", users)
+        );
     }
 
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> getUserById(@PathVariable Long id) {
-        Optional<UserWithRoleDetailsResponseDTO> user = userService.getUserById(id);
+        UserWithRoleDetailsResponseDTO user = userService.getUserById(id);
 
-        return user.isPresent() ? ResponseEntity.ok().body(new Response(200, "user found", user))
-                : ResponseEntity.status(404).body(new Response(404, "User not found"));
-
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "User found.", user)
+        );
     }
 
-    // Endpoint per creare un nuovo utente
     @PostMapping
     public ResponseEntity<Response> createUser(@RequestBody UserCreationDTO request)
             throws InvocationTargetException, IllegalAccessException {
-        Optional<?> newUser = userService.createUser(request);
+        Optional<?> user = userService.createUser(request);
 
-        return newUser.isPresent() ? ResponseEntity.ok().body(new Response(200, "User created successfully", newUser)) :
-                ResponseEntity.status(400).body(new Response(400, "Failed to create user"));
-
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "User created successfully.", user)
+        );
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Response> updateUser(@RequestBody UserCreationDTO user, @PathVariable Long id)
+    public ResponseEntity<Response> updateUser(@RequestBody UserCreationDTO creationDTO, @PathVariable Long id)
             throws InvocationTargetException, IllegalAccessException {
-        Optional<?> updatedUser = userService.updateUser(user, id);
+        Optional<?> user = userService.updateUser(creationDTO, id);
 
-        return updatedUser.isPresent() ? ResponseEntity.ok().body(
-                new Response(200, "User updated successfully", updatedUser)) :
-
-                ResponseEntity.status(404).body(new Response(404, "User not found")
-                );
-
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "User updated successfully.", user)
+        );
     }
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deleteUser(@PathVariable long id) {
-        boolean deleted = userService.deleteUserById(id);
+    public ResponseEntity<Response> deleteUserByID(@PathVariable long id) {
 
-        return deleted ? ResponseEntity.ok().body(new Response(200, "User deleted successfully")) :
-                ResponseEntity.status(404).body(new Response(404, "User not found"));
+        UserWithRoleDetailsResponseDTO user = userService.deleteUserById(id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                new Response(HttpStatus.NO_CONTENT.value(), "User updated successfully.", user)
+        );
     }
 
     @DeleteMapping("/deleteAll")
     public ResponseEntity<Response> deleteAllUsers() {
         userService.deleteAllUsers();
 
-        return ResponseEntity.ok().body(new Response(200, "All users deleted successfully"));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                new Response(HttpStatus.NO_CONTENT.value(), "All users deleted")
+        );
     }
 }

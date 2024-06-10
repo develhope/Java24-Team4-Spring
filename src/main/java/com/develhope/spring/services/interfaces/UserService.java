@@ -2,6 +2,7 @@ package com.develhope.spring.services.interfaces;
 
 import com.develhope.spring.dtos.requests.UserCreationDTO;
 import com.develhope.spring.dtos.responses.UserWithRoleDetailsResponseDTO;
+import com.develhope.spring.entities.User;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -15,11 +16,13 @@ public interface UserService {
 
     Optional<?> updateUser(UserCreationDTO request, Long ID) throws InvocationTargetException, IllegalAccessException;
 
-    Optional<UserWithRoleDetailsResponseDTO> getUserById(Long id);
+    UserWithRoleDetailsResponseDTO getUserById(Long id);
 
     List<UserWithRoleDetailsResponseDTO> getAllUsers();
 
-    boolean deleteUserById(Long id);
+    List<UserWithRoleDetailsResponseDTO> getAllByRole(User.Role role);
+
+    UserWithRoleDetailsResponseDTO deleteUserById(Long id);
 
     void deleteAllUsers();
 

@@ -2,8 +2,6 @@ package com.develhope.spring.dtos.requests;
 
 import com.develhope.spring.entities.User;
 
-import java.time.LocalDate;
-
 public class UserCreationDTO {
 
     private String nickName;
