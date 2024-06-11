@@ -1,6 +1,6 @@
 package com.develhope.spring.dtos.responses;
 
-import com.develhope.spring.entities.User;
+import com.develhope.spring.entities.Advertiser;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +8,7 @@ public class AdvertisementResponseDTO {
 
 
     private Long id;
-    private User user;
+    private Advertiser advertiser;
     private String advText;
     private String audioLink;
     private String imageLink;
@@ -24,25 +24,12 @@ public class AdvertisementResponseDTO {
     private Boolean active;
 
 
-    public AdvertisementResponseDTO(
-            Long id,
-            User user,
-            String advText,
-            String audioLink,
-            String imageLink,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            Integer orderedViews,
-            Float costPerDay,
-            Float costPerView,
-            Float finalCost,
-            int actualViews,
-            Integer actualDuration,
-            Integer totalDuration,
-            Boolean active
-    ) {
+    public AdvertisementResponseDTO() {
+    }
+
+    public AdvertisementResponseDTO(Long id, Advertiser advertiser, String advText, String audioLink, String imageLink, LocalDateTime startDate, LocalDateTime endDate, Integer orderedViews, Float costPerDay, Float costPerView, Float finalCost, int actualViews, Integer actualDuration, Integer totalDuration, Boolean active) {
         this.id = id;
-        this.user = user;
+        this.advertiser = advertiser;
         this.advText = advText;
         this.audioLink = audioLink;
         this.imageLink = imageLink;
@@ -58,9 +45,6 @@ public class AdvertisementResponseDTO {
         this.active = active;
     }
 
-    public AdvertisementResponseDTO() {
-    }
-
     public Long getId() {
         return id;
     }
@@ -69,12 +53,12 @@ public class AdvertisementResponseDTO {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public Advertiser getAdvertiser() {
+        return advertiser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setAdvertiser(Advertiser advertiser) {
+        this.advertiser = advertiser;
     }
 
     public String getAdvText() {
