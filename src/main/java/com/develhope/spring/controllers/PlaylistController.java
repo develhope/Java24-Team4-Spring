@@ -4,19 +4,19 @@ import com.develhope.spring.dtos.requests.PlaylistRequestDTO;
 import com.develhope.spring.dtos.responses.PlaylistResponseDTO;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.implementations.PlaylistServiceImpl;
-import com.develhope.spring.services.interfaces.PlaylistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/playlists")
 public class PlaylistController {
 
-    private final PlaylistService playlistService;
+    private final PlaylistServiceImpl playlistService;
 
     @Autowired
     public PlaylistController(PlaylistServiceImpl playlistService) {
@@ -52,7 +52,7 @@ public class PlaylistController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Response> updatePlaylist(@PathVariable Long id, @RequestBody PlaylistRequestDTO request) {
-        PlaylistResponseDTO playlist = playlistService.updatePlaylist(id, request);
+        Optional<PlaylistResponseDTO> playlist = playlistService.updatePlaylist(id, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new Response(HttpStatus.OK.value(), "Playlist update successfully.", playlist)
@@ -61,7 +61,7 @@ public class PlaylistController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePlaylist(@PathVariable Long id) {
-        PlaylistResponseDTO playlist = playlistService.deletePlaylistById(id);
+        Optional<PlaylistResponseDTO> playlist = playlistService.deletePlaylistById(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
                 new Response(HttpStatus.NO_CONTENT.value(), "Playlist deleted successfully.", playlist)
