@@ -1,6 +1,7 @@
 package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.dtos.requests.PlaylistRequestDTO;
+import com.develhope.spring.dtos.requests.PlaylistUpdateDTO;
 import com.develhope.spring.dtos.responses.PlaylistResponseDTO;
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.entities.Playlist;
@@ -47,6 +48,11 @@ public class PlaylistServiceImpl implements PlaylistService {
     @Override
     public PlaylistResponseDTO getPlaylistById(Long id) {
 
+        if (id < 0) {
+            throw new NegativeIdException(
+                    "[Search failed] Playlist ID cannot be negative. Now: " + id);
+        }
+
         return playlistRepository.findById(id)
                 .map(playlist -> modelMapper.map(playlist, PlaylistResponseDTO.class)
 
@@ -56,6 +62,7 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     @Override
     public List<PlaylistResponseDTO> getAllPlaylists() {
+
         var playlists = playlistRepository.findAll()
                 .stream()
                 .map(playlist -> modelMapper.map(playlist, PlaylistResponseDTO.class)
@@ -100,7 +107,7 @@ public class PlaylistServiceImpl implements PlaylistService {
             );
         }
 
-        Playlist playlist = modelMapper.map(request, Playlist.class);
+        var playlist = modelMapper.map(request, Playlist.class);
 
         playlist.setListener(listener.get());
         playlist.setSongs(songs);
@@ -117,37 +124,34 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
-    public PlaylistResponseDTO updatePlaylist(Long id, PlaylistRequestDTO request) {
+    public PlaylistResponseDTO updatePlaylist(Long id, PlaylistUpdateDTO request) {
+
         if (id < 0) {
             throw new NegativeIdException(
                     "[Update failed] Playlist ID cannot be negative. Now: " + id);
         }
-        Optional<Listener> listener = listenerRepository.findById(request.getListenerId());
+
         List<Song> songs = songRepository.findAllById(request.getSongIds());
 
         if (songs.isEmpty()) {
             throw new EmptySongsListOnUpdateException("[Update failed] Cannot insert empty song list during update");
         }
 
-        if (listener.isEmpty()) {
-            throw new EntityNotFoundException("[Update failed] Listener with ID " + request.getListenerId() +
-                    " not found in the database");
-        }
 
         return playlistRepository.findById(id)
-                .map(existingPlaylist -> {
-                    existingPlaylist.setSongs(songs);
-                    existingPlaylist.setUpdateDate(LocalDate.now());
+                .map(playlist -> {
+                    playlist.setSongs(songs);
+                    playlist.setUpdateDate(LocalDate.now());
 
                     try {
-                        UniversalFieldUpdater.checkFieldsAndUpdate(request, existingPlaylist);
+                        UniversalFieldUpdater.checkFieldsAndUpdate(request, playlist);
                     } catch (InvocationTargetException e) {
                         throw new RuntimeException(e);
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
 
-                    var updatedPlaylist = playlistRepository.saveAndFlush(existingPlaylist);
+                    var updatedPlaylist = playlistRepository.saveAndFlush(playlist);
 
                     return modelMapper.map(updatedPlaylist, PlaylistResponseDTO.class);
                 }).orElseThrow(() -> new EntityNotFoundException(
@@ -156,14 +160,17 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
-    public Optional<PlaylistResponseDTO> deletePlaylistById(Long id) {
+    public PlaylistResponseDTO deletePlaylistById(Long id) {
 
         return playlistRepository.findById(id)
                 .map(playlist -> {
                     playlistRepository.deleteById(id);
 
                     return modelMapper.map(playlist, PlaylistResponseDTO.class);
-                });
+
+                }).orElseThrow(() -> new EntityNotFoundException(
+                        "[Delete failed] Playlist with ID " + id + " not found in the database."
+                ));
     }
 
     @Override
