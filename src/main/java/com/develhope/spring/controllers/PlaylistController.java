@@ -4,6 +4,7 @@ import com.develhope.spring.dtos.requests.PlaylistRequestDTO;
 import com.develhope.spring.dtos.responses.PlaylistResponseDTO;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.implementations.PlaylistServiceImpl;
+import com.develhope.spring.services.interfaces.PlaylistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api/v1/playlists")
 public class PlaylistController {
 
-    private final PlaylistServiceImpl playlistService;
+    private final PlaylistService playlistService;
 
     @Autowired
     public PlaylistController(PlaylistServiceImpl playlistService) {
@@ -51,7 +52,7 @@ public class PlaylistController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Response> updatePlaylist(@PathVariable Long id, @RequestBody PlaylistRequestDTO request) {
-       PlaylistResponseDTO playlist = playlistService.updatePlaylist(id, request);
+        PlaylistResponseDTO playlist = playlistService.updatePlaylist(id, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new Response(HttpStatus.OK.value(), "Playlist update successfully.", playlist)

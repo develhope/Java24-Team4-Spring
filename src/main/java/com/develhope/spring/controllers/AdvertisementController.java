@@ -3,7 +3,6 @@ package com.develhope.spring.controllers;
 import com.develhope.spring.dtos.requests.AdvertisementRequestDTO;
 import com.develhope.spring.dtos.requests.AdvertisementUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementResponseDTO;
-import com.develhope.spring.entities.Advertisement;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/advertisements")
@@ -30,7 +28,7 @@ public class AdvertisementController {
         AdvertisementResponseDTO adv = advService.displayAdvertisementToUser(id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(),"Advertisement shown successfully", adv)
+                new Response(HttpStatus.OK.value(), "Advertisement shown successfully", adv)
         );
     }
 
@@ -51,7 +49,7 @@ public class AdvertisementController {
         return ResponseEntity.ok().body(
                 new Response(HttpStatus.OK.value(),
                         "Advertisements(active = " + active +
-                ") found: " + advList.size(), advList)
+                                ") found: " + advList.size() + ".", advList)
         );
     }
 
@@ -61,31 +59,30 @@ public class AdvertisementController {
 
         return ResponseEntity.ok().body(
                 new Response(HttpStatus.OK.value(),
-                        "Advertisement found successfully", adv)
+                        "Advertisement found successfully.", adv)
         );
     }
 
     @PostMapping
-    public ResponseEntity<Response> createAdvertisement(@RequestBody AdvertisementRequestDTO requestDTO,
-                                                 @RequestParam Long userID
+    public ResponseEntity<Response> createAdvertisement(@RequestBody AdvertisementRequestDTO requestDTO
     ) {
         AdvertisementResponseDTO adv = advService.createAdvertisement(requestDTO);
 
         return ResponseEntity.ok().body(
                 new Response(HttpStatus.OK.value(),
                         "The ad was created and linked to a advertiser with ID " +
-                                requestDTO.getAdvertiserUserId(), adv)
+                                requestDTO.getAdvertiserUserId()+ ".", adv)
         );
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateAdvertisement(@PathVariable Long id,
-                                                 @RequestBody AdvertisementUpdateDTO updateDTO
+                                                        @RequestBody AdvertisementUpdateDTO updateDTO
     ) {
         AdvertisementResponseDTO adv = advService.updateAdvertisement(updateDTO, id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(),"Advertisement updated successfully", adv)
+                new Response(HttpStatus.OK.value(), "Advertisement updated successfully.", adv)
         );
     }
 
@@ -94,18 +91,18 @@ public class AdvertisementController {
         AdvertisementResponseDTO adv = advService.enableAdvertisement(id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(),"Advertisement with ID " + id +
-                " enabled successfully", adv)
+                new Response(HttpStatus.OK.value(), "Advertisement with ID " + id +
+                        " enabled successfully.", adv)
         );
     }
 
     @PatchMapping("/disableAdv/{id}")
-    public ResponseEntity<?> disableAdvertisement(@PathVariable Long id) {
+    public ResponseEntity<Response> disableAdvertisement(@PathVariable Long id) {
         AdvertisementResponseDTO adv = advService.disableAdvertisement(id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(),"Advertisement with ID " + id +
-                " disabled successfully", adv)
+                new Response(HttpStatus.OK.value(), "Advertisement with ID " + id +
+                        " disabled successfully.", adv)
         );
     }
 
@@ -113,17 +110,17 @@ public class AdvertisementController {
     public ResponseEntity<Response> deleteAdvertisement(@PathVariable Long id) {
         AdvertisementResponseDTO adv = advService.deleteAdvertisement(id);
 
-        return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(),"Advertisement deleted successfully", adv)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                new Response(HttpStatus.NO_CONTENT.value(), "Advertisement deleted successfully.", adv)
         );
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteAllAdvertisements() {
+    public ResponseEntity<Response> deleteAllAdvertisements() {
         advService.deleteAllAdvertisements();
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.NO_CONTENT.value(), "All advertisements deleted!")
+                new Response(HttpStatus.NO_CONTENT.value(), "All advertisements deleted.")
         );
     }
 }
