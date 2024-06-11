@@ -27,9 +27,6 @@ import java.util.Optional;
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
 
-    //TODO ADD VALIDATION(VALIDATION DIPEND. & EXCEPTION HANDLER)
-    //TODO CHANGE USER TI LISTENER!
-
     private final SubscriptionRepository subscrRepository;
     private final ListenerRepository listenerRepository;
     private final ModelMapper modelMapper;
@@ -50,7 +47,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         if (id < 0){
             throw new NegativeIdException(
-                    "[Update failed] Subscription ID cannot be negative. Now: " + id);
+                    "[Search failed] Subscription ID cannot be negative. Now: " + id);
         }
 
         return subscrRepository.findById(id).map(subscription -> {
@@ -58,7 +55,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             setCalculableFieldsViewDTO(response);
 
             return response;
-        }).orElseThrow(() -> new EntityNotFoundException("Subscription with ID " + id +
+        }).orElseThrow(() -> new EntityNotFoundException("[Search failed] Subscription with ID " + id +
                 " not found in the database"));
     }
 
@@ -74,7 +71,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }).toList();
 
         if (subscriptions.isEmpty()) {
-            throw new EmptyResultException("No subscriptions found in the database.");
+            throw new EmptyResultException("[Search failed] No subscriptions found in the database.");
         } else {
             return subscriptions;
         }
@@ -96,7 +93,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }).toList();
 
         if (foundByActive.isEmpty()) {
-            throw new EmptyResultException("No subscriptions(active = " + active +
+            throw new EmptyResultException("[Search failed] No subscriptions(active = " + active +
                     ") found in the database.");
         } else {
             return foundByActive;
@@ -142,27 +139,27 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         return subscrRepository.findById(id).map(subscription -> {
 
-          if (incomingUpdateDtoIsValid(request)){
-              try {
-                  UniversalFieldUpdater.checkFieldsAndUpdate(request, subscription);
-              } catch (InvocationTargetException e) {
-                  throw new RuntimeException(e);
-              } catch (IllegalAccessException e) {
-                  throw new RuntimeException(e);
-              }
-              setStartSetEnd(subscription);
+            if (incomingUpdateDtoIsValid(request)){
+                try {
+                    UniversalFieldUpdater.checkFieldsAndUpdate(request, subscription);
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+                setStartSetEnd(subscription);
 
-              subscription = subscrRepository.saveAndFlush(subscription);
-              SubscriptionResponseDTO response = modelMapper.map(subscription, SubscriptionResponseDTO.class);
-              setCalculableFieldsViewDTO(response);
+                subscription = subscrRepository.saveAndFlush(subscription);
+                SubscriptionResponseDTO response = modelMapper.map(subscription, SubscriptionResponseDTO.class);
+                setCalculableFieldsViewDTO(response);
 
-              return response;
-          } else {
-              throw new IllegalArgumentException(
-                      "Invalid subscription type. Allowed types are: ANNUAL, HALF_YEAR, MONTHLY.");
-          }
+                return response;
+            } else {
+                throw new IllegalArgumentException(
+                        "[Update failed] Invalid subscription type. Allowed types are: ANNUAL, HALF_YEAR, MONTHLY.");
+            }
 
-        }).orElseThrow(() -> new EntityNotFoundException("Subscription with ID " + id +
+        }).orElseThrow(() -> new EntityNotFoundException("[Update failed] Subscription with ID " + id +
                 " not found in the database"));
     }
 
@@ -180,7 +177,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
             return responseDTO;
 
-        }).orElseThrow(() -> new EntityNotFoundException("Subscription with ID " + id +
+        }).orElseThrow(() -> new EntityNotFoundException("[Delete failed] Subscription with ID " + id +
                 " not found in the database"));
 
     }
@@ -195,7 +192,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         if (id < 0){
             throw new NegativeIdException(
-                    "[Subscription not enabled] Subscription ID cannot be negative. Now: " + id);
+                    "[Activation failed] Subscription ID cannot be negative. Now: " + id);
         }
 
         return subscrRepository.findById(id).map(subscription -> {
@@ -208,7 +205,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
             return responseDTO;
 
-        }).orElseThrow(() -> new EntityNotFoundException("Subscription with ID " + id +
+        }).orElseThrow(() -> new EntityNotFoundException("[Activation failed] Subscription with ID " + id +
                 " not found in the database"));
     }
 
@@ -218,7 +215,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         if (id < 0){
             throw new NegativeIdException(
-                    "[Subscription not disabled] Subscription ID cannot be negative. Now: " + id);
+                    "[Deactivation failed] Subscription ID cannot be negative. Now: " + id);
         }
 
         return subscrRepository.findById(id).map(subscription -> {
@@ -231,7 +228,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
             return responseDTO;
 
-        }).orElseThrow(() -> new EntityNotFoundException("Subscription with ID " + id +
+        }).orElseThrow(() -> new EntityNotFoundException("[Deactivation failed] Subscription with ID " + id +
                 " not found in the database"));
     }
 
@@ -310,7 +307,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public void invokeFromOutsideSetCalculableFieldsDTO(SubscriptionWithoutListenerDTO withoutListenerDTO) {
         setCalculableFieldsViewDTO(withoutListenerDTO);
     }
-
 
 }
 

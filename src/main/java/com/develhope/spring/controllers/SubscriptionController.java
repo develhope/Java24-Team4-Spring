@@ -58,7 +58,8 @@ public class SubscriptionController {
         SubscriptionResponseDTO subscription = subscriptionService.createSubscription(requestDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Subscription created successfully.", subscription)
+                new Response(HttpStatus.OK.value(), "The subscription was created and linked to a listener with ID " +
+                        requestDTO.getListenerId()+ ".", subscription)
         );
     }
 
