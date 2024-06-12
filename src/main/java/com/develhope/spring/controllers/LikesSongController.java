@@ -2,6 +2,7 @@ package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.LikesSongRequestDTO;
 import com.develhope.spring.dtos.responses.LikesSongResponseDTO;
+import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.LikesSongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +41,9 @@ public class LikesSongController {
     }
 
     @PostMapping
-    public ResponseEntity<Optional<LikesSongResponseDTO>> createLike(@RequestBody LikesSongRequestDTO requestDTO) {
+    public ResponseEntity<Response> createLike(@RequestBody LikesSongRequestDTO requestDTO) {
         Optional<LikesSongResponseDTO> responseDTO = likesSongService.createLike(requestDTO);
-        return ResponseEntity.ok(responseDTO);
+        return ResponseEntity.ok(new Response(200,"Like were added.",responseDTO));
     }
 
     @PutMapping("/{id}")
