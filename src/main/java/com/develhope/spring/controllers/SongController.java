@@ -4,6 +4,7 @@ import com.develhope.spring.dtos.requests.SongRequestDTO;
 import com.develhope.spring.dtos.responses.SongResponseDTO;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.implementations.SongServiceImpl;
+import com.develhope.spring.services.interfaces.SongService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/vi/song")
 public class SongController {
     @Autowired
-    private SongServiceImpl songService;
+    private SongService songService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -59,7 +60,7 @@ public class SongController {
 
     @DeleteMapping
     public ResponseEntity<Response> deleteAllSongs() {
-        songService.delteteAllSongs();
+        songService.deleteAllSongs();
 
         return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "All songs have been removed."));
     }
