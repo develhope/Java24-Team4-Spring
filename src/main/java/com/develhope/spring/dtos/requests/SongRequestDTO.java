@@ -3,8 +3,10 @@ package com.develhope.spring.dtos.requests;
 import java.time.Duration;
 
 public class SongRequestDTO {
+
     private String title;
-    private Album album;
+    private Long albumId;
+    private Long genreId;
     private int year_release;
     private Duration duration_time;
     private String link_audio;
@@ -12,9 +14,10 @@ public class SongRequestDTO {
     public SongRequestDTO() {
     }
 
-    public SongRequestDTO(String title, Album album, int year_release, Duration duration_time, String link_audio) {
+    public SongRequestDTO(String title, Long albumId, Long genreId, int year_release, Duration duration_time, String link_audio) {
         this.title = title;
-        this.album = album;
+        this.albumId = albumId;
+        this.genreId = genreId;
         this.year_release = year_release;
         this.duration_time = duration_time;
         this.link_audio = link_audio;
@@ -28,12 +31,20 @@ public class SongRequestDTO {
         this.title = title;
     }
 
-    public Album getAlbum() {
-        return album;
+    public Long getAlbumId() {
+        return albumId;
     }
 
-    public void setAlbum(Album album) {
-        this.album = album;
+    public void setAlbumId(Long albumId) {
+        this.albumId = albumId;
+    }
+
+    public Long getGenreId() {
+        return genreId;
+    }
+
+    public void setGenreId(Long genreId) {
+        this.genreId = genreId;
     }
 
     public int getYear_release() {
