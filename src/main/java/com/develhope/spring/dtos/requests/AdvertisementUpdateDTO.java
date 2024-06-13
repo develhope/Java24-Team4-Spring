@@ -2,9 +2,9 @@ package com.develhope.spring.dtos.requests;
 
 import java.time.LocalDateTime;
 
-public class AdvertisementRequestDTO {
+public class AdvertisementUpdateDTO {
 
-    private Long advertiserUserId;
+
     private String advText;
     private String audioLink;
     private String imageLink;
@@ -12,29 +12,20 @@ public class AdvertisementRequestDTO {
     private LocalDateTime endDate;
     private Integer orderedViews;
 
-    public AdvertisementRequestDTO(
-            Long advertiserUserId, String advText,
+    public AdvertisementUpdateDTO(
+            String advText,
             String audioLink,
             String imageLink,
             LocalDateTime startDate,
             LocalDateTime endDate,
             Integer orderedViews
     ) {
-        this.advertiserUserId = advertiserUserId;
         this.advText = advText;
         this.audioLink = audioLink;
         this.imageLink = imageLink;
         this.startDate = startDate;
         this.endDate = endDate;
         this.orderedViews = orderedViews;
-    }
-
-    public Long getAdvertiserUserId() {
-        return advertiserUserId;
-    }
-
-    public void setAdvertiserUserId(Long advertiserUserId) {
-        this.advertiserUserId = advertiserUserId;
     }
 
     public String getAdvText() {
