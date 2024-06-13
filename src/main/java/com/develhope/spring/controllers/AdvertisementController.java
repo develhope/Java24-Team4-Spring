@@ -64,8 +64,7 @@ public class AdvertisementController {
     }
 
     @PostMapping
-    public ResponseEntity<Response> createAdvertisement(@RequestBody AdvertisementRequestDTO requestDTO,
-                                                        @RequestParam Long userID
+    public ResponseEntity<Response> createAdvertisement(@RequestBody AdvertisementRequestDTO requestDTO
     ) {
         AdvertisementResponseDTO adv = advService.createAdvertisement(requestDTO);
 

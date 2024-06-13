@@ -1,18 +1,32 @@
 package com.develhope.spring.dtos.responses;
 
+import com.develhope.spring.entities.Advertisement;
+
+import java.util.List;
+
 public class AdvertiserWithoutUserDTO {
 
     private String companyName;
     private String advertiserDescription;
     private String advertiserCountry;
+    private List<Advertisement> advertisements;
 
-    public AdvertiserWithoutUserDTO(String companyName, String advertiserDescription, String advertiserCountry) {
+    public AdvertiserWithoutUserDTO(String companyName, String advertiserDescription, String advertiserCountry, List<Advertisement> advertisements) {
         this.companyName = companyName;
         this.advertiserDescription = advertiserDescription;
         this.advertiserCountry = advertiserCountry;
+        this.advertisements = advertisements;
     }
 
     public AdvertiserWithoutUserDTO() {
+    }
+
+    public List<Advertisement> getAdvertisements() {
+        return advertisements;
+    }
+
+    public void setAdvertisements(List<Advertisement> advertisements) {
+        this.advertisements = advertisements;
     }
 
     public String getCompanyName() {
