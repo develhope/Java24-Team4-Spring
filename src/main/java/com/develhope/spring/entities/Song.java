@@ -2,7 +2,7 @@ package com.develhope.spring.entities;
 
 import jakarta.persistence.*;
 
-import java.time.Duration;
+
 
 @Entity
 @Table(name = "songs")
@@ -17,13 +17,13 @@ public class Song {
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-    @OneToOne
+    @OneToMany
     @JoinColumn(name = "genre_id", referencedColumnName = "id")
     private Genre genre;
     @Column(nullable = false)
     private int year_release;
     @Column(nullable = false)
-    private Duration duration_time;
+    private Integer duration_time;
     @Column(nullable = false)
     private int number_of_plays;
     @Column(nullable = false)
@@ -32,7 +32,8 @@ public class Song {
     public Song() {
     }
 
-    public Song(Long id, String title, Album album, Genre genre, int year_release, Duration duration_time, int number_of_plays, String link_audio) {
+    public Song(Long id, String title, Album album, Genre genre, int year_release, Integer duration_time,
+                int number_of_plays, String link_audio) {
         this.id = id;
         this.title = title;
         this.album = album;
@@ -83,11 +84,11 @@ public class Song {
         this.year_release = year_release;
     }
 
-    public Duration getDuration_time() {
+    public Integer getDuration_time() {
         return duration_time;
     }
 
-    public void setDuration_time(Duration duration_time) {
+    public void setDuration_time(Integer duration_time) {
         this.duration_time = duration_time;
     }
 

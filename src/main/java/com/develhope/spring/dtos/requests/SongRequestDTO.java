@@ -8,13 +8,13 @@ public class SongRequestDTO {
     private Long albumId;
     private Long genreId;
     private int year_release;
-    private Duration duration_time;
+    private Integer duration_time;
     private String link_audio;
 
     public SongRequestDTO() {
     }
 
-    public SongRequestDTO(String title, Long albumId, Long genreId, int year_release, Duration duration_time, String link_audio) {
+    public SongRequestDTO(String title, Long albumId, Long genreId, int year_release, Integer duration_time, String link_audio) {
         this.title = title;
         this.albumId = albumId;
         this.genreId = genreId;
@@ -55,11 +55,11 @@ public class SongRequestDTO {
         this.year_release = year_release;
     }
 
-    public Duration getDuration_time() {
+    public Integer getDuration_time() {
         return duration_time;
     }
 
-    public void setDuration_time(Duration duration_time) {
+    public void setDuration_time(Integer duration_time) {
         this.duration_time = duration_time;
     }
 
