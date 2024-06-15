@@ -3,7 +3,7 @@ package com.develhope.spring.dtos.requests;
 import com.develhope.spring.entities.Artist;
 
 public class AlbumRequestDTO {
-    private Artist artist;
+    private Long artistId;
 
     private String title;
 
@@ -16,20 +16,20 @@ public class AlbumRequestDTO {
     public AlbumRequestDTO() {
     }
 
-    public AlbumRequestDTO(Artist artist, String title, int year_release, String description, String cover_link) {
-        this.artist = artist;
+    public AlbumRequestDTO(Long artistId, String title, int year_release, String description, String cover_link) {
+        this.artistId = artistId;
         this.title = title;
         this.year_release = year_release;
         this.description = description;
         this.cover_link = cover_link;
     }
 
-    public Artist getArtist() {
-        return artist;
+    public Long getArtistId() {
+        return artistId;
     }
 
-    public void setArtist(Artist artist) {
-        this.artist = artist;
+    public void setArtistId(Long artistId) {
+        this.artistId = artistId;
     }
 
     public String getTitle() {

@@ -8,16 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AlbumService {
-
-    Optional<AlbumResponseDTO> getAlbumById(Long id);
-
+    AlbumResponseDTO createAlbum(AlbumRequestDTO albumRequestDTO);
     List<AlbumResponseDTO> getAllAlbums();
+    Optional<AlbumResponseDTO> albumById(Long id);
+    AlbumResponseDTO updateAlbum(Long id, AlbumRequestDTO albumRequestDTO);
+    public void albumDelete(Long id);
 
-    Optional<AlbumResponseDTO> createAlbum(AlbumRequestDTO request);
 
-    Optional<AlbumResponseDTO> updateAlbum(Long id, AlbumRequestDTO request);
-
-    Optional<Album> deleteAlbumById(Long id);
-
-    void deleteAllAlbums();
 }

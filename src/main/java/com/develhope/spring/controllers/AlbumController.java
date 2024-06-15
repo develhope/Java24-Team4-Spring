@@ -2,10 +2,9 @@ package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.AlbumRequestDTO;
 import com.develhope.spring.dtos.responses.AlbumResponseDTO;
-import com.develhope.spring.entities.Album;
+import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.AlbumService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/albums")
+@RequestMapping("/albums")
 public class AlbumController {
 
     private final AlbumService albumService;
@@ -23,43 +22,48 @@ public class AlbumController {
         this.albumService = albumService;
     }
 
+    @PostMapping
+    public ResponseEntity<Response> createAlbum(@RequestBody AlbumRequestDTO albumRequestDTO) {
+        AlbumResponseDTO albumResponseDTO = albumService.createAlbum(albumRequestDTO);
+        Response response = new Response(200, "Album created successfully.", albumResponseDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<Response> getAllAlbums() {
+        List<AlbumResponseDTO> albumList = albumService.getAllAlbums();
+        Response response = new Response(200, "Albums retrieved successfully.", albumList);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<AlbumResponseDTO> getAlbumById(@PathVariable("id") Long id) {
-        Optional<AlbumResponseDTO> album = albumService.getAlbumById(id);
-        return album.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<AlbumResponseDTO>> getAllAlbums() {
-        List<AlbumResponseDTO> albums = albumService.getAllAlbums();
-        return ResponseEntity.ok(albums);
-    }
-
-    @PostMapping("/create")
-    public ResponseEntity<AlbumResponseDTO> createAlbum(@RequestBody AlbumRequestDTO request) {
-        Optional<AlbumResponseDTO> album = albumService.createAlbum(request);
-        return album.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-    }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<AlbumResponseDTO> updateAlbum(@PathVariable("id") Long id, @RequestBody AlbumRequestDTO request) {
-        Optional<AlbumResponseDTO> album = albumService.updateAlbum(id, request);
-        return album.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteAlbumById(@PathVariable("id") Long id) {
-        Optional<Album> album = albumService.deleteAlbumById(id);
-        if (album.isPresent()) {
-            return ResponseEntity.noContent().build();
+    public ResponseEntity<Response> albumById(@PathVariable Long id) {
+        Optional<AlbumResponseDTO> albumResponseDTO = albumService.albumById(id);
+        if (albumResponseDTO.isPresent()) {
+            Response response = new Response(200, "Album retrieved successfully.", albumResponseDTO.get());
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.notFound().build();
+            Response response = new Response(404, "Album not found.", null);
+            return ResponseEntity.status(404).body(response);
         }
     }
 
-    @DeleteMapping("/delete-all")
-    public ResponseEntity<Void> deleteAllAlbums() {
-        albumService.deleteAllAlbums();
-        return ResponseEntity.noContent().build();
+    @PutMapping("/{id}")
+    public ResponseEntity<Response> updateAlbum(@PathVariable Long id, @RequestBody AlbumRequestDTO albumRequestDTO) {
+        try {
+            AlbumResponseDTO updatedAlbum = albumService.updateAlbum(id, albumRequestDTO);
+            Response response = new Response(200, "Album updated successfully.", updatedAlbum);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Response response = new Response(404, e.getMessage(), null);
+            return ResponseEntity.status(404).body(response);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response> albumDelete(@PathVariable Long id) {
+        albumService.albumDelete(id);
+        Response response = new Response(200, "Album deleted successfully.", null);
+        return ResponseEntity.ok(response);
     }
 }
