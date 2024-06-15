@@ -101,8 +101,8 @@ public class LikesSongServiceImpl implements LikesSongService {
         return likesSongs.stream()
                 .map(likesSongs1 -> modelMapper.map(likesSongs1, LikesSongResponseDTO.class))
                 .collect(Collectors.toList());
-        }
-        @Override
+    }
+    @Override
     public List<LikesSongResponseDTO> getLikesBySongId(Long songId) {
         List<LikesSongs> likesSongs = likesSongRepository.findBySongId(songId);
         if (likesSongs.isEmpty()){
@@ -113,6 +113,3 @@ public class LikesSongServiceImpl implements LikesSongService {
                 .collect(Collectors.toList());
     }
 }
-
-
-
