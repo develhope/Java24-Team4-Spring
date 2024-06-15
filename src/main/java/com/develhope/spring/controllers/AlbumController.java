@@ -65,4 +65,5 @@ public class AlbumController {
         Response response = new Response(200, "Album deleted successfully.", null);
         return ResponseEntity.ok(response);
     }
+
 }

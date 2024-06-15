@@ -13,5 +13,4 @@ public interface AlbumService {
     Optional<AlbumResponseDTO> albumById(Long id);
     AlbumResponseDTO updateAlbum(Long id, AlbumRequestDTO albumRequestDTO);
     public void albumDelete(Long id);
-
 }

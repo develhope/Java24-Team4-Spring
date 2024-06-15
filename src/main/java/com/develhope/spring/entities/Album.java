@@ -51,5 +51,4 @@ public class Album {
     public void setDescription(String description) {this.description = description;}
     public String getCover_link() {return cover_link;}
     public void setCover_link(String cover_link) {this.cover_link = cover_link;}
-
 }
