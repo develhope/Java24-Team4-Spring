@@ -14,5 +14,4 @@ public interface AlbumService {
     AlbumResponseDTO updateAlbum(Long id, AlbumRequestDTO albumRequestDTO);
     public void albumDelete(Long id);
 
-
 }

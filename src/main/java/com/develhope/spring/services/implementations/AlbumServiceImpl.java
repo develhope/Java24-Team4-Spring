@@ -72,4 +72,5 @@ public class AlbumServiceImpl implements AlbumService {
     public void albumDelete(Long id){
         albumRepository.deleteById(id);
     }
+
 }
