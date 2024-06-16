@@ -5,11 +5,13 @@ import com.develhope.spring.dtos.responses.UserWithRoleDetailsResponseDTO;
 import com.develhope.spring.entities.User;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.UserService;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -74,6 +76,17 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new Response(HttpStatus.OK.value(), "User updated successfully.", user)
+        );
+    }
+
+    //todo: aggiungere exceptions in GlobalExHandler
+    //todo: aggiungere removeProfileImage method
+    @PatchMapping("/profilePhoto/{id}")
+    public ResponseEntity<Response> uploadProfileImage(@RequestParam MultipartFile imageFile, @PathVariable Long id) throws FileSizeLimitExceededException {
+        String uploadedFileUrl = userService.uploadUserProfileImage(imageFile,id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "Profile image uploaded successfully", uploadedFileUrl)
         );
     }
 
