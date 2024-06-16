@@ -107,6 +107,7 @@ public class LikesSongServiceImpl implements LikesSongService {
         List<LikesSongs> likesSongs = likesSongRepository.findBySongId(songId);
         if (likesSongs.isEmpty()){
             throw new EntityNotFoundException("No likes found for song with that id");
+
         }
         return likesSongs.stream()
                 .map(likesSongs1 -> modelMapper.map(likesSongs1, LikesSongResponseDTO.class))

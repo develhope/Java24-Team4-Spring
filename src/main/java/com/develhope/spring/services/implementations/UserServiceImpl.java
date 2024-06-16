@@ -3,19 +3,25 @@ package com.develhope.spring.services.implementations;
 import com.develhope.spring.dtos.requests.UserCreationDTO;
 import com.develhope.spring.dtos.responses.*;
 import com.develhope.spring.entities.*;
+import com.develhope.spring.exceptions.EmptyResultException;
+import com.develhope.spring.exceptions.InvalidUserFieldsException;
+import com.develhope.spring.exceptions.NegativeIdException;
+import com.develhope.spring.exceptions.UnknownUserRoleException;
 import com.develhope.spring.repositories.*;
 import com.develhope.spring.services.interfaces.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 @Service
@@ -29,10 +35,6 @@ public class UserServiceImpl implements UserService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionServiceImpl subscriptionService;
 
-    private final IllegalArgumentException fieldsError = new IllegalArgumentException(
-            "One or more required fields are null or empty"
-    );
-
     @Autowired
     public UserServiceImpl(ModelMapper modelMapper, UserRepository userRepository, ListenerRepository listenerRepository, AdvertiserRepository advertiserRepository, ArtistRepository artistRepository, SubscriptionRepository subscriptionRepository, SubscriptionServiceImpl subscriptionService) {
         this.modelMapper = modelMapper;
@@ -45,11 +47,12 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Transactional
     @Override
     public Optional<?> createUser(UserCreationDTO request) throws InvocationTargetException, IllegalAccessException {
 
         if (!inspectAndInvokeGettersForUser(request)) {
-            throw fieldsError;
+            throw new InvalidUserFieldsException("[Creation failed] One or more required fields for User/Listener are null or empty");
         }
 
         User toSave = modelMapper.map(request, User.class);
@@ -74,7 +77,7 @@ public class UserServiceImpl implements UserService {
             case ARTIST -> {
 
                 if (!inspectAndInvokeGettersForArtist(request)) {
-                    throw fieldsError;
+                    throw new InvalidUserFieldsException("[Creation failed] One or more required fields for Artist are null or empty");
                 }
 
                 User savedUser = userRepository.saveAndFlush(toSave);
@@ -91,7 +94,7 @@ public class UserServiceImpl implements UserService {
             case ADVERTISER -> {
 
                 if (!inspectAndInvokeGettersForAdvertiser(request)) {
-                    throw fieldsError;
+                    throw new InvalidUserFieldsException("[Creation failed] One or more required fields for Advertiser are null or empty");
                 }
 
                 User savedUser = userRepository.saveAndFlush(toSave);
@@ -105,20 +108,27 @@ public class UserServiceImpl implements UserService {
                 return Optional.of(advertiserSaved);
             }
 
-            default -> throw new IllegalArgumentException(
-                    "Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
+            default -> throw new UnknownUserRoleException(
+                    "[Creation failed] Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
             );
 
         }
 
     }
 
+    @Transactional
     @Override
     public Optional<?> updateUser(UserCreationDTO request, Long id) throws InvocationTargetException, IllegalAccessException {
+
+        if (id < 0) {
+            throw new NegativeIdException(
+                    "[Update failed] Subscription ID cannot be negative. Now: " + id);
+        }
+
         Optional<User> userOptional = userRepository.findById(id);
 
         if (userOptional.isEmpty()) {
-            throw new EntityNotFoundException("User with ID " + id + " not Found!");
+            throw new EntityNotFoundException("[Update failed] User with ID " + id + " not Found!");
         }
 
         User user = userOptional.get();
@@ -158,14 +168,20 @@ public class UserServiceImpl implements UserService {
             case ADVERTISER -> {
                 return updateSaveAdvertiser(request, user);
             }
-            default -> throw new IllegalArgumentException(
-                    "Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
+            default -> throw new UnknownUserRoleException(
+                    "[Update failed] Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
             );
         }
     }
 
     @Override
-    public Optional<UserWithRoleDetailsResponseDTO> getUserById(Long id) {
+    public UserWithRoleDetailsResponseDTO getUserById(Long id) {
+
+        if (id < 0) {
+            throw new NegativeIdException(
+                    "[Search failed] Subscription ID cannot be negative. Now: " + id);
+        }
+
         return userRepository.findById(id).map(user -> {
 
             UserWithRoleDetailsResponseDTO response = modelMapper.map(user, UserWithRoleDetailsResponseDTO.class);
@@ -180,15 +196,17 @@ public class UserServiceImpl implements UserService {
                 case ADVERTISER -> {
                     return handleAdvertiserRole(user, response);
                 }
-                default -> throw new IllegalArgumentException(
-                        "Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
+                default -> throw new UnknownUserRoleException(
+                        "[Search failed] Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
                 );
             }
-        });
+        }).orElseThrow(() -> new EntityNotFoundException("[Search failed] User with ID " + id +
+                " not found in the database"));
     }
 
     @Override
     public List<UserWithRoleDetailsResponseDTO> getAllUsers() {
+
         return userRepository.findAll().stream().map(user -> {
 
             UserWithRoleDetailsResponseDTO response = modelMapper.map(user, UserWithRoleDetailsResponseDTO.class);
@@ -203,45 +221,93 @@ public class UserServiceImpl implements UserService {
                 case ADVERTISER -> {
                     return handleAdvertiserRole(user, response);
                 }
-                default -> throw new IllegalArgumentException(
-                        "Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
+                default -> throw new UnknownUserRoleException(
+                        "[Search failed] Unknown user role. The role can only be: LISTENER, ARTIST or ADVERTISER."
                 );
 
             }
 
-        }).collect(Collectors.toList());
+        }).collect(toList());
     }
 
     @Override
-    public boolean deleteUserById(Long id) {
+    public List<UserWithRoleDetailsResponseDTO> getAllByRole(User.Role role) {
+
+        List<User> users = userRepository.findByRole(role);
+
+        if (users.isEmpty()) {
+            throw new EmptyResultException("Users with role " + role +
+                    " were not found");
+        }
+
+        return users.stream().map(user -> {
+
+            UserWithRoleDetailsResponseDTO response = modelMapper.map(user, UserWithRoleDetailsResponseDTO.class);
+
+            switch (user.getRole()) {
+
+                case ARTIST -> handleArtistRole(user, response);
+
+                case LISTENER -> handleListenerRole(user, response);
+
+                case ADVERTISER -> handleAdvertiserRole(user, response);
+
+                default ->
+                        throw new UnknownUserRoleException("[Search failed] Unknown user role. The role can only be: LISTENER, ARTIST or ADVERTISER.");
+            }
+
+            return response;
+
+        }).toList();
+    }
+
+    @Transactional
+    @Override
+    public UserWithRoleDetailsResponseDTO deleteUserById(Long id) {
+
+        if (id < 0) {
+            throw new NegativeIdException(
+                    "[Search failed] Subscription ID cannot be negative. Now: " + id);
+        }
 
         Optional<User> userOptional = userRepository.findById(id);
 
+
         if (userOptional.isEmpty()) {
-            throw new EntityNotFoundException("User with ID " + id + " not Found!");
-
-        } else if (userOptional.get().getRole() == User.Role.LISTENER) {
-            listenerRepository.deleteById(id);
-            userRepository.deleteById(id);
-            return true;
-
-
-        } else if (userOptional.get().getRole() == User.Role.ARTIST) {
-            artistRepository.deleteById(id);
-            userRepository.deleteById(id);
-            return true;
-
-        } else if (userOptional.get().getRole() == User.Role.ADVERTISER) {
-            advertiserRepository.deleteById(id);
-            userRepository.deleteById(id);
-            return true;
-        } else {
-
-            return false;
+            throw new EntityNotFoundException("[Delete failed] User with ID " + id + " not Found!");
         }
 
-    }
+        var responseDTO = modelMapper.map(userOptional.get(), UserWithRoleDetailsResponseDTO.class);
 
+        switch (userOptional.get().getRole()) {
+
+            case ARTIST -> {
+                handleArtistRole(userOptional.get(), responseDTO);
+                artistRepository.deleteById(id);
+                userRepository.deleteById(id);
+                return responseDTO;
+            }
+
+            case LISTENER -> {
+                handleListenerRole(userOptional.get(), responseDTO);
+                subscriptionRepository.deleteById(id);
+                listenerRepository.deleteById(id);
+                userRepository.deleteById(id);
+                return responseDTO;
+            }
+
+            case ADVERTISER -> {
+                handleAdvertiserRole(userOptional.get(), responseDTO);
+                advertiserRepository.deleteById(id);
+                userRepository.deleteById(id);
+                return responseDTO;
+            }
+
+            default ->
+                    throw new UnknownUserRoleException("[Search failed] Unknown user role. The role can only be: LISTENER, ARTIST or ADVERTISER.");
+        }
+    }
+    @Transactional
     @Override
     public void deleteAllUsers() {
 
@@ -251,13 +317,17 @@ public class UserServiceImpl implements UserService {
         advertiserRepository.deleteAll();
     }
 
-    // TODO ADD METHOD DELETE ALL BY ROLE
-
     private UserWithRoleDetailsResponseDTO handleListenerRole(User user, UserWithRoleDetailsResponseDTO response) {
+
+        if (user.getId() < 0) {
+            throw new NegativeIdException(
+                    "[Search failed] User ID cannot be negative. Now: " + user.getId());
+        }
+
         Optional<Listener> listener = listenerRepository.findById(user.getId());
 
         if (listener.isEmpty()) {
-            throw new EntityNotFoundException("Listener with ID " + user.getId() + " not Found!");
+            throw new EntityNotFoundException("[Search failed] Listener with ID " + user.getId() + " not Found!");
         }
 
         Optional<Subscription> subscriptionOptional = subscriptionRepository.findById(user.getId());
@@ -424,23 +494,6 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
-
-    private void updateUserRole(UserCreationDTO request, User toUpdate) throws InvocationTargetException, IllegalAccessException {
-        Method getRoleMethod;
-        try {
-            getRoleMethod = request.getClass().getMethod("getRole");
-            Object roleValue = getRoleMethod.invoke(request);
-            if (roleValue != null && roleValue instanceof User.Role) {
-
-                Method setRoleMethod = User.class.getMethod("setRole", User.Role.class);
-                setRoleMethod.invoke(toUpdate, roleValue);
-            }
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Role getter or setter not found!");
-        }
-    }
-
 
     public void checkFieldsAndUpdateArtist(UserCreationDTO request, Artist artist) throws InvocationTargetException, IllegalAccessException {
         String[] fieldsToCheck = {

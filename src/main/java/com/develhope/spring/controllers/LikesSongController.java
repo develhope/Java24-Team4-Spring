@@ -46,6 +46,7 @@ public class LikesSongController {
         List<LikesSongResponseDTO> responseDTOs = likesSongService.getLikesByListenerId(listenerId);
         Response response = new Response(200, "Likes retrieved successfully.", responseDTOs);
         return ResponseEntity.ok(response);
+
     }
 
     @PostMapping
@@ -67,4 +68,5 @@ public class LikesSongController {
         }
     }
 }
+
 
