@@ -17,7 +17,7 @@ public class Song {
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "genre_id", referencedColumnName = "id")
     private Genre genre;
     @Column(nullable = false)
