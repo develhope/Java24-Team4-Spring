@@ -3,22 +3,25 @@ package com.develhope.spring.services.implementations;
 import com.develhope.spring.dtos.requests.UserCreationDTO;
 import com.develhope.spring.dtos.responses.*;
 import com.develhope.spring.entities.*;
-import com.develhope.spring.exceptions.EmptyResultException;
-import com.develhope.spring.exceptions.InvalidUserFieldsException;
-import com.develhope.spring.exceptions.NegativeIdException;
-import com.develhope.spring.exceptions.UnknownUserRoleException;
+import com.develhope.spring.exceptions.*;
 import com.develhope.spring.repositories.*;
+import com.develhope.spring.services.interfaces.MinioService;
 import com.develhope.spring.services.interfaces.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -27,6 +30,7 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private final MinioService minioService;
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final ListenerRepository listenerRepository;
@@ -35,8 +39,12 @@ public class UserServiceImpl implements UserService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionServiceImpl subscriptionService;
 
+    @Value("${minio.profileDataBucket}")
+    private String profileDataBucket;
+
     @Autowired
-    public UserServiceImpl(ModelMapper modelMapper, UserRepository userRepository, ListenerRepository listenerRepository, AdvertiserRepository advertiserRepository, ArtistRepository artistRepository, SubscriptionRepository subscriptionRepository, SubscriptionServiceImpl subscriptionService) {
+    public UserServiceImpl(MinioService minioService, ModelMapper modelMapper, UserRepository userRepository, ListenerRepository listenerRepository, AdvertiserRepository advertiserRepository, ArtistRepository artistRepository, SubscriptionRepository subscriptionRepository, SubscriptionServiceImpl subscriptionService) {
+        this.minioService = minioService;
         this.modelMapper = modelMapper;
         this.userRepository = userRepository;
         this.listenerRepository = listenerRepository;
@@ -307,6 +315,7 @@ public class UserServiceImpl implements UserService {
                     throw new UnknownUserRoleException("[Search failed] Unknown user role. The role can only be: LISTENER, ARTIST or ADVERTISER.");
         }
     }
+
     @Transactional
     @Override
     public void deleteAllUsers() {
@@ -315,6 +324,43 @@ public class UserServiceImpl implements UserService {
         listenerRepository.deleteAll();
         artistRepository.deleteAll();
         advertiserRepository.deleteAll();
+    }
+
+    @Override
+    public String uploadUserProfileImage(MultipartFile file, Long userID) throws FileSizeLimitExceededException {
+
+        Optional<User> userOptional = userRepository.findById(userID);
+
+        if (userOptional.isEmpty()) {
+            throw new EntityNotFoundException("[Profile image upload failed] User with ID " + userID + " not Found!");
+        }
+
+        long maxSize = 1048576L; // 1MB
+        int maxSizeMB = (int) maxSize / (1024 * 1024);
+
+        String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
+
+        if (!extension.equals("jpg") && !extension.equals("jpeg") && !extension.equals("png") && !extension.equals("gif")) {
+            throw new UnsupportedFileFormatException( //todo aggiungere in ex. handler
+                    "[Profile image upload failed] unsupported format(Available formats: .jpg / .jpeg / .png / .gif)"
+            );
+        }
+        if (file.getSize() > maxSize) {
+            throw new FileSizeLimitExceededException( //todo aggiungere in ex. handler
+                    "File too large. Max. size = " + maxSizeMB + "MB", file.getSize(), maxSize
+            );
+        }
+
+        String destinationFolderName = "user_" + userID + "_data/profileImages";
+        String newFileName = "user_" + userID + "_profileImg";
+
+        String uploadedFileUrl = minioService.uploadFile(file, newFileName, destinationFolderName, profileDataBucket);
+
+        User user = userOptional.get();
+        user.setUrlPhoto(uploadedFileUrl);
+        userRepository.saveAndFlush(user);
+
+        return "Uploaded file url:" + uploadedFileUrl;
     }
 
     private UserWithRoleDetailsResponseDTO handleListenerRole(User user, UserWithRoleDetailsResponseDTO response) {

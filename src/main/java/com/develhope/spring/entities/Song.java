@@ -17,8 +17,8 @@ public class Song {
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-    @OneToMany
-    @JoinColumn(name = "genre_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "genre_id", nullable = false)
     private Genre genre;
     @Column(nullable = false)
     private int year_release;
