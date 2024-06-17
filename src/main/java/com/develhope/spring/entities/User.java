@@ -2,6 +2,7 @@ package com.develhope.spring.entities;
 
 import jakarta.persistence.*;
 
+
 import java.time.LocalDate;
 
 @Entity
@@ -39,8 +40,13 @@ public class User {
     @Column(nullable = false)
     private LocalDate registrationDate;
 
-    @Column(nullable = true)
+
+    @Column(nullable = true, length = 65535, columnDefinition="TEXT")
     private String urlPhoto;
+
+
+    @Column(nullable = true)
+    private String photoObjectStorageName;
 
     @Column(nullable = true)
     private String urlSocial;
@@ -53,7 +59,7 @@ public class User {
     private Role role; // Ruolo dell'utente
 
 
-    public User(Long id, String nickName, String name, String lastName, String numPhone, String email, String password, LocalDate registrationDate, String urlPhoto, String urlSocial, String userCountry, Role role) {
+    public User(Long id, String nickName, String name, String lastName, String numPhone, String email, String password, LocalDate registrationDate, String urlPhoto, String photoObjectStorageName, String urlSocial, String userCountry, Role role) {
         this.id = id;
         this.nickName = nickName;
         this.name = name;
@@ -63,6 +69,7 @@ public class User {
         this.password = password;
         this.registrationDate = registrationDate;
         this.urlPhoto = urlPhoto;
+        this.photoObjectStorageName = photoObjectStorageName;
         this.urlSocial = urlSocial;
         this.userCountry = userCountry;
         this.role = role;
@@ -141,6 +148,14 @@ public class User {
 
     public void setUrlPhoto(String urlPhoto) {
         this.urlPhoto = urlPhoto;
+    }
+
+    public String getPhotoObjectStorageName() {
+        return photoObjectStorageName;
+    }
+
+    public void setPhotoObjectStorageName(String photoObjectStorageName) {
+        this.photoObjectStorageName = photoObjectStorageName;
     }
 
     public String getUrlSocial() {
