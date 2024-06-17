@@ -16,3 +16,5 @@ public interface LikesSongRepository extends JpaRepository<LikesSongs, Long> {
 
     List<LikesSongs> findBySongId(Long songId);
 }
+
+

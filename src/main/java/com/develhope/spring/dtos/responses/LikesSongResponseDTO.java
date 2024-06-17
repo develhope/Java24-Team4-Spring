@@ -48,4 +48,5 @@ public class LikesSongResponseDTO {
     public void setIsLiked(Boolean isLiked) {
         this.isLiked = isLiked;
     }
+
 }

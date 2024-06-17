@@ -1,40 +1,69 @@
 package com.develhope.spring.controllers;
 
-
-import com.develhope.spring.entities.Album;
+import com.develhope.spring.dtos.requests.AlbumRequestDTO;
+import com.develhope.spring.dtos.responses.AlbumResponseDTO;
+import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.AlbumService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/album")
+@RequestMapping("/albums")
 public class AlbumController {
 
+    private final AlbumService albumService;
+
     @Autowired
-    private AlbumService albumService;
-    @PostMapping("/")
-    public Album albumCreate(Album album){
-        return albumService.createAlbum(album);
+    public AlbumController(AlbumService albumService) {
+        this.albumService = albumService;
     }
-    @GetMapping("/")
-    public List<Album> getAllAlbums(){
-        return albumService.getAllAlbums();
+
+    @PostMapping
+    public ResponseEntity<Response> createAlbum(@RequestBody AlbumRequestDTO albumRequestDTO) {
+        AlbumResponseDTO albumResponseDTO = albumService.createAlbum(albumRequestDTO);
+        Response response = new Response(200, "Album created successfully.", albumResponseDTO);
+        return ResponseEntity.ok(response);
     }
+
+    @GetMapping
+    public ResponseEntity<Response> getAllAlbums() {
+        List<AlbumResponseDTO> albumList = albumService.getAllAlbums();
+        Response response = new Response(200, "Albums retrieved successfully.", albumList);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
-    public Optional<Album> albumById(Long id){
-        return albumService.albumById(id);
+    public ResponseEntity<Response> albumById(@PathVariable Long id) {
+        Optional<AlbumResponseDTO> albumResponseDTO = albumService.albumById(id);
+        if (albumResponseDTO.isPresent()) {
+            Response response = new Response(200, "Album retrieved successfully.", albumResponseDTO.get());
+            return ResponseEntity.ok(response);
+        } else {
+            Response response = new Response(404, "Album not found.", null);
+            return ResponseEntity.status(404).body(response);
+        }
     }
+
     @PutMapping("/{id}")
-    public Album updateAlbum(Long id, Album album){
-        return albumService.updateAlbum(id, album);
+    public ResponseEntity<Response> updateAlbum(@PathVariable Long id, @RequestBody AlbumRequestDTO albumRequestDTO) {
+        try {
+            AlbumResponseDTO updatedAlbum = albumService.updateAlbum(id, albumRequestDTO);
+            Response response = new Response(200, "Album updated successfully.", updatedAlbum);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Response response = new Response(404, e.getMessage(), null);
+            return ResponseEntity.status(404).body(response);
+        }
     }
     @DeleteMapping("/{id}")
-    public void albumDelete(Long id){
+    public ResponseEntity<Response> albumDelete(@PathVariable Long id) {
         albumService.albumDelete(id);
+        Response response = new Response(200, "Album deleted successfully.", null);
+        return ResponseEntity.ok(response);
     }
 
 }

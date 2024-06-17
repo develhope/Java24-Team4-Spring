@@ -23,33 +23,50 @@ public class LikesSongController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LikesSongResponseDTO> getLikeById(@PathVariable Long id) {
+    public ResponseEntity<Response> getLikeById(@PathVariable Long id) {
         Optional<LikesSongResponseDTO> responseDTO = likesSongService.getLikeById(id);
-        return responseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        if (responseDTO.isPresent()) {
+            Response response = new Response(200, "Like retrieved successfully.", responseDTO.get());
+            return ResponseEntity.ok(response);
+        } else {
+            Response response = new Response(404, "Like not found.", null);
+            return ResponseEntity.status(404).body(response);
+        }
     }
 
     @GetMapping("/song/{songId}")
-    public ResponseEntity<List<LikesSongResponseDTO>> getLikesBySongId(@PathVariable Long songId) {
+    public ResponseEntity<Response> getLikesBySongId(@PathVariable Long songId) {
         List<LikesSongResponseDTO> responseDTOs = likesSongService.getLikesBySongId(songId);
-        return ResponseEntity.ok(responseDTOs);
+        Response response = new Response(200, "Likes retrieved successfully.", responseDTOs);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/listener/{listenerId}")
-    public ResponseEntity<List<LikesSongResponseDTO>> getLikesByListenerId(@PathVariable Long listenerId) {
+    public ResponseEntity<Response> getLikesByListenerId(@PathVariable Long listenerId) {
         List<LikesSongResponseDTO> responseDTOs = likesSongService.getLikesByListenerId(listenerId);
-        return ResponseEntity.ok(responseDTOs);
+        Response response = new Response(200, "Likes retrieved successfully.", responseDTOs);
+        return ResponseEntity.ok(response);
+
     }
 
     @PostMapping
     public ResponseEntity<Response> createLike(@RequestBody LikesSongRequestDTO requestDTO) {
         Optional<LikesSongResponseDTO> responseDTO = likesSongService.createLike(requestDTO);
-        return ResponseEntity.ok(new Response(200,"Like were added.",responseDTO));
+        Response response = new Response(200, "Like added successfully.", responseDTO);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LikesSongResponseDTO> updateLike(@PathVariable Long id, @RequestBody LikesSongRequestDTO requestDTO) {
+    public ResponseEntity<Response> updateLike(@PathVariable Long id, @RequestBody LikesSongRequestDTO requestDTO) {
         Optional<LikesSongResponseDTO> responseDTO = likesSongService.updateLike(id, requestDTO);
-        return responseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        if (responseDTO.isPresent()) {
+            Response response = new Response(200, "Like updated successfully.", responseDTO.get());
+            return ResponseEntity.ok(response);
+        } else {
+            Response response = new Response(404, "Like not found.", null);
+            return ResponseEntity.status(404).body(response);
+        }
     }
-
 }
+
+

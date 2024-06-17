@@ -39,7 +39,6 @@ public class Artist {
         this.artistCountry = artistCountry;
         this.albums = albums;
     }
-
     public Long getId() {
         return id;
     }
