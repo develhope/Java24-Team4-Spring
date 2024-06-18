@@ -1,6 +1,8 @@
 package com.develhope.spring.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
 import java.util.List;
 
 
@@ -26,6 +28,7 @@ public class Artist {
     private String artistCountry;
 
     @OneToMany(mappedBy = "artist", fetch = FetchType.LAZY)
+    @JsonIgnore
     List<Album> albums;
 
     public Artist() {
@@ -39,6 +42,7 @@ public class Artist {
         this.artistCountry = artistCountry;
         this.albums = albums;
     }
+
     public Long getId() {
         return id;
     }

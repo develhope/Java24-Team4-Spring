@@ -1,6 +1,7 @@
 package com.develhope.spring.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,8 +12,9 @@ public class Album {
 
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "artist_id", nullable = false)
+    @JsonBackReference
     private Artist artist;
 
     @Column(nullable = false)

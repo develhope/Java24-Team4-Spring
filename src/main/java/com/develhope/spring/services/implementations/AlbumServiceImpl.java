@@ -11,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class AlbumServiceImpl implements AlbumService {
+
     private final ModelMapper modelMapper;
     private final AlbumRepository albumRepository;
     private final ArtistRepository artistRepository;
@@ -30,6 +32,7 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
+    @Transactional
     public AlbumResponseDTO createAlbum(AlbumRequestDTO albumRequestDTO) {
         Optional<Artist> artist = artistRepository.findById(albumRequestDTO.getArtistId());
         if (artist.isPresent()) {
@@ -49,13 +52,13 @@ public class AlbumServiceImpl implements AlbumService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Optional<AlbumResponseDTO> albumById(Long id){
+    @Override  //todo controllare
+    public Optional<AlbumResponseDTO> getAlbumById(Long id){
         return albumRepository.findById(id)
                 .map(album -> modelMapper.map(album, AlbumResponseDTO.class));
     }
 
-    @Override
+    @Override//todo controllare !
     public AlbumResponseDTO updateAlbum(Long id, AlbumRequestDTO albumRequestDTO){
         Optional<Album> existingAlbumOpt = albumRepository.findById(id);
         if(existingAlbumOpt.isPresent()) {
@@ -68,8 +71,8 @@ public class AlbumServiceImpl implements AlbumService {
         }
     }
 
-    @Override
-    public void albumDelete(Long id){
+    @Override //todo rifare questo metodo!!
+    public void deleteAlbumById(Long id){
         albumRepository.deleteById(id);
     }
 }

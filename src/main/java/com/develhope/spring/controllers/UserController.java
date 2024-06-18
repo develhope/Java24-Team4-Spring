@@ -96,8 +96,8 @@ public class UserController {
 
         UserWithRoleDetailsResponseDTO user = userService.deleteUserById(id);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-                new Response(HttpStatus.NO_CONTENT.value(), "User updated successfully.", user)
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "User deleted successfully.", user)
         );
     }
 
@@ -105,8 +105,8 @@ public class UserController {
     public ResponseEntity<Response> deleteAllUsers() {
         userService.deleteAllUsers();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-                new Response(HttpStatus.NO_CONTENT.value(), "All users deleted")
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "All users deleted")
         );
     }
 }

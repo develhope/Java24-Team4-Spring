@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/albums")
+@RequestMapping("/api/v1/albums")
 public class AlbumController {
 
     private final AlbumService albumService;
@@ -38,7 +38,7 @@ public class AlbumController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> albumById(@PathVariable Long id) {
-        Optional<AlbumResponseDTO> albumResponseDTO = albumService.albumById(id);
+        Optional<AlbumResponseDTO> albumResponseDTO = albumService.getAlbumById(id);
         if (albumResponseDTO.isPresent()) {
             Response response = new Response(200, "Album retrieved successfully.", albumResponseDTO.get());
             return ResponseEntity.ok(response);
@@ -61,7 +61,7 @@ public class AlbumController {
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Response> albumDelete(@PathVariable Long id) {
-        albumService.albumDelete(id);
+        albumService.deleteAlbumById(id);
         Response response = new Response(200, "Album deleted successfully.", null);
         return ResponseEntity.ok(response);
     }
