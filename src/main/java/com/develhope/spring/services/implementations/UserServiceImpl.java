@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -354,13 +355,36 @@ public class UserServiceImpl implements UserService {
         String destinationFolderName = "user_" + userID + "_data/profileImages";
         String newFileName = "user_" + userID + "_profileImg";
 
-        String uploadedFileUrl = minioService.uploadFile(file, newFileName, destinationFolderName, profileDataBucket);
+        Map<String, String> uploaded = minioService.uploadFile(file, newFileName, destinationFolderName, profileDataBucket);
+        String fullLink = uploaded.get("fullLink");
+        String objectStorageFileName = uploaded.get("objectName");
 
         User user = userOptional.get();
-        user.setUrlPhoto(uploadedFileUrl);
+        user.setUrlPhoto(fullLink);
+        user.setPhotoObjectStorageName(objectStorageFileName);
         userRepository.saveAndFlush(user);
 
-        return "Uploaded file url:" + uploadedFileUrl;
+        return "Uploaded file url:" + fullLink;
+    }
+
+    @Override
+    public void deleteUserProfileImg(Long userID) {
+        Optional<User> userOptional = userRepository.findById(userID);
+
+        if (userOptional.isEmpty()) {
+            throw new EntityNotFoundException("[Profile image delete failed] User with ID " + userID + " not Found!");
+        }
+
+        User user = userOptional.get();
+        String fileToDelete = user.getPhotoObjectStorageName();
+
+        boolean deleted = minioService.deleteFile(profileDataBucket, fileToDelete);
+
+        if (deleted) {
+            user.setPhotoObjectStorageName(null);
+            user.setUrlPhoto(null);
+            userRepository.saveAndFlush(user);
+        }
     }
 
     private UserWithRoleDetailsResponseDTO handleListenerRole(User user, UserWithRoleDetailsResponseDTO response) {

@@ -5,6 +5,7 @@ import com.develhope.spring.services.interfaces.MinioService;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.errors.*;
 import io.minio.http.Method;
 import org.apache.commons.io.FilenameUtils;
@@ -17,6 +18,8 @@ import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -34,7 +37,7 @@ public class MinioServiceImpl implements MinioService {
     //todo: removeFile e downloadFile methods
 
     @Override
-    public String uploadFile(MultipartFile file, String newFileName, String destinationFolderName, String bucketName) {
+    public Map<String, String> uploadFile(MultipartFile file, String newFileName, String destinationFolderName, String bucketName) {
 
         String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
         String objectFullName = destinationFolderName + "/" + UUID.randomUUID() +
@@ -47,24 +50,31 @@ public class MinioServiceImpl implements MinioService {
         // ad.es.: dimensione di file = 100mb, dim. di ogni pezzo per = 10)
         long maxPartSize = 10485760L;
 
+        Map<String, String> newObject = new HashMap<>();
         try {
 
             fileInputStream = file.getInputStream();
 
-            Object newFile = minioClient.putObject(PutObjectArgs.builder()
+            minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucketName)
                     .object(objectFullName)
                     .stream(fileInputStream, -1, maxPartSize)
                     .contentType(contentType)
                     .build());
 
-            return minioClient.getPresignedObjectUrl(
+            String objectFullLink = minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(bucketName)
                             .object(objectFullName)
                             .build()
+
             );
+
+            newObject.put("fullLink", objectFullLink);
+            newObject.put("objectName", objectFullName);
+
+            return newObject;
 
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException |
@@ -82,6 +92,27 @@ public class MinioServiceImpl implements MinioService {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean deleteFile(String bucketName, String filepath) {
+        boolean deleted = false;
+
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(filepath)
+                    .build());
+            deleted = true;
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException exception) {
+
+            //todo aggiungere in ex. handler
+            throw new MinIOFileUploadException("[File delete error] " + exception.getMessage());
+        }
+
+        return deleted;
     }
 
 }
