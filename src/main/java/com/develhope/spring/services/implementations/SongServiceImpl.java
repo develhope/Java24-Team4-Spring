@@ -2,15 +2,16 @@ package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.dtos.requests.SongRequestDTO;
 import com.develhope.spring.dtos.responses.SongResponseDTO;
-import com.develhope.spring.entities.Album;
-import com.develhope.spring.entities.Genre;
-import com.develhope.spring.entities.Song;
+import com.develhope.spring.entities.*;
 import com.develhope.spring.exceptions.EmptyResultException;
+import com.develhope.spring.exceptions.EntityMappingException;
 import com.develhope.spring.exceptions.MinIOFileUploadException;
 import com.develhope.spring.exceptions.UnsupportedFileFormatException;
 import com.develhope.spring.repositories.AlbumRepository;
 import com.develhope.spring.repositories.GenreRepository;
+import com.develhope.spring.repositories.PlaylistRepository;
 import com.develhope.spring.repositories.SongRepository;
+import com.develhope.spring.services.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.MinioService;
 import com.develhope.spring.services.interfaces.SongService;
 import jakarta.persistence.EntityNotFoundException;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,48 +36,54 @@ public class SongServiceImpl implements SongService {
     private final ModelMapper modelMapper;
     private final AlbumRepository albumRepository;
     private final GenreRepository genreRepository;
+    private final PlaylistRepository playlistRepository;
     private final MinioService minioService;
 
     @Value("${minio.musicBucket}")
     private String musicBucket;
 
     @Autowired
-    public SongServiceImpl(SongRepository songRepository, ModelMapper modelMapper, AlbumRepository albumRepository, GenreRepository genreRepository, MinioService minioService) {
+    public SongServiceImpl(SongRepository songRepository, ModelMapper modelMapper, AlbumRepository albumRepository, GenreRepository genreRepository, PlaylistRepository playlistRepository, MinioService minioService) {
         this.songRepository = songRepository;
         this.modelMapper = modelMapper;
         this.albumRepository = albumRepository;
         this.genreRepository = genreRepository;
+        this.playlistRepository = playlistRepository;
         this.minioService = minioService;
     }
 
     @Override
     public SongResponseDTO createSong(SongRequestDTO song) {
 
-        Optional<Album> album = albumRepository.findById(song.getAlbumId());
-        Optional<Genre> genre = genreRepository.findById(song.getGenreId());
+        Album album = albumRepository.findById(song.getAlbumId()).orElseThrow(
+                () -> new EntityNotFoundException("Album with ID " + song.getAlbumId() + " not found in the database")
+        );
 
-        if (album.isEmpty()) {
-            throw new EntityNotFoundException("Album with ID " + song.getAlbumId() + " not found in the database");
+        Genre genre = genreRepository.findById(song.getGenreId()).orElseThrow(
+                () -> new EntityNotFoundException("Genre with ID " + song.getGenreId() + " not found in the database")
+        );
+
+        Song toSave = new Song();
+
+        try {
+            UniversalFieldUpdater.checkFieldsAndUpdate(song, toSave);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new EntityMappingException(e.getMessage());
         }
 
-        if (genre.isEmpty()) {
-            throw new EntityNotFoundException("Genre with ID " + song.getGenreId() + " not found in the database");
-        }
-
-        Song toSave = modelMapper.map(song, Song.class);
-
-        toSave.setAlbum(album.get());
-        toSave.setGenre(genre.get());
+        toSave.setAlbum(album);
+        toSave.setGenre(genre);
 
         Song saved = songRepository.saveAndFlush(toSave);
 
         SongResponseDTO response = modelMapper.map(saved, SongResponseDTO.class);
+        songResponseDtoSetArtistName(saved, response);
 
         return response;
-
     }
 
     @Override
+    @Transactional
     public SongResponseDTO updateSong(Long id, SongRequestDTO song) {
 
         return songRepository.findById(id).map(songFound -> {
@@ -83,6 +91,7 @@ public class SongServiceImpl implements SongService {
 
             Song updated = songRepository.saveAndFlush(songFound);
             SongResponseDTO response = modelMapper.map(updated, SongResponseDTO.class);
+            songResponseDtoSetArtistName(updated, response);
 
             return response;
 
@@ -94,6 +103,7 @@ public class SongServiceImpl implements SongService {
 
         var songs = songRepository.findAll().stream().map(song -> {
             SongResponseDTO response = modelMapper.map(song, SongResponseDTO.class);
+            songResponseDtoSetArtistName(song, response);
 
             return response;
 
@@ -108,6 +118,7 @@ public class SongServiceImpl implements SongService {
     }
 
     @Transactional
+    @Override
     public String uploadSong(MultipartFile file, Long songID) {
 
         long maxSize = 209715200L;
@@ -116,14 +127,14 @@ public class SongServiceImpl implements SongService {
         String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
 
         if (!extension.equals("mp3") && !extension.equals("wav") && !extension.equals("flac") && !extension.equals("m4a")) {
-            throw new UnsupportedFileFormatException( //todo aggiungere in ex. handler
-                    "[Profile image upload failed] unsupported format(Available formats: .mp3 / .wav / .flac / .m4a)"
+            throw new UnsupportedFileFormatException( 
+                    "[Song upload failed] unsupported format(Available formats: .mp3 / .wav / .flac / .m4a)"
             );
         }
 
         if (file.getSize() > maxSize) {
             try {
-                throw new FileSizeLimitExceededException( //todo aggiungere in ex. handler
+                throw new FileSizeLimitExceededException(
                         "File too large. Max. size = " + maxSizeMB + "MB", file.getSize(), maxSize
                 );
             } catch (FileSizeLimitExceededException e) {
@@ -132,7 +143,7 @@ public class SongServiceImpl implements SongService {
         }
 
         Song song = songRepository.findById(songID).orElseThrow(
-                () -> new EntityNotFoundException("[Upload failed] Song with id " +
+                () -> new EntityNotFoundException("[Song upload failed] Song with id " +
                         songID + " not found in the database")
         );
 
@@ -158,10 +169,30 @@ public class SongServiceImpl implements SongService {
     }
 
     @Override
+    @Transactional
+    public void deleteSongFromMinioStorage(Long songID) {
+       
+        Song song = songRepository.findById(songID).orElseThrow(
+               () -> new EntityNotFoundException("[Song delete failed] Song with ID " + songID + " not Found!")
+       );
+        
+        String fileToDelete = song.getObjectStorageFileName();
+
+        boolean deleted = minioService.deleteFile(musicBucket, fileToDelete);
+
+        if (deleted) {
+            song.setObjectStorageFileName(null);
+            song.setLink_audio(null);
+            songRepository.saveAndFlush(song);
+        }
+    }
+
+    @Override
     public SongResponseDTO findSongById(long id) {
 
         return songRepository.findById(id).map(songFound -> {
             SongResponseDTO response = modelMapper.map(songFound, SongResponseDTO.class);
+            songResponseDtoSetArtistName(songFound, response);
 
             return response;
 
@@ -169,17 +200,24 @@ public class SongServiceImpl implements SongService {
     }
 
     @Override
+    @Transactional
     public SongResponseDTO deleteSongById(Long id) {
-
         return songRepository.findById(id).map(songFound -> {
+
+            List<Playlist> playlists = playlistRepository.findAll();
+            playlists.forEach(playlist -> playlist.getSongs().remove(songFound));
+            playlistRepository.saveAll(playlists);
+
             songRepository.deleteById(id);
+
             SongResponseDTO deleted = modelMapper.map(songFound, SongResponseDTO.class);
+            songResponseDtoSetArtistName(songFound, deleted);
 
             return deleted;
 
         }).orElseThrow(() -> new EntityNotFoundException("Song with ID " + id + " not found in the database"));
-
     }
+
 
     @Override
     public void deleteAllSongs() {
@@ -224,16 +262,15 @@ public class SongServiceImpl implements SongService {
             anyFieldSet = true;
         }
 
-        if (song.getLink_audio() != null && !song.getLink_audio().isBlank()) {
-            songFound.setLink_audio(song.getLink_audio());
-            anyFieldSet = true;
-        }
-
         if (!anyFieldSet) {
-            throw new IllegalArgumentException("Update error: all fields are either null or blank, or not valid. " +
+            throw new IllegalArgumentException("[Update error] all fields are either null or blank, or not valid. " +
                     "At least one field must be filled in with a valid value!");
         }
     }
 
+    private void songResponseDtoSetArtistName(Song song, SongResponseDTO responseDTO){
+        String artistName = song.getAlbum().getArtist().getArtistName();
+        responseDTO.setArtistName(artistName);
+    }
 
 }

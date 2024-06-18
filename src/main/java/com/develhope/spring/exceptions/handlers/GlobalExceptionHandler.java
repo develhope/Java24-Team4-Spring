@@ -31,7 +31,6 @@ public class GlobalExceptionHandler {
         return createErrorResponse(ex, HttpStatus.NOT_FOUND);
     }
 
-
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoFieldsHaveBeenUpdatedException.class)
     public ResponseEntity<ErrorResponse> handleNoFieldsUpdatedExceptions(NoFieldsHaveBeenUpdatedException ex) {
@@ -66,6 +65,40 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnknownUserRoleException.class)
     public ResponseEntity<ErrorResponse> handleUnknownUserRoleExceptions(UnknownUserRoleException ex) {
         return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(UnsupportedFileFormatException.class)
+    public ResponseEntity<ErrorResponse> handleUnsupportedFileFormatExceptions(UnsupportedFileFormatException ex) {
+        return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PlaylistUpdateException.class)
+    public ResponseEntity<ErrorResponse> handlePlaylistUpdateExceptions(PlaylistUpdateException ex) {
+        String message = ex.getMessage();
+        String timestamp = this.timestamp;
+        String stackTrace = Arrays.toString(ex.getStackTrace());
+
+        ErrorResponse errorResponseEntity = new ErrorResponse(message, timestamp, stackTrace);
+
+        if (ex.getCause() != null) {
+            errorResponseEntity = new ErrorResponse(message + " | Cause: " + ex.getCause().getMessage(), timestamp, stackTrace);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseEntity);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(MinIOFileUploadException.class)
+    public ResponseEntity<ErrorResponse> handleMinIOFileUploadExceptions(MinIOFileUploadException ex) {
+        return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(EntityMappingException.class)
+    public ResponseEntity<ErrorResponse> handleEntityMappingExceptions(EntityMappingException ex) {
+        return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ErrorResponse> createErrorResponse(Exception ex, HttpStatus status) {

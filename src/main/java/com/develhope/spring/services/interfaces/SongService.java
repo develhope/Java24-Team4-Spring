@@ -14,6 +14,8 @@ public interface SongService {
 
     List<SongResponseDTO> getAllSong();
 
+    void deleteSongFromMinioStorage(Long userID);
+
     SongResponseDTO findSongById(long id);
 
     SongResponseDTO updateSong(Long id, SongRequestDTO song);

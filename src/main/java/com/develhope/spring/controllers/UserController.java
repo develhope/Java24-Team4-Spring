@@ -79,14 +79,22 @@ public class UserController {
         );
     }
 
-    //todo: aggiungere exceptions in GlobalExHandler
-    //todo: aggiungere removeProfileImage method
-    @PatchMapping("/profilePhoto/{id}")
-    public ResponseEntity<Response> uploadProfileImage(@RequestParam MultipartFile imageFile, @PathVariable Long id) throws FileSizeLimitExceededException {
+
+    @PostMapping("/fileService/{id}")
+    public ResponseEntity<Response> uploadProfileImage(@RequestParam MultipartFile imageFile, @PathVariable Long id) {
         String uploadedFileUrl = userService.uploadUserProfileImage(imageFile,id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new Response(HttpStatus.OK.value(), "Profile image uploaded successfully", uploadedFileUrl)
+        );
+    }
+
+    @DeleteMapping("/fileService/{id}")
+    public ResponseEntity<Response> deleteUserProfileImage(@PathVariable Long id) {
+        userService.deleteUserProfileImg(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "Profile image deleted successfully")
         );
     }
 

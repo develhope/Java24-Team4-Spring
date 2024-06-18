@@ -1,11 +1,13 @@
 package com.develhope.spring.controllers;
 
 import com.develhope.spring.dtos.requests.GenreRequestDTO;
+import com.develhope.spring.dtos.responses.GenreResponseDTO;
 import com.develhope.spring.entities.Genre;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.GenreService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,55 +22,42 @@ public class GenreController {
     @Autowired
     private ModelMapper modelMapper;
 
-    //Endpoint per ottenere tutti i genri musicali.
-    @GetMapping("/")
-    public List<Genre> getAllGenres(){
-        return genreService.getAllGenres();
+    @GetMapping
+    public ResponseEntity<Response> getAllGenres() {
+        List<GenreResponseDTO> genresList = genreService.getAllGenres();
+
+        return ResponseEntity.ok(new Response(HttpStatus.OK.value(), "Genres found: " + genresList.size(), genresList));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Response> getGenreById(@PathVariable long id){
-        Optional<Genre> genre = genreService.findGenreById(id);
-        if(genre.isPresent()){
-            return ResponseEntity.ok().body(new Response(200, "genre found", genre));
-        } else {
-            return ResponseEntity.ok().body(new Response(404, "genre not found", genre));
-        }
+    public ResponseEntity<Response> getGenreById(@PathVariable long id) {
+        GenreResponseDTO genre = genreService.findGenreById(id);
+
+        return ResponseEntity.ok().body(new Response(200, "genre found", genre));
+
     }
 
-    // Metodo per creare un nuovo Genere
-    @PostMapping("/")
-    public ResponseEntity<Response> createGenre(@RequestBody GenreRequestDTO genreDTO){
-        Genre genre = modelMapper.map(genreDTO, Genre.class);
-        Genre newGenre = genreService.createGenre(genre);
+    @PostMapping
+    public ResponseEntity<Response> createGenre(@RequestBody GenreRequestDTO genreDTO) {
 
-        if (newGenre != null){
-            return ResponseEntity.ok().body(new Response(201,"genre created successfully", newGenre));
-        }else {
-            return ResponseEntity.ok().body(new Response(400, "Genre creation failed!"));
-        }
+        GenreResponseDTO newGenre = genreService.createGenre(genreDTO);
+
+        return ResponseEntity.ok().body(new Response(200, "genre created successfully", newGenre));
     }
 
-    //Endpoint per aggiornare un genere musicale esistente
+
     @PutMapping("/{id}")
-    public ResponseEntity<Response> updateGenre(@PathVariable long id, Genre genre){
-        Genre updateGenre = genreService.updateGenre(id,genre);
-        if(updateGenre != null){
-            return ResponseEntity.ok().body(new Response(200, "Genre updated successfully!", updateGenre));
-        }else{
-            return ResponseEntity.ok().body(new Response(404, "Genre not found"));
-        }
-    }
+    public ResponseEntity<Response> updateGenre(@PathVariable long id, @RequestBody GenreRequestDTO genre) {
+        GenreResponseDTO updateGenre = genreService.updateGenre(id, genre);
 
-    //Endpoint per eliminare un Genere musicale
+        return ResponseEntity.ok().body(new Response(200, "Genre updated successfully!", updateGenre));
+
+    }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Response> deleteGenre(@PathVariable long id){
-        boolean deletedGenre = genreService.deleteGenre(id);
-        if(deletedGenre){
-            return ResponseEntity.ok().body(new Response(204,"Genre deleted successfully"));
-        }else{
-            return ResponseEntity.ok().body(new Response(404, "Genre not found"));
-        }
+    public ResponseEntity<Response> deleteGenre(@PathVariable long id) {
+        GenreResponseDTO deletedGenre = genreService.deleteGenre(id);
+
+        return ResponseEntity.ok().body(new Response(204, "Genre deleted successfully", deletedGenre));
     }
 }

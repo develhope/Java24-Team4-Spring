@@ -27,7 +27,7 @@ public class Artist {
     @Column(nullable = false)
     private String artistCountry;
 
-    @OneToMany(mappedBy = "artist", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "artist", fetch = FetchType.EAGER)
     @JsonIgnore
     List<Album> albums;
 

@@ -146,7 +146,6 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    @Transactional
     public AdvertisementResponseDTO getAdvertisementById(Long id) {
 
         if (id < 0) {

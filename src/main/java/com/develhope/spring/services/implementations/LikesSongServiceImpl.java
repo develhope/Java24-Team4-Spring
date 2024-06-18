@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +46,7 @@ public class LikesSongServiceImpl implements LikesSongService {
     }
 
     @Override
+    @Transactional
     public Optional<LikesSongResponseDTO> createLike(LikesSongRequestDTO requestDTO) {
         Song song = songRepository.findById(requestDTO.getSongId()).orElseThrow(() -> new EntityNotFoundException("Song not found"));
         Listener listener = listenerRepository.findById(requestDTO.getListenerId()).orElseThrow(() -> new EntityNotFoundException("Listener not found"));
@@ -59,6 +61,7 @@ public class LikesSongServiceImpl implements LikesSongService {
     }
 
     @Override
+    @Transactional
     public Optional<LikesSongResponseDTO> updateLike(Long likeId, LikesSongRequestDTO request) {
         Optional<LikesSongs> optionalLike = likesSongRepository.findById(likeId);
         if (optionalLike.isPresent()) {
@@ -83,6 +86,7 @@ public class LikesSongServiceImpl implements LikesSongService {
     }
 
     @Override
+    @Transactional
     public void deleteLikeById(Long id) {
         if (likesSongRepository.existsById(id)){
             likesSongRepository.deleteById(id);
@@ -90,6 +94,11 @@ public class LikesSongServiceImpl implements LikesSongService {
             throw new EntityNotFoundException("Like with id " + id + " not found");
         }
 
+    }
+
+    @Override
+    public void deleteAllLikes(){
+        likesSongRepository.deleteAll();
     }
 
     @Override
