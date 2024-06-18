@@ -28,12 +28,14 @@ public class Song {
     private int number_of_plays;
     @Column(nullable = false)
     private String link_audio;
+    @Column(nullable = false)
+    private String objectStorageFileName;
 
     public Song() {
     }
 
     public Song(Long id, String title, Album album, Genre genre, int year_release, Integer duration_time,
-                int number_of_plays, String link_audio) {
+                int number_of_plays, String link_audio, String objectStorageFileName) {
         this.id = id;
         this.title = title;
         this.album = album;
@@ -42,6 +44,15 @@ public class Song {
         this.duration_time = duration_time;
         this.number_of_plays = number_of_plays;
         this.link_audio = link_audio;
+        this.objectStorageFileName = objectStorageFileName;
+    }
+
+    public String getObjectStorageFileName() {
+        return objectStorageFileName;
+    }
+
+    public void setObjectStorageFileName(String objectStorageFileName) {
+        this.objectStorageFileName = objectStorageFileName;
     }
 
     public Long getId() {

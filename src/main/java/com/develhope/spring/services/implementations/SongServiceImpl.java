@@ -6,16 +6,24 @@ import com.develhope.spring.entities.Album;
 import com.develhope.spring.entities.Genre;
 import com.develhope.spring.entities.Song;
 import com.develhope.spring.exceptions.EmptyResultException;
+import com.develhope.spring.exceptions.MinIOFileUploadException;
+import com.develhope.spring.exceptions.UnsupportedFileFormatException;
 import com.develhope.spring.repositories.AlbumRepository;
 import com.develhope.spring.repositories.GenreRepository;
 import com.develhope.spring.repositories.SongRepository;
+import com.develhope.spring.services.interfaces.MinioService;
 import com.develhope.spring.services.interfaces.SongService;
 import jakarta.persistence.EntityNotFoundException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,13 +34,18 @@ public class SongServiceImpl implements SongService {
     private final ModelMapper modelMapper;
     private final AlbumRepository albumRepository;
     private final GenreRepository genreRepository;
+    private final MinioService minioService;
+
+    @Value("${minio.musicBucket}")
+    private String musicBucket;
 
     @Autowired
-    public SongServiceImpl(SongRepository songRepository, ModelMapper modelMapper, AlbumRepository albumRepository, GenreRepository genreRepository) {
+    public SongServiceImpl(SongRepository songRepository, ModelMapper modelMapper, AlbumRepository albumRepository, GenreRepository genreRepository, MinioService minioService) {
         this.songRepository = songRepository;
         this.modelMapper = modelMapper;
         this.albumRepository = albumRepository;
         this.genreRepository = genreRepository;
+        this.minioService = minioService;
     }
 
     @Override
@@ -94,6 +107,55 @@ public class SongServiceImpl implements SongService {
         }
     }
 
+    @Transactional
+    public String uploadSong(MultipartFile file, Long songID) {
+
+        long maxSize = 209715200L;
+        int maxSizeMB = (int) maxSize / (1024 * 1024);
+
+        String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
+
+        if (!extension.equals("mp3") && !extension.equals("wav") && !extension.equals("flac") && !extension.equals("m4a")) {
+            throw new UnsupportedFileFormatException( //todo aggiungere in ex. handler
+                    "[Profile image upload failed] unsupported format(Available formats: .mp3 / .wav / .flac / .m4a)"
+            );
+        }
+
+        if (file.getSize() > maxSize) {
+            try {
+                throw new FileSizeLimitExceededException( //todo aggiungere in ex. handler
+                        "File too large. Max. size = " + maxSizeMB + "MB", file.getSize(), maxSize
+                );
+            } catch (FileSizeLimitExceededException e) {
+                throw new MinIOFileUploadException(e.getMessage());
+            }
+        }
+
+        Song song = songRepository.findById(songID).orElseThrow(
+                () -> new EntityNotFoundException("[Upload failed] Song with id " +
+                        songID + " not found in the database")
+        );
+
+        if (song == null) throw new EntityNotFoundException("[Upload error] Song data not found in the DB]");
+
+        String albumName = song.getAlbum().getTitle();
+        String songNAme = song.getTitle();
+        String artistName = song.getAlbum().getArtist().getArtistName();
+
+        String destinationFolderName = artistName + "_" + albumName;
+        String newFileName = artistName + "_" + songNAme + "_" + UUID.randomUUID();
+
+        Map<String, String> uploaded = minioService.uploadFile(file, newFileName, destinationFolderName, musicBucket);
+
+        String fullLink = uploaded.get("fullLink");
+        String objectStorageFileName = uploaded.get("objectName");
+
+        song.setLink_audio(fullLink);
+        song.setObjectStorageFileName(objectStorageFileName);
+
+
+        return "Uploaded file url: " + fullLink;
+    }
 
     @Override
     public SongResponseDTO findSongById(long id) {
