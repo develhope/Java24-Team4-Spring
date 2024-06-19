@@ -2,6 +2,7 @@ package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.exceptions.MinIOFileUploadException;
 import com.develhope.spring.services.interfaces.MinioService;
+import com.develhope.spring.utils.TinyURL;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -70,8 +71,12 @@ public class MinioServiceImpl implements MinioService {
                             .build()
 
             );
-
-            newObject.put("fullLink", objectFullLink);
+            var shortUrl = TinyURL.shortUrl(objectFullLink);
+            if (shortUrl == null || shortUrl.isBlank()) {
+                deleteFile(objectFullName, bucketName);
+                throw new MinIOFileUploadException("[File upload failed] Short link  is not available");
+            }
+            newObject.put("fullLink", shortUrl);
             newObject.put("objectName", objectFullName);
 
             return newObject;

@@ -14,7 +14,7 @@ import com.develhope.spring.exceptions.PlaylistUpdateException;
 import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.PlaylistRepository;
 import com.develhope.spring.repositories.SongRepository;
-import com.develhope.spring.services.UniversalFieldUpdater;
+import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.PlaylistService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;

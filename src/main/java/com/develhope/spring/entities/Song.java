@@ -20,7 +20,6 @@ public class Song {
     private Album album;
 
     @ManyToOne(fetch = FetchType.EAGER)
-
     @JoinColumn(name = "genre_id", nullable = false)
     private Genre genre;
 
