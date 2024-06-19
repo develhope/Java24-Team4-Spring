@@ -11,7 +11,7 @@ import com.develhope.spring.repositories.AlbumRepository;
 import com.develhope.spring.repositories.GenreRepository;
 import com.develhope.spring.repositories.PlaylistRepository;
 import com.develhope.spring.repositories.SongRepository;
-import com.develhope.spring.services.UniversalFieldUpdater;
+import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.MinioService;
 import com.develhope.spring.services.interfaces.SongService;
 import jakarta.persistence.EntityNotFoundException;

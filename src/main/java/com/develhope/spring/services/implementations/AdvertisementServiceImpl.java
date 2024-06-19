@@ -9,7 +9,7 @@ import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.NegativeIdException;
 import com.develhope.spring.repositories.AdvertisementRepository;
 import com.develhope.spring.repositories.AdvertiserRepository;
-import com.develhope.spring.services.UniversalFieldUpdater;
+import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
@@ -20,10 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AdvertisementServiceImpl implements AdvertisementService {
