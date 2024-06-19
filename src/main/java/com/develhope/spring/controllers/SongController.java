@@ -54,7 +54,7 @@ public class SongController {
     }
 
     @PostMapping("/fileService/{id}")
-    public ResponseEntity<Response> uploadProfileImage(@RequestParam MultipartFile musicFile, @PathVariable Long id) {
+    public ResponseEntity<Response> uploadSongToMinio(@RequestParam MultipartFile musicFile, @PathVariable Long id) {
         String uploadedFileUrl = songService.uploadSong(musicFile, id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -63,7 +63,7 @@ public class SongController {
     }
 
     @DeleteMapping("/fileService/{id}")
-    public ResponseEntity<Response> deleteUserProfileImage(@PathVariable Long id) {
+    public ResponseEntity<Response> deleteSongFromMinio(@PathVariable Long id) {
         songService.deleteSongFromMinioStorage(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
