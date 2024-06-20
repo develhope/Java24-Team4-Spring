@@ -10,19 +10,19 @@ import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.NegativeIdException;
 import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.SubscriptionRepository;
-import com.develhope.spring.services.UniversalFieldUpdater;
+import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.SubscriptionService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
@@ -101,6 +101,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
+    @Transactional
     public SubscriptionResponseDTO createSubscription(SubscriptionRequestDTO request) {
 
         if (request.getListenerId() < 0){
@@ -108,18 +109,20 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                     "[Creation failed] Listener ID cannot be negative. Now: " + request.getListenerId());
         }
 
-        Optional<Listener> listener = listenerRepository.findById(request.getListenerId());
+        Listener listener = listenerRepository.findById(request.getListenerId())
+                .orElseThrow(() -> new EntityNotFoundException
+                        ("[Creation failed] Listener with ID " + request.getListenerId() + " not found in the database")
+                );
 
-        if (listener.isEmpty()){
-            throw new EntityNotFoundException("[Creation failed] Listener with ID " + request.getListenerId() + " not found in the database");
-        }
 
         Subscription toSave = modelMapper.map(request, Subscription.class);
 
-        toSave.setListener(listener.get());
+        toSave.setListener(listener);
         toSave.setTotalPrice(toSave.getType().getTotalPrice());
         setStartSetEnd(toSave);
         controlAndEnableSubscription(toSave);
+        listener.setSubscription(toSave);
+        listenerRepository.saveAndFlush(listener);
 
         var subscrSaved = subscrRepository.saveAndFlush(toSave);
         var responseDTO = modelMapper.map(subscrSaved, SubscriptionResponseDTO.class);
@@ -130,6 +133,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
+    @Transactional
     public SubscriptionResponseDTO updateSubscription(Long id, SubscriptionUpdateDTO request) {
 
         if (id < 0){
@@ -164,22 +168,22 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
+    @Transactional
     public SubscriptionResponseDTO deleteSubscriptionById(Long id) {
-
         if (id < 0) {
             throw new NegativeIdException("[Delete failed] Subscription ID cannot be negative. Now: " + id);
         }
-
         return subscrRepository.findById(id).map(subscription -> {
+            Listener listener = subscription.getListener();
             subscrRepository.deleteById(id);
+            if (listener != null) {
+                listener.setSubscription(null);
+                listenerRepository.saveAndFlush(listener);
+            }
             var responseDTO = modelMapper.map(subscription, SubscriptionResponseDTO.class);
             setCalculableFieldsViewDTO(responseDTO);
-
             return responseDTO;
-
-        }).orElseThrow(() -> new EntityNotFoundException("[Delete failed] Subscription with ID " + id +
-                " not found in the database"));
-
+        }).orElseThrow(() -> new EntityNotFoundException("[Delete failed] Subscription with ID " + id + " not found in the database"));
     }
 
     @Override

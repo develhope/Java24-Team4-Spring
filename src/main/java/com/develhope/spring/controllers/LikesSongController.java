@@ -5,6 +5,7 @@ import com.develhope.spring.dtos.responses.LikesSongResponseDTO;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.LikesSongService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/likes")
+@RequestMapping("/api/v1/likes")
 public class LikesSongController {
 
     private final LikesSongService likesSongService;
@@ -59,14 +60,33 @@ public class LikesSongController {
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateLike(@PathVariable Long id, @RequestBody LikesSongRequestDTO requestDTO) {
         Optional<LikesSongResponseDTO> responseDTO = likesSongService.updateLike(id, requestDTO);
+
         if (responseDTO.isPresent()) {
             Response response = new Response(200, "Like updated successfully.", responseDTO.get());
+
             return ResponseEntity.ok(response);
+
         } else {
             Response response = new Response(404, "Like not found.", null);
             return ResponseEntity.status(404).body(response);
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response> deleteLikeById(@PathVariable Long id){
+        likesSongService.deleteLikeById(id);
+
+        return ResponseEntity.ok(new Response(HttpStatus.OK.value(), "Like deleted successfully"));
+    }
+
+
+    @DeleteMapping
+    public ResponseEntity<Response> deleteAllLikes(@PathVariable Long id){
+        likesSongService.deleteAllLikes();
+
+        return ResponseEntity.ok(new Response(HttpStatus.OK.value(), "All likes deleted successfully"));
+    }
+
 }
 
 

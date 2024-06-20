@@ -9,19 +9,19 @@ import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.NegativeIdException;
 import com.develhope.spring.repositories.AdvertisementRepository;
 import com.develhope.spring.repositories.AdvertiserRepository;
-import com.develhope.spring.services.UniversalFieldUpdater;
+import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AdvertisementServiceImpl implements AdvertisementService {
@@ -38,6 +38,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
+    @Transactional
     public AdvertisementResponseDTO createAdvertisement(AdvertisementRequestDTO request) {
 
         if (request.getAdvertiserUserId() < 0) {
@@ -66,6 +67,8 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
+    @Transactional
+
     public AdvertisementResponseDTO updateAdvertisement(AdvertisementUpdateDTO request, Long id) {
 
         if (id < 0) {
@@ -163,7 +166,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         List<Advertisement> ads = active ? advertisementRepository.findByActiveTrue() : advertisementRepository.findByActiveFalse();
 
-        var advertisements =  ads.stream()
+        var advertisements = ads.stream()
                 .map(adv -> {
                     var responseDTO = modelMapper.map(adv, AdvertisementResponseDTO.class);
                     setCalculableFieldsAdvViewDTO(responseDTO);
@@ -172,7 +175,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
                 }).toList();
 
-        if (advertisements.isEmpty()){
+        if (advertisements.isEmpty()) {
             throw new EmptyResultException("[Search failed] No advertisements(active = " + active +
                     ") found in the database.");
         } else {
@@ -181,6 +184,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
+    @Transactional
     public AdvertisementResponseDTO deleteAdvertisement(Long id) {
 
         if (id < 0) {
@@ -189,7 +193,15 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         return advertisementRepository.findById(id).map(advToDelete -> {
 
+            Advertiser advertiser = advToDelete.getAdvertiser();
+
+            if (advertiser != null) {
+
+                advertiser.getAdvertisements().removeIf(ad -> ad.equals(advToDelete));
+                advertiserRepository.saveAndFlush(advertiser);
+            }
             advertisementRepository.deleteById(id);
+
             var responseDTO = modelMapper.map(advToDelete, AdvertisementResponseDTO.class);
             setCalculableFieldsAdvViewDTO(responseDTO);
 
@@ -198,6 +210,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         }).orElseThrow(() -> new EntityNotFoundException("[Delete failed] Advertisement with ID " + id +
                 " not found in the database"));
     }
+
 
     @Override
     public void deleteAllAdvertisements() {

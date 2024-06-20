@@ -1,5 +1,6 @@
 package com.develhope.spring.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public class Advertiser {
     private Long id;
 
     @MapsId
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id", nullable = false)
     private User user;
     private String companyName;
@@ -22,6 +23,7 @@ public class Advertiser {
 
 
     @OneToMany(mappedBy = "advertiser", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Advertisement> advertisements;
 
     public Advertiser() {

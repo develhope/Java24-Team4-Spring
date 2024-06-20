@@ -41,11 +41,8 @@ public class User {
     private LocalDate registrationDate;
 
 
-    @Column(nullable = true, length = 65535, columnDefinition="TEXT")
+    @Column(length = 65535, columnDefinition="TEXT")
     private String urlPhoto;
-
-
-    @Column(nullable = true)
     private String photoObjectStorageName;
 
     @Column(nullable = true)

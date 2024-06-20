@@ -328,7 +328,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String uploadUserProfileImage(MultipartFile file, Long userID) throws FileSizeLimitExceededException {
+    public String uploadUserProfileImage(MultipartFile file, Long userID)  {
 
         Optional<User> userOptional = userRepository.findById(userID);
 
@@ -347,9 +347,13 @@ public class UserServiceImpl implements UserService {
             );
         }
         if (file.getSize() > maxSize) {
-            throw new FileSizeLimitExceededException( //todo aggiungere in ex. handler
-                    "File too large. Max. size = " + maxSizeMB + "MB", file.getSize(), maxSize
-            );
+            try {
+                throw new FileSizeLimitExceededException( //todo aggiungere in ex. handler
+                        "File too large. Max. size = " + maxSizeMB + "MB", file.getSize(), maxSize
+                );
+            } catch (FileSizeLimitExceededException e) {
+                throw new MinIOFileUploadException(e.getMessage());
+            }
         }
 
         String destinationFolderName = "user_" + userID + "_data/profileImages";

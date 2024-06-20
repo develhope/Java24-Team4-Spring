@@ -35,7 +35,7 @@ public class Subscription {
     private Long id;
 
     @MapsId
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id", nullable = false)
     private Listener listener;
 

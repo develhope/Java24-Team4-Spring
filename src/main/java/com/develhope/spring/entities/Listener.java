@@ -1,5 +1,6 @@
 package com.develhope.spring.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -18,12 +19,24 @@ public class Listener {
     @OneToMany(mappedBy = "listener", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Playlist> playlists;
 
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "listener", cascade = CascadeType.ALL)
+    private Subscription subscription;
+
     public Listener(Long id, User user) {
         this.id = id;
         this.user = user;
     }
 
     public Listener() {
+    }
+
+    public Subscription getSubscription() {
+        return subscription;
+    }
+
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
     }
 
     public Long getId() {

@@ -5,21 +5,20 @@ import com.develhope.spring.entities.Song;
 
 public class CommentResponseDTO {
     private Long id;
-    private Song song;
-    private Listener listener;
+    private SongResponseDTO song;
+    private ListenerResponseDTO listener;
     private String commentText;
 
     public CommentResponseDTO() {
     }
 
-    public CommentResponseDTO(Long id, Song song, Listener listener, String commentText) {
+    public CommentResponseDTO(Long id, SongResponseDTO song, ListenerResponseDTO listener, String commentText) {
         this.id = id;
         this.song = song;
         this.listener = listener;
         this.commentText = commentText;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -28,19 +27,19 @@ public class CommentResponseDTO {
         this.id = id;
     }
 
-    public Song getSong() {
+    public SongResponseDTO getSong() {
         return song;
     }
 
-    public void setSong(Song song) {
+    public void setSong(SongResponseDTO song) {
         this.song = song;
     }
 
-    public Listener getListener() {
+    public ListenerResponseDTO getListener() {
         return listener;
     }
 
-    public void setListener(Listener listener) {
+    public void setListener(ListenerResponseDTO listener) {
         this.listener = listener;
     }
 

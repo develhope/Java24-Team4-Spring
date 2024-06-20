@@ -8,9 +8,10 @@ import java.time.Duration;
 public class SongResponseDTO {
     private int id;
     private String title;
+    private String artistName;
     private Album album;
     private Genre genre;
-    private Duration duration_time;
+    private Integer duration_time;
     private int year_release;
     private int number_of_plays;
     private String link_audio;
@@ -18,9 +19,10 @@ public class SongResponseDTO {
     public SongResponseDTO() {
     }
 
-    public SongResponseDTO(int id, String title, Album album, Genre genre, Duration duration_time, int yearRelease, int number_of_plays, String linkAudio) {
+    public SongResponseDTO(int id, String title, String artistName, Album album, Genre genre, Integer duration_time, int yearRelease, int number_of_plays, String linkAudio) {
         this.id = id;
         this.title = title;
+        this.artistName = artistName;
         this.album = album;
         this.genre = genre;
         this.duration_time = duration_time;
@@ -43,6 +45,14 @@ public class SongResponseDTO {
 
     public void setYear_release(int year_release) {
         this.year_release = year_release;
+    }
+
+    public String getArtistName() {
+        return artistName;
+    }
+
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
     }
 
     public int getId() {
@@ -77,11 +87,11 @@ public class SongResponseDTO {
         this.genre = genre;
     }
 
-    public Duration getDuration_time() {
+    public Integer getDuration_time() {
         return duration_time;
     }
 
-    public void setDuration_time(Duration duration_time) {
+    public void setDuration_time(Integer duration_time) {
         this.duration_time = duration_time;
     }
 

@@ -16,6 +16,8 @@ public interface LikesSongService {
 
     void deleteLikeById(Long id);
 
+    void deleteAllLikes();
+
     List<LikesSongResponseDTO> getLikesByListenerId(Long listenerId);
 
     List<LikesSongResponseDTO> getLikesBySongId(Long songId);

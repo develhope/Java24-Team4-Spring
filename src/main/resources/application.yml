@@ -1,14 +1,30 @@
 spring:
-  application:
-    name: Ospedale
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   datasource:
-    url: jdbc:mysql://localhost:3306/develhope
-    username: root
-    password:
+    url: jdbc:mysql://localhost:3306/crudoprsdb
+    username: toor
+    password: toor
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    database: mysql
-    show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+minio:
+  url: http://127.0.0.1:9000
+  accessKey: 7N2dUvHHiv80lv53pBZP
+  secretKey: nFrKuDC7JIplUVSEpryAWwGZDkUvcPHWds875037
+  musicBucket: musicstorage
+  profileDataBucket: profiledata
+
 

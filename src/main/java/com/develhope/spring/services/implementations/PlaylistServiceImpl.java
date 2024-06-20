@@ -2,6 +2,7 @@ package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.dtos.requests.PlaylistRequestDTO;
 import com.develhope.spring.dtos.requests.PlaylistUpdateDTO;
+import com.develhope.spring.dtos.responses.ListenerResponseDTO;
 import com.develhope.spring.dtos.responses.PlaylistResponseDTO;
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.entities.Playlist;
@@ -9,20 +10,21 @@ import com.develhope.spring.entities.Song;
 import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.EmptySongsListOnUpdateException;
 import com.develhope.spring.exceptions.NegativeIdException;
+import com.develhope.spring.exceptions.PlaylistUpdateException;
 import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.PlaylistRepository;
 import com.develhope.spring.repositories.SongRepository;
-import com.develhope.spring.services.UniversalFieldUpdater;
+import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.PlaylistService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PlaylistServiceImpl implements PlaylistService {
@@ -70,13 +72,14 @@ public class PlaylistServiceImpl implements PlaylistService {
                 ).toList();
 
         if (playlists.isEmpty()) {
-            throw new EmptyResultException("No playlists found in the database.");
+            throw new EmptyResultException("[Search error ]No playlists found in the database.");
         } else {
             return playlists;
         }
     }
 
     @Override
+    @Transactional
     public PlaylistResponseDTO createPlaylist(PlaylistRequestDTO request) {
 
         if (request.getListenerId() < 0) {
@@ -92,14 +95,11 @@ public class PlaylistServiceImpl implements PlaylistService {
             }
         });
 
-        Optional<Listener> listener = listenerRepository.findById(request.getListenerId());
-        List<Song> songs = songRepository.findAllById(request.getSongIds());
+       Listener listener = listenerRepository.findById(request.getListenerId()).orElseThrow(() -> new EntityNotFoundException(
+               "[Creation failed] Listener with ID " + request.getListenerId() + " not found in the database")
+       );
 
-        if (listener.isEmpty()) {
-            throw new EntityNotFoundException(
-                    "[Creation failed] Listener with ID " + request.getListenerId() + " not found in the database"
-            );
-        }
+       List<Song> songs = songRepository.findAllById(request.getSongIds());
 
         if (songs.isEmpty()) {
             throw new EmptyResultException(
@@ -109,21 +109,26 @@ public class PlaylistServiceImpl implements PlaylistService {
 
         var playlist = modelMapper.map(request, Playlist.class);
 
-        playlist.setListener(listener.get());
+        playlist.setListener(listener);
         playlist.setSongs(songs);
         playlist.setCreationDate(LocalDate.now());
         playlist.setUpdateDate(LocalDate.now());
+        listener.addPlaylist(playlist);
+
+        listenerRepository.saveAndFlush(listener);
 
         var savedPlaylist = playlistRepository.saveAndFlush(playlist);
         var responseDTO = modelMapper.map(savedPlaylist, PlaylistResponseDTO.class);
 
         responseDTO.setSongs(savedPlaylist.getSongs());
-        responseDTO.setListener(savedPlaylist.getListener());
+        ListenerResponseDTO listenerResponseDTO = modelMapper.map(savedPlaylist.getListener(), ListenerResponseDTO.class);
+        responseDTO.setListener(listenerResponseDTO);
 
         return responseDTO;
     }
 
     @Override
+    @Transactional
     public PlaylistResponseDTO updatePlaylist(Long id, PlaylistUpdateDTO request) {
 
         if (id < 0) {
@@ -146,9 +151,9 @@ public class PlaylistServiceImpl implements PlaylistService {
                     try {
                         UniversalFieldUpdater.checkFieldsAndUpdate(request, playlist);
                     } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e);
+                        throw new PlaylistUpdateException("[Playlist update error] "+ e.getMessage(), e);
                     } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
+                        throw new PlaylistUpdateException("[Playlist update error] "+ e.getMessage(), e);
                     }
 
                     var updatedPlaylist = playlistRepository.saveAndFlush(playlist);
@@ -160,10 +165,14 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
+    @Transactional
     public PlaylistResponseDTO deletePlaylistById(Long id) {
 
         return playlistRepository.findById(id)
                 .map(playlist -> {
+
+                    playlist.getSongs().clear();
+                    playlistRepository.save(playlist);
                     playlistRepository.deleteById(id);
 
                     return modelMapper.map(playlist, PlaylistResponseDTO.class);

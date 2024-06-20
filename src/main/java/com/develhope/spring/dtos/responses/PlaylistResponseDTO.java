@@ -9,7 +9,7 @@ import java.util.List;
 public class PlaylistResponseDTO {
     private Long id;
     private String title;
-    private Listener listener;
+    private ListenerResponseDTO listener;
     private List<Song> songs;
     private LocalDate creationDate;
     private LocalDate updateDate;
@@ -18,7 +18,7 @@ public class PlaylistResponseDTO {
 
     }
 
-    public PlaylistResponseDTO(Long id, String title, Listener listener, List<Song> songs, LocalDate creationDate, LocalDate updateDate) {
+    public PlaylistResponseDTO(Long id, String title, ListenerResponseDTO listener, List<Song> songs, LocalDate creationDate, LocalDate updateDate) {
         this.id = id;
         this.title = title;
         this.listener = listener;
@@ -44,11 +44,11 @@ public class PlaylistResponseDTO {
         this.title = title;
     }
 
-    public Listener getListener() {
+    public ListenerResponseDTO getListener() {
         return listener;
     }
 
-    public void setListener(Listener listener) {
+    public void setListener(ListenerResponseDTO listener) {
         this.listener = listener;
     }
 

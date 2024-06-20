@@ -28,7 +28,7 @@ public interface UserService {
 
     void deleteAllUsers();
 
-    String uploadUserProfileImage(MultipartFile file, Long userID) throws FileSizeLimitExceededException;
+    String uploadUserProfileImage(MultipartFile file, Long userID);
 
     void deleteUserProfileImg(Long userID);
 }

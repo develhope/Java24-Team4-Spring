@@ -1,6 +1,7 @@
 package com.develhope.spring.dtos.requests;
 
 public class GenreRequestDTO {
+
     private String title;
 
     public GenreRequestDTO(String title) {

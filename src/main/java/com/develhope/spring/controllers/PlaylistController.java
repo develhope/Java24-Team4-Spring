@@ -63,8 +63,8 @@ public class PlaylistController {
     public ResponseEntity<?> deletePlaylist(@PathVariable Long id) {
         PlaylistResponseDTO playlist = playlistService.deletePlaylistById(id);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-                new Response(HttpStatus.NO_CONTENT.value(), "Playlist deleted successfully.", playlist)
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "Playlist deleted successfully.", playlist)
         );
     }
 
@@ -72,8 +72,8 @@ public class PlaylistController {
     public ResponseEntity<Response> deleteAllPlaylists() {
         playlistService.deleteAllPlaylists();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-                new Response(HttpStatus.NO_CONTENT.value(), "All playlists deleted.")
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "All playlists deleted.")
         );
     }
 }

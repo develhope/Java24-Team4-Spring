@@ -7,33 +7,42 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "songs")
 public class Song {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String title;
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne(fetch =  FetchType.EAGER)
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "genre_id", nullable = false)
     private Genre genre;
+
     @Column(nullable = false)
     private int year_release;
+
     @Column(nullable = false)
     private Integer duration_time;
+
     @Column(nullable = false)
     private int number_of_plays;
-    @Column(nullable = false)
+
+    @Column(nullable = true, length = 65535, columnDefinition="TEXT")
     private String link_audio;
+
+    @Column(nullable = true, length = 65535, columnDefinition="TEXT")
+    private String objectStorageFileName;
 
     public Song() {
     }
 
     public Song(Long id, String title, Album album, Genre genre, int year_release, Integer duration_time,
-                int number_of_plays, String link_audio) {
+                int number_of_plays, String link_audio, String objectStorageFileName) {
         this.id = id;
         this.title = title;
         this.album = album;
@@ -42,6 +51,15 @@ public class Song {
         this.duration_time = duration_time;
         this.number_of_plays = number_of_plays;
         this.link_audio = link_audio;
+        this.objectStorageFileName = objectStorageFileName;
+    }
+
+    public String getObjectStorageFileName() {
+        return objectStorageFileName;
+    }
+
+    public void setObjectStorageFileName(String objectStorageFileName) {
+        this.objectStorageFileName = objectStorageFileName;
     }
 
     public Long getId() {
@@ -107,4 +125,6 @@ public class Song {
     public void setLink_audio(String link_audio) {
         this.link_audio = link_audio;
     }
+
+
 }

@@ -2,6 +2,8 @@ package com.develhope.spring.services.implementations;
 
 import com.develhope.spring.dtos.requests.CommentRequestDTO;
 import com.develhope.spring.dtos.responses.CommentResponseDTO;
+import com.develhope.spring.dtos.responses.ListenerResponseDTO;
+import com.develhope.spring.dtos.responses.SongResponseDTO;
 import com.develhope.spring.entities.Comment;
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.entities.Song;
@@ -15,6 +17,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,6 +42,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public CommentResponseDTO createComment(CommentRequestDTO request) {
 
         if (request.getListenerId() < 0 || request.getSongId() < 0) {
@@ -57,15 +61,23 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = new Comment(song, listener, request.getCommentText());
 
         Comment savedComment = commentRepository.saveAndFlush(comment);
-        return modelMapper.map(savedComment, CommentResponseDTO.class);
+        CommentResponseDTO commentResponseDTO = modelMapper.map(savedComment, CommentResponseDTO.class);
 
+        commentDtoSetListenerAndSong(listener,song, commentResponseDTO);
+
+        return commentResponseDTO;
     }
 
     @Override
     public List<CommentResponseDTO> getAllComments() {
         var comments = commentRepository.findAll()
                 .stream()
-                .map(comment -> modelMapper.map(comment, CommentResponseDTO.class))
+                .map(comment -> {
+                    var commentResponseDTO = modelMapper.map(comment, CommentResponseDTO.class);
+                    commentDtoSetListenerAndSong(comment.getListener(), comment.getSong(), commentResponseDTO);
+
+                    return commentResponseDTO;
+                })
                 .toList();
 
         if (comments.isEmpty()) {
@@ -81,14 +93,19 @@ public class CommentServiceImpl implements CommentService {
                     "[Search failed] Comment ID cannot be negative. Now: " + id);
         }
         return commentRepository.findById(id)
-                .map(comment -> modelMapper.map(comment, CommentResponseDTO.class)
+                .map(comment -> {
+                    var commentResponseDTO = modelMapper.map(comment, CommentResponseDTO.class);
+                    commentDtoSetListenerAndSong(comment.getListener(), comment.getSong(), commentResponseDTO);
 
-                ).orElseThrow(() -> new EntityNotFoundException
+                    return commentResponseDTO;
+
+                }).orElseThrow(() -> new EntityNotFoundException
                         ("Comment with ID " + id + " not found in the database"));
     }
 
 
     @Override
+    @Transactional
     public CommentResponseDTO updateComment(Long id, CommentRequestDTO request) {
         if (id < 0) {
             throw new NegativeIdException(
@@ -110,12 +127,16 @@ public class CommentServiceImpl implements CommentService {
                     existingComment.setCommentText(request.getCommentText());
 
                     Comment updatedComment = commentRepository.saveAndFlush(existingComment);
-                    return modelMapper.map(updatedComment, CommentResponseDTO.class);
+                    var commentResponseDTO = modelMapper.map(updatedComment, CommentResponseDTO.class);
+                    commentDtoSetListenerAndSong(updatedComment.getListener(), updatedComment.getSong(), commentResponseDTO);
+
+                    return commentResponseDTO;
                 }).orElseThrow(() -> new EntityNotFoundException(
                         "[Update failed] Comment to update with ID " + id + " not found in the database."));
     }
 
     @Override
+    @Transactional
     public CommentResponseDTO deleteCommentById(Long id) {
         if (id < 0) {
             throw new NegativeIdException(
@@ -125,9 +146,23 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.findById(id)
                 .map(comment -> {
                     commentRepository.deleteById(id);
-                    return modelMapper.map(comment, CommentResponseDTO.class);
+                    var commentResponseDTO = modelMapper.map(comment, CommentResponseDTO.class);
+                    commentDtoSetListenerAndSong(comment.getListener(),comment.getSong(), commentResponseDTO);
+
+                    return commentResponseDTO;
                 }).orElseThrow(() -> new EntityNotFoundException(
                         "[Delete failed] Comment with ID " + id + " not found in the database."));
+
     }
 
+
+    private void commentDtoSetListenerAndSong(Listener listener,Song song, CommentResponseDTO responseDTO){
+        ListenerResponseDTO listenerResponseDTO = new ListenerResponseDTO(listener.getUser());
+        SongResponseDTO songResponseDTO =  modelMapper.map(song, SongResponseDTO.class);
+        songResponseDTO.setArtistName(song.getAlbum().getArtist().getArtistName());
+
+        responseDTO.setListener(listenerResponseDTO);
+        responseDTO.setSong(songResponseDTO);
+
+    }
 }
