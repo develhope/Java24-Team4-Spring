@@ -58,7 +58,7 @@ public class SongController {
         String uploadedFileUrl = songService.uploadSong(musicFile, id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Song uploaded uploaded successfully", uploadedFileUrl)
+                new Response(HttpStatus.OK.value(), "Song uploaded successfully", uploadedFileUrl)
         );
     }
 
