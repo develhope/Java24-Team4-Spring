@@ -54,11 +54,11 @@ public class SongController {
     }
 
     @PostMapping("/fileService/{id}")
-    public ResponseEntity<Response> uploadSongToMinio(@RequestParam MultipartFile musicFile, @PathVariable Long id) {
-        String uploadedFileUrl = songService.uploadSong(musicFile, id);
+    public ResponseEntity<Response> uploadSongToMinio(@RequestParam MultipartFile[] musicFile, @RequestParam Long[] ids) {
+        String[] uploadedFileUrls = songService.uploadSongs(musicFile, ids);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Song uploaded successfully", uploadedFileUrl)
+                new Response(HttpStatus.OK.value(), "Song uploaded successfully", uploadedFileUrls)
         );
     }
 
