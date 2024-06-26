@@ -1,13 +1,13 @@
 package com.develhope.spring.dtos.responses;
 
 import com.develhope.spring.entities.Advertisement;
-import com.develhope.spring.entities.User;
+import com.develhope.spring.entities.UserEntity;
 
 import java.util.List;
 
 public class AdvertiserResponseDTO {
 
-    private User user;
+    private UserEntity userEntity;
     private String companyName;
     private String advertiserDescription;
     private String advertiserCountry;
@@ -16,9 +16,9 @@ public class AdvertiserResponseDTO {
     public AdvertiserResponseDTO() {
     }
 
-    public AdvertiserResponseDTO(User user, String companyName, String advertiserDescription, String advertiserCountry, List<Advertisement> advertisements) {
+    public AdvertiserResponseDTO(UserEntity userEntity, String companyName, String advertiserDescription, String advertiserCountry, List<Advertisement> advertisements) {
 
-        this.user = user;
+        this.userEntity = userEntity;
         this.companyName = companyName;
         this.advertiserDescription = advertiserDescription;
         this.advertiserCountry = advertiserCountry;
@@ -26,12 +26,12 @@ public class AdvertiserResponseDTO {
     }
 
 
-    public User getUser() {
-        return user;
+    public UserEntity getUser() {
+        return userEntity;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
     public String getCompanyName() {

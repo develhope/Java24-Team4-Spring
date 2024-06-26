@@ -16,7 +16,7 @@ public class Artist {
     @MapsId
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "id", nullable = false)
-    private User user;
+    private UserEntity userEntity;
 
     @Column(nullable = false)
     private String artistName;
@@ -34,9 +34,9 @@ public class Artist {
     public Artist() {
     }
 
-    public Artist(Long id, User user, String artistName, String description, String artistCountry, List<Album> albums) {
+    public Artist(Long id, UserEntity userEntity, String artistName, String description, String artistCountry, List<Album> albums) {
         this.id = id;
-        this.user = user;
+        this.userEntity = userEntity;
         this.artistName = artistName;
         this.description = description;
         this.artistCountry = artistCountry;
@@ -51,12 +51,12 @@ public class Artist {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public UserEntity getUser() {
+        return userEntity;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
     public String getArtistName() {

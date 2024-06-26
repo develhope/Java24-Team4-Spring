@@ -7,15 +7,18 @@ import com.develhope.spring.dtos.responses.SongResponseDTO;
 import com.develhope.spring.entities.Comment;
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.entities.Song;
+import com.develhope.spring.entities.UserEntity;
 import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.NegativeIdException;
 import com.develhope.spring.repositories.CommentRepository;
 import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.SongRepository;
 import com.develhope.spring.services.interfaces.CommentService;
+import com.develhope.spring.utils.Security;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,10 @@ import java.util.List;
 
 @Service
 public class CommentServiceImpl implements CommentService {
+
+    //TODO CONFIGUR. ENABLE, DISABLE, CREARE RUOLO CHE PUO FARE STE COSE (ADMIN)
+    //todo aggiungere controllo di Current User  anche x i metodi getById
+
     private final CommentRepository commentRepository;
     private final SongRepository songRepository;
     private final ListenerRepository listenerRepository;
@@ -107,6 +114,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentResponseDTO updateComment(Long id, CommentRequestDTO request) {
+        UserEntity currentUser = Security.getCurrentUser();
+
         if (id < 0) {
             throw new NegativeIdException(
                     "[Update failed] Comment ID cannot be negative. Now: " + id);
@@ -122,6 +131,9 @@ public class CommentServiceImpl implements CommentService {
 
         return commentRepository.findById(id)
                 .map(existingComment -> {
+                    if (! existingComment.getListener().getUser().equals(currentUser))// todo ex handler
+                        throw new AccessDeniedException("You are not allowed to delete this like");
+
                     existingComment.setSong(song);
                     existingComment.setListener(listener);
                     existingComment.setCommentText(request.getCommentText());
@@ -138,6 +150,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentResponseDTO deleteCommentById(Long id) {
+        UserEntity currentUser = Security.getCurrentUser();
+
         if (id < 0) {
             throw new NegativeIdException(
                     "[Delete failed] Comment ID cannot be negative. Now: " + id);
@@ -145,6 +159,8 @@ public class CommentServiceImpl implements CommentService {
 
         return commentRepository.findById(id)
                 .map(comment -> {
+                    if (! comment.getListener().getUser().equals(currentUser))// todo ex handler
+                        throw new AccessDeniedException("You are not allowed to delete this like");
                     commentRepository.deleteById(id);
                     var commentResponseDTO = modelMapper.map(comment, CommentResponseDTO.class);
                     commentDtoSetListenerAndSong(comment.getListener(),comment.getSong(), commentResponseDTO);

@@ -6,15 +6,18 @@ import com.develhope.spring.dtos.responses.SubscriptionResponseDTO;
 import com.develhope.spring.dtos.responses.SubscriptionWithoutListenerDTO;
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.entities.Subscription;
+import com.develhope.spring.entities.UserEntity;
 import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.NegativeIdException;
 import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.SubscriptionRepository;
+import com.develhope.spring.utils.Security;
 import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.SubscriptionService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,9 @@ import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+
+//TODO CONFIGUR. ENABLE, DISABLE, CREARE RUOLO CHE PUO FARE STE COSE (ADMIN)
+//todo aggiungere controllo di Current User  anche x i metodi getById
 
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
@@ -135,6 +141,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional
     public SubscriptionResponseDTO updateSubscription(Long id, SubscriptionUpdateDTO request) {
+        UserEntity currentUser = Security.getCurrentUser();
 
         if (id < 0){
             throw new NegativeIdException(
@@ -142,6 +149,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
 
         return subscrRepository.findById(id).map(subscription -> {
+            if (! subscription.getListener().getUser().equals(currentUser))
+                throw new AccessDeniedException("You are not allowed to update this subscription");
 
             if (incomingUpdateDtoIsValid(request)){
                 try {
@@ -170,16 +179,24 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional
     public SubscriptionResponseDTO deleteSubscriptionById(Long id) {
+        UserEntity currentUser = Security.getCurrentUser();
+
+
         if (id < 0) {
             throw new NegativeIdException("[Delete failed] Subscription ID cannot be negative. Now: " + id);
         }
         return subscrRepository.findById(id).map(subscription -> {
+
+            if (! subscription.getListener().getUser().equals(currentUser))
+                throw new AccessDeniedException("You are not allowed to delete this subscription");
+
             Listener listener = subscription.getListener();
             subscrRepository.deleteById(id);
             if (listener != null) {
                 listener.setSubscription(null);
                 listenerRepository.saveAndFlush(listener);
             }
+
             var responseDTO = modelMapper.map(subscription, SubscriptionResponseDTO.class);
             setCalculableFieldsViewDTO(responseDTO);
             return responseDTO;

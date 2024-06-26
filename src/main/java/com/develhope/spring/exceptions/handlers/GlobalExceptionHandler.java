@@ -5,6 +5,7 @@ import com.develhope.spring.models.Response;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -103,6 +104,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AudioStreamingFailedException.class)
     public ResponseEntity<ErrorResponse> handleAudioStreamingFailedExceptions(AudioStreamingFailedException ex) {
         return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedExceptions(AccessDeniedException ex) {
+        return createErrorResponse(ex, HttpStatus.FORBIDDEN);
     }
 
     private ResponseEntity<ErrorResponse> createErrorResponse(Exception ex, HttpStatus status) {

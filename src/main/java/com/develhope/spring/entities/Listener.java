@@ -14,7 +14,7 @@ public class Listener {
     @MapsId
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "id", nullable = false)
-    private User user;
+    private UserEntity userEntity;
 
     @OneToMany(mappedBy = "listener", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Playlist> playlists;
@@ -23,9 +23,9 @@ public class Listener {
     @OneToOne(fetch = FetchType.EAGER, mappedBy = "listener", cascade = CascadeType.ALL)
     private Subscription subscription;
 
-    public Listener(Long id, User user) {
+    public Listener(Long id, UserEntity userEntity) {
         this.id = id;
-        this.user = user;
+        this.userEntity = userEntity;
     }
 
     public Listener() {
@@ -47,12 +47,12 @@ public class Listener {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public UserEntity getUser() {
+        return userEntity;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
     public List<Playlist> getPlaylists() {

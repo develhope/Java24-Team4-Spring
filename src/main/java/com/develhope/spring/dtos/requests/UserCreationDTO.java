@@ -1,6 +1,6 @@
 package com.develhope.spring.dtos.requests;
 
-import com.develhope.spring.entities.User;
+import com.develhope.spring.entities.UserEntity;
 
 public class UserCreationDTO {
 
@@ -13,7 +13,7 @@ public class UserCreationDTO {
     private String urlPhoto;
     private String urlSocial;
     private String userCountry;
-    private User.Role role;
+    private UserEntity.Role role;
 
     private String artistName;
     private String description;
@@ -26,7 +26,7 @@ public class UserCreationDTO {
     public UserCreationDTO() {
     }
 
-    public UserCreationDTO(String nickName, String name, String lastName, String numPhone, String email, String password, String urlPhoto, String urlSocial, String userCountry, User.Role role, String artistName, String description, String artistCountry, String companyName, String advertiserCountry, String advertiserDescription) {
+    public UserCreationDTO(String nickName, String name, String lastName, String numPhone, String email, String password, String urlPhoto, String urlSocial, String userCountry, UserEntity.Role role, String artistName, String description, String artistCountry, String companyName, String advertiserCountry, String advertiserDescription) {
         this.nickName = nickName;
         this.name = name;
         this.lastName = lastName;
@@ -85,6 +85,14 @@ public class UserCreationDTO {
         this.email = email;
     }
 
+//    public String getUsername() {
+//        return username;
+//    }
+//
+//    public void setUsername(String username) {
+//        this.username = username;
+//    }
+
     public String getPassword() {
         return password;
     }
@@ -117,11 +125,11 @@ public class UserCreationDTO {
         this.userCountry = userCountry;
     }
 
-    public User.Role getRole() {
+    public UserEntity.Role getRole() {
         return role;
     }
 
-    public void setRole(User.Role role) {
+    public void setRole(UserEntity.Role role) {
         this.role = role;
     }
 
@@ -173,3 +181,4 @@ public class UserCreationDTO {
         this.advertiserDescription = advertiserDescription;
     }
 }
+

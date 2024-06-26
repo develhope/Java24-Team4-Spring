@@ -1,25 +1,24 @@
 package com.develhope.spring.dtos.responses;
 
-import com.develhope.spring.entities.Subscription;
-import com.develhope.spring.entities.User;
+import com.develhope.spring.entities.UserEntity;
 
 public class ListenerResponseDTO {
 
-    private User user;
+    private UserEntity userEntity;
 
-    public ListenerResponseDTO(User user) {
-        this.user = user;
+    public ListenerResponseDTO(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
     public ListenerResponseDTO() {
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
-    public User getUser() {
-        return user;
+    public UserEntity getUser() {
+        return userEntity;
     }
 
 }

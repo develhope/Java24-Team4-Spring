@@ -1,13 +1,13 @@
 package com.develhope.spring.dtos.responses;
 
 import com.develhope.spring.entities.Album;
-import com.develhope.spring.entities.User;
+import com.develhope.spring.entities.UserEntity;
 
 import java.util.List;
 
 public class ArtistResponseDTO {
 
-    private User user;
+    private UserEntity userEntity;
     private String artistName;
     private String description;
     private String artistCountry;
@@ -16,8 +16,8 @@ public class ArtistResponseDTO {
     public ArtistResponseDTO() {
     }
 
-    public ArtistResponseDTO(User user, String artistName, String description, String artistCountry, List<Album> albums) {
-        this.user = user;
+    public ArtistResponseDTO(UserEntity userEntity, String artistName, String description, String artistCountry, List<Album> albums) {
+        this.userEntity = userEntity;
         this.artistName = artistName;
         this.description = description;
         this.artistCountry = artistCountry;
@@ -26,12 +26,12 @@ public class ArtistResponseDTO {
 
 
 
-    public User getUser() {
-        return user;
+    public UserEntity getUser() {
+        return userEntity;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
     public String getArtistName() {

@@ -5,7 +5,7 @@
 
 # Java Course Spring Base App
 
-We are developing a music streaming management project. This project aims to create a robust and user-friendly platform that allows users to stream, manage, and enjoy their favorite music effortlessly. The application leverages modern Java technologies and frameworks to ensure high performance, scalability, and ease of maintenance.
+We are developing a music streaming management project. This project aims to create a robust and userEntity-friendly platform that allows userEntities to stream, manage, and enjoy their favorite music effortlessly. The application leverages modern Java technologies and frameworks to ensure high performance, scalability, and ease of maintenance.
 
 **Language:** Java 21<br />
 **Spring Boot:** 3.2.1<br />

@@ -5,13 +5,16 @@ import com.develhope.spring.dtos.responses.LikesSongResponseDTO;
 import com.develhope.spring.entities.LikesSongs;
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.entities.Song;
+import com.develhope.spring.entities.UserEntity;
 import com.develhope.spring.repositories.LikesSongRepository;
 import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.SongRepository;
 import com.develhope.spring.services.interfaces.LikesSongService;
+import com.develhope.spring.utils.Security;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class LikesSongServiceImpl implements LikesSongService {
+
+
+    //TODO CONFIGUR. ENABLE, DISABLE, CREARE RUOLO CHE PUO FARE STE COSE (ADMIN)
+    //todo aggiungere controllo di Current User  anche x i metodi getById
+
 
     private final LikesSongRepository likesSongRepository;
     private final SongRepository songRepository;
@@ -63,9 +71,15 @@ public class LikesSongServiceImpl implements LikesSongService {
     @Override
     @Transactional
     public Optional<LikesSongResponseDTO> updateLike(Long likeId, LikesSongRequestDTO request) {
+        UserEntity currentUser = Security.getCurrentUser();
+
         Optional<LikesSongs> optionalLike = likesSongRepository.findById(likeId);
         if (optionalLike.isPresent()) {
             LikesSongs existingLike = optionalLike.get();
+
+            if (! existingLike.getListener().getUser().equals(currentUser))// todo ex handler
+                throw new AccessDeniedException("You are not allowed to update this like");
+
             Song song = songRepository.findById(request.getSongId()).orElse(null);
             if (song == null) {
                 throw new EntityNotFoundException("Song not found");
@@ -88,12 +102,15 @@ public class LikesSongServiceImpl implements LikesSongService {
     @Override
     @Transactional
     public void deleteLikeById(Long id) {
-        if (likesSongRepository.existsById(id)){
-            likesSongRepository.deleteById(id);
-        } else {
-            throw new EntityNotFoundException("Like with id " + id + " not found");
-        }
+        UserEntity currentUser = Security.getCurrentUser();
 
+        LikesSongs like = likesSongRepository.findById(id).orElseThrow(
+                () ->  new EntityNotFoundException("Like with id " + id + " not found"));
+
+        if (! like.getListener().getUser().equals(currentUser))// todo ex handler
+            throw new AccessDeniedException("You are not allowed to delete this like");
+
+        likesSongRepository.deleteById(id);
     }
 
     @Override
