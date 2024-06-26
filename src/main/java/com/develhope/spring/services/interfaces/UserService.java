@@ -17,6 +17,8 @@ public interface UserService {
 
     Optional<?> updateUser(UserCreationDTO request, Long ID) throws InvocationTargetException, IllegalAccessException;
 
+    UserWithRoleDetailsResponseDTO getCurrentUser();
+
     UserWithRoleDetailsResponseDTO getUserById(Long id);
 
     List<UserWithRoleDetailsResponseDTO> getAllUsers();

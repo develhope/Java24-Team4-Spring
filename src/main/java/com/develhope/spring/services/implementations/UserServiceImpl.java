@@ -15,10 +15,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -143,6 +139,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public Optional<?> updateUser(UserCreationDTO request, Long id) throws InvocationTargetException, IllegalAccessException {
+        UserEntity currentUser = Security.getCurrentUser();
 
         if (id < 0) {
             throw new NegativeIdException(
@@ -156,6 +153,9 @@ public class UserServiceImpl implements UserService {
         }
 
         UserEntity userEntity = userOptional.get();
+        if (! userEntity.equals(currentUser))
+            throw new AccessDeniedException("You are not allowed to update this user");
+
 
         checkFieldsAndUpdateUser(request, userEntity);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
@@ -195,6 +195,27 @@ public class UserServiceImpl implements UserService {
             }
             default -> throw new UnknownUserRoleException(
                     "[Update failed] Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
+            );
+        }
+    }
+
+    @Override
+    public UserWithRoleDetailsResponseDTO getCurrentUser(){
+        UserEntity currentUser = Security.getCurrentUser();
+        UserWithRoleDetailsResponseDTO response = modelMapper.map(currentUser, UserWithRoleDetailsResponseDTO.class);
+
+        switch (currentUser.getRole()) {
+            case LISTENER -> {
+                return handleListenerRole(currentUser, response);
+            }
+            case ARTIST -> {
+                return handleArtistRole(currentUser, response);
+            }
+            case ADVERTISER -> {
+                return handleAdvertiserRole(currentUser, response);
+            }
+            default -> throw new UnknownUserRoleException(
+                    "[Search failed] Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER!"
             );
         }
     }

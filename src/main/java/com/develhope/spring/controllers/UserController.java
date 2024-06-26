@@ -54,15 +54,6 @@ public class UserController {
         } else throw new UsernameNotFoundException("Invalid credentials");
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<Response> signup(@RequestBody UserCreationDTO request)
-            throws InvocationTargetException, IllegalAccessException {
-        Optional<?> user = userService.createUser(request);
-
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "User created successfully.", user)
-        );
-    }
 
 
     @GetMapping
@@ -83,6 +74,13 @@ public class UserController {
                 new Response(HttpStatus.OK.value(), "Users with role " +
                         role + " found: " + users.size() + ".", users)
         );
+    }
+
+    @GetMapping("/myProfile")
+    public ResponseEntity<Response> getCurrentUser(){
+        UserWithRoleDetailsResponseDTO user = userService.getCurrentUser();
+
+        return ResponseEntity.status(HttpStatus.OK).body(new Response(HttpStatus.OK.value(), "Current user found.", user));
     }
 
 

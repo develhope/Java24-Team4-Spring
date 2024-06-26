@@ -93,7 +93,7 @@ public class SongServiceImpl implements SongService {
         UserEntity currentUser = Security.getCurrentUser();
 
         return songRepository.findById(id).map(songFound -> {
-            if (! songFound.getAlbum().getArtist().equals(currentUser))// todo ex handler
+            if (! songFound.getAlbum().getArtist().getUser().equals(currentUser))// todo ex handler
                 throw new AccessDeniedException("You are not allowed to update this song");
 
             validDtoAndUpdateSong(song, songFound);
@@ -129,7 +129,7 @@ public class SongServiceImpl implements SongService {
     @Transactional
     @Override
     public String uploadSong(MultipartFile file, Long songID) {
-
+        UserEntity currentUser = Security.getCurrentUser();
         long maxSize = 209715200L;
         int maxSizeMB = (int) maxSize / (1024 * 1024);
 
@@ -155,6 +155,9 @@ public class SongServiceImpl implements SongService {
                 () -> new EntityNotFoundException("[Song upload failed] Song with id " +
                         songID + " not found in the database")
         );
+
+        if (!song.getAlbum().getArtist().getUser().equals(currentUser))// todo ex handler
+            throw new AccessDeniedException("You are not allowed to upload this song");
 
         if (song == null) throw new EntityNotFoundException("[Upload error] Song data not found in the DB]");
 

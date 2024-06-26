@@ -72,7 +72,6 @@ public class UserEntity implements UserDetails {
         this.lastName = lastName;
         this.numPhone = numPhone;
         this.email = email;
-//        this.username = username;
         this.password = password;
         this.registrationDate = registrationDate;
         this.urlPhoto = urlPhoto;
@@ -110,6 +109,14 @@ public class UserEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return false;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public Long getId() {
