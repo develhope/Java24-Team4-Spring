@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,6 +62,24 @@ public class AlbumController {
         Response response = new Response(200, "Album deleted successfully.", deleted);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/fileService/{id}")
+    public ResponseEntity<Response> uploadAlbumImage(@RequestParam MultipartFile imageFile, @PathVariable Long id) {
+        String uploadedFileUrl = albumService.uploadAlbumImage(imageFile,id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "Album image uploaded successfully", uploadedFileUrl)
+        );
+    }
+
+    @DeleteMapping("/fileService/{id}")
+    public ResponseEntity<Response> deleteAlbumImage(@PathVariable Long id) {
+        albumService.deleteAlbumImage(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new Response(HttpStatus.OK.value(), "Profile image deleted successfully")
+        );
     }
 
 }

@@ -26,19 +26,21 @@ public class Album {
     @Column
     private String description;
 
-    @Column
+    @Column(length = 65535, columnDefinition="TEXT")
     private String cover_link;
+    private String photoObjectStorageName;
 
     public Album() {
     }
 
-    public Album(Long id, Artist artist, String title, int year_release, String description, String cover_link) {
+    public Album(Long id, Artist artist, String title, int year_release, String description, String cover_link, String photoObjectStorageName) {
         this.id = id;
         this.artist = artist;
         this.title = title;
         this.year_release = year_release;
         this.description = description;
         this.cover_link = cover_link;
+        this.photoObjectStorageName = photoObjectStorageName;
     }
 
     public Long getId() {return id;}
@@ -53,4 +55,12 @@ public class Album {
     public void setDescription(String description) {this.description = description;}
     public String getCover_link() {return cover_link;}
     public void setCover_link(String cover_link) {this.cover_link = cover_link;}
+
+    public String getPhotoObjectStorageName() {
+        return photoObjectStorageName;
+    }
+
+    public void setPhotoObjectStorageName(String photoObjectStorageName) {
+        this.photoObjectStorageName = photoObjectStorageName;
+    }
 }

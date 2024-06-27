@@ -2,9 +2,9 @@ package com.develhope.spring.services.interfaces;
 
 import com.develhope.spring.dtos.requests.AlbumRequestDTO;
 import com.develhope.spring.dtos.responses.AlbumResponseDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AlbumService {
     AlbumResponseDTO createAlbum(AlbumRequestDTO albumRequestDTO);
@@ -12,4 +12,6 @@ public interface AlbumService {
     AlbumResponseDTO getAlbumById(Long id);
     AlbumResponseDTO updateAlbum(Long id, AlbumRequestDTO albumRequestDTO);
     public AlbumResponseDTO deleteAlbumById(Long id);
+    String uploadAlbumImage(MultipartFile file, Long AlbumID);
+    void deleteAlbumImage (Long userID);
 }
