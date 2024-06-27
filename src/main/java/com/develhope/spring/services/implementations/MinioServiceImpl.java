@@ -35,7 +35,6 @@ public class MinioServiceImpl implements MinioService {
         this.minioClient = minioClient;
     }
 
-    //todo: removeFile e downloadFile methods
 
     @Override
     public Map<String, String> uploadFile(MultipartFile file, String newFileName, String destinationFolderName, String bucketName) {
@@ -85,7 +84,6 @@ public class MinioServiceImpl implements MinioService {
                  InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException |
                  IOException exception) {
 
-            //todo aggiungere in ex. handler
             throw new MinIOFileUploadException("[File upload error] " + exception.getMessage());
 
         } finally {
@@ -113,7 +111,6 @@ public class MinioServiceImpl implements MinioService {
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException exception) {
 
-            //todo aggiungere in ex. handler
             throw new MinIOFileUploadException("[File delete error] " + exception.getMessage());
         }
 
