@@ -43,19 +43,6 @@ public class UserController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping
-    public String loginAndGetToken(@RequestBody LoginDTO loginForm) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginForm.username(), loginForm.password())
-        );
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(uzerDetailsService.loadUserByUsername(loginForm.username()));
-
-        } else throw new UsernameNotFoundException("Invalid credentials");
-    }
-
-
-
     @GetMapping
     public ResponseEntity<Response> getAllUsers() {
 
