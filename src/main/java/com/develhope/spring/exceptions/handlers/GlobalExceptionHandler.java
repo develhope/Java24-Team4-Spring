@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import com.develhope.spring.exceptions.*;
+import org.springframework.web.multipart.MultipartException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -111,9 +112,15 @@ public class GlobalExceptionHandler {
         return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ErrorResponse> handleMultipartExceptions(MultipartException ex){
+        return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<ErrorResponse> createErrorResponse(Exception ex, HttpStatus status) {
 
-        String exception = ex.getClass().toString();
+        String exception = ex.getClass().getName().toString();
         String statusString = status.toString();
         String message =  ex.getMessage();
         String timestamp = this.timestamp;

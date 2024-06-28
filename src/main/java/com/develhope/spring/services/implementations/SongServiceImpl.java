@@ -132,12 +132,20 @@ public class SongServiceImpl implements SongService {
             var file = files[i];
             var songID = songIDS[i];
 
+            if (songID == null) {
+                uploadedLinks[i] = "[Song upload failed] Song id is null file: " + file.getOriginalFilename() + " is not uploaded";
+
+                continue;
+            }
+
             if (songID < 0) {
                 uploadedLinks[i] = "[Song upload failed] File: " +
                         file.getOriginalFilename() + "(ID < 0, current value: " + songID + ")";
 
                 continue;
             }
+
+
 
             String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
 
@@ -170,7 +178,7 @@ public class SongServiceImpl implements SongService {
             String songNAme = song.getTitle();
             String artistName = song.getAlbum().getArtist().getArtistName();
 
-            String destinationFolderName = artistName + "_" + albumName;
+            String destinationFolderName = artistName + "/" + albumName;
             String newFileName = artistName + "_" + songNAme + "_" + UUID.randomUUID();
 
             Map<String, String> uploaded = minioService.uploadFile(file, newFileName, destinationFolderName, musicBucket);
@@ -224,9 +232,12 @@ public class SongServiceImpl implements SongService {
     public SongResponseDTO deleteSongById(Long id) {
         return songRepository.findById(id).map(songFound -> {
 
+            deleteSongFromMinioStorage(id);
+
             List<Playlist> playlists = playlistRepository.findAll();
             playlists.forEach(playlist -> playlist.getSongs().remove(songFound));
             playlistRepository.saveAll(playlists);
+
 
             songRepository.deleteById(id);
 

@@ -30,7 +30,7 @@ public class SubscriptionController {
         SubscriptionResponseDTO subscription = subscriptionService.getSubscriptionById(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Subscription found.", subscription)
+                new Response(HttpStatus.OK.toString(), "Subscription found.", subscription)
         );
     }
 
@@ -39,7 +39,7 @@ public class SubscriptionController {
         List<SubscriptionResponseDTO> subscriptions = subscriptionService.getAllSubscriptions();
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Subscriptions found: " + subscriptions.size(), subscriptions)
+                new Response(HttpStatus.OK.toString(), "Subscriptions found: " + subscriptions.size(), subscriptions)
         );
     }
 
@@ -48,7 +48,7 @@ public class SubscriptionController {
         List<SubscriptionResponseDTO> subscriptions = subscriptionService.getAllByActive(active);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Subscriptions(active = " + active +
+                new Response(HttpStatus.OK.toString(), "Subscriptions(active = " + active +
                         ") found: " + subscriptions.size(), subscriptions)
         );
     }
@@ -58,7 +58,7 @@ public class SubscriptionController {
         SubscriptionResponseDTO subscription = subscriptionService.createSubscription(requestDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "The subscription was created and linked to a listener with ID " +
+                new Response(HttpStatus.OK.toString(), "The subscription was created and linked to a listener with ID " +
                         requestDTO.getListenerId()+ ".", subscription)
         );
     }
@@ -72,7 +72,7 @@ public class SubscriptionController {
         SubscriptionResponseDTO subscription = subscriptionService.updateSubscription(id, updateDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Subscription updated successfully.", subscription)
+                new Response(HttpStatus.OK.toString(), "Subscription updated successfully.", subscription)
         );
     }
 
@@ -81,7 +81,7 @@ public class SubscriptionController {
         SubscriptionResponseDTO subscription = subscriptionService.enableSubscription(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Subscription enabled successfully.", subscription)
+                new Response(HttpStatus.OK.toString(), "Subscription enabled successfully.", subscription)
         );
     }
 
@@ -91,7 +91,7 @@ public class SubscriptionController {
         SubscriptionResponseDTO subscription = subscriptionService.disableSubscription(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Subscription disabled successfully.", subscription)
+                new Response(HttpStatus.OK.toString(), "Subscription disabled successfully.", subscription)
         );
 
     }
@@ -101,7 +101,7 @@ public class SubscriptionController {
         SubscriptionResponseDTO subscription = subscriptionService.deleteSubscriptionById(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Subscription deleted successfully.", subscription)
+                new Response(HttpStatus.OK.toString(), "Subscription deleted successfully.", subscription)
         );
     }
 
@@ -110,7 +110,7 @@ public class SubscriptionController {
         subscriptionService.deleteAllSubscriptions();
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-                new Response(HttpStatus.NO_CONTENT.value(), "All subscriptions deleted.")
+                new Response(HttpStatus.OK.toString(), "All subscriptions deleted.")
         );
     }
 

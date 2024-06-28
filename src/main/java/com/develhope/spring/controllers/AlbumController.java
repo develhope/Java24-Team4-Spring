@@ -26,7 +26,7 @@ public class AlbumController {
     @PostMapping
     public ResponseEntity<Response> createAlbum(@RequestBody AlbumRequestDTO albumRequestDTO) {
         AlbumResponseDTO albumResponseDTO = albumService.createAlbum(albumRequestDTO);
-        Response response = new Response(200, "Album created successfully.", albumResponseDTO);
+        Response response = new Response(HttpStatus.OK.toString(), "Album created successfully.", albumResponseDTO);
 
         return ResponseEntity.ok(response);
     }
@@ -34,7 +34,7 @@ public class AlbumController {
     @GetMapping
     public ResponseEntity<Response> getAllAlbums() {
         List<AlbumResponseDTO> albumList = albumService.getAllAlbums();
-        Response response = new Response(200, "Albums retrieved successfully.", albumList);
+        Response response = new Response(HttpStatus.OK.toString(), "Albums retrieved successfully.", albumList);
 
         return ResponseEntity.ok(response);
     }
@@ -43,7 +43,7 @@ public class AlbumController {
     public ResponseEntity<Response> albumById(@PathVariable Long id) {
         AlbumResponseDTO albumResponseDTO = albumService.getAlbumById(id);
 
-        return ResponseEntity.ok(new Response(HttpStatus.OK.value(), "Album found", albumResponseDTO));
+        return ResponseEntity.ok(new Response(HttpStatus.OK.toString(), "Album found", albumResponseDTO));
     }
 
     @PutMapping("/{id}")
@@ -51,14 +51,14 @@ public class AlbumController {
 
         AlbumResponseDTO updatedAlbum = albumService.updateAlbum(id, albumRequestDTO);
 
-        return ResponseEntity.status(404).body(new Response(200, "Album updated successfully.", updatedAlbum));
+        return ResponseEntity.status(HttpStatus.OK).body(new Response(HttpStatus.OK.toString(), "Album updated successfully.", updatedAlbum));
 
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Response> albumDelete(@PathVariable Long id) {
         AlbumResponseDTO deleted = albumService.deleteAlbumById(id);
-        Response response = new Response(200, "Album deleted successfully.", deleted);
+        Response response = new Response(HttpStatus.OK.toString(), "Album deleted successfully.", deleted);
 
         return ResponseEntity.ok(response);
     }

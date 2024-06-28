@@ -26,14 +26,14 @@ public class GenreController {
     public ResponseEntity<Response> getAllGenres() {
         List<GenreResponseDTO> genresList = genreService.getAllGenres();
 
-        return ResponseEntity.ok(new Response(HttpStatus.OK.value(), "Genres found: " + genresList.size(), genresList));
+        return ResponseEntity.ok(new Response(HttpStatus.OK.toString(), "Genres found: " + genresList.size(), genresList));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> getGenreById(@PathVariable long id) {
         GenreResponseDTO genre = genreService.findGenreById(id);
 
-        return ResponseEntity.ok().body(new Response(200, "genre found", genre));
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(), "genre found", genre));
 
     }
 
@@ -42,7 +42,7 @@ public class GenreController {
 
         GenreResponseDTO newGenre = genreService.createGenre(genreDTO);
 
-        return ResponseEntity.ok().body(new Response(200, "genre created successfully", newGenre));
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(), "genre created successfully", newGenre));
     }
 
 
@@ -50,7 +50,7 @@ public class GenreController {
     public ResponseEntity<Response> updateGenre(@PathVariable long id, @RequestBody GenreRequestDTO genre) {
         GenreResponseDTO updateGenre = genreService.updateGenre(id, genre);
 
-        return ResponseEntity.ok().body(new Response(200, "Genre updated successfully!", updateGenre));
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(), "Genre updated successfully!", updateGenre));
 
     }
 
@@ -58,6 +58,6 @@ public class GenreController {
     public ResponseEntity<Response> deleteGenre(@PathVariable long id) {
         GenreResponseDTO deletedGenre = genreService.deleteGenre(id);
 
-        return ResponseEntity.ok().body(new Response(204, "Genre deleted successfully", deletedGenre));
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(), "Genre deleted successfully", deletedGenre));
     }
 }

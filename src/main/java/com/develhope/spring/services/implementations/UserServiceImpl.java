@@ -336,6 +336,7 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotFoundException("[Profile image upload failed] User with ID " + userID + " not Found!");
         }
 
+
         long maxSize = 1048576L; // 1MB
         int maxSizeMB = (int) maxSize / (1024 * 1024);
 
@@ -358,6 +359,8 @@ public class UserServiceImpl implements UserService {
 
         String destinationFolderName = "user_" + userID + "_data/profileImages";
         String newFileName = "user_" + userID + "_profileImg";
+
+        if (userOptional.get().getPhotoObjectStorageName() != null) deleteUserProfileImg(userID);
 
         Map<String, String> uploaded = minioService.uploadFile(file, newFileName, destinationFolderName, profileDataBucket);
         String fullLink = uploaded.get("fullLink");

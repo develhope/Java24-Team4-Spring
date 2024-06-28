@@ -28,7 +28,7 @@ public class PlaylistController {
         PlaylistResponseDTO playlist = playlistService.getPlaylistById(id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Playlist found.", playlist)
+                new Response(HttpStatus.OK.toString(), "Playlist found.", playlist)
         );
     }
 
@@ -37,7 +37,7 @@ public class PlaylistController {
         List<PlaylistResponseDTO> playlists = playlistService.getAllPlaylists();
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Playlists found.", playlists)
+                new Response(HttpStatus.OK.toString(), "Playlists found.", playlists)
         );
     }
 
@@ -46,7 +46,7 @@ public class PlaylistController {
         PlaylistResponseDTO playlist = playlistService.createPlaylist(request);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Playlist created successfully.", playlist)
+                new Response(HttpStatus.OK.toString(), "Playlist created successfully.", playlist)
         );
     }
 
@@ -55,7 +55,7 @@ public class PlaylistController {
         PlaylistResponseDTO playlist = playlistService.updatePlaylist(id, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Playlist update successfully.", playlist)
+                new Response(HttpStatus.OK.toString(), "Playlist update successfully.", playlist)
         );
     }
 
@@ -64,7 +64,7 @@ public class PlaylistController {
         PlaylistResponseDTO playlist = playlistService.deletePlaylistById(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Playlist deleted successfully.", playlist)
+                new Response(HttpStatus.OK.toString(), "Playlist deleted successfully.", playlist)
         );
     }
 
@@ -73,7 +73,7 @@ public class PlaylistController {
         playlistService.deleteAllPlaylists();
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "All playlists deleted.")
+                new Response(HttpStatus.OK.toString(), "All playlists deleted.")
         );
     }
 }

@@ -28,7 +28,7 @@ public class SongController {
     public ResponseEntity<Response> getAllSongs() {
         List<SongResponseDTO> songs = songService.getAllSong();
 
-        return ResponseEntity.ok().body(new Response(200,
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(),
                 songs.size() + " song(s) found in the database.", songs));
     }
 
@@ -36,29 +36,29 @@ public class SongController {
     public ResponseEntity<Response> getSongById(@PathVariable Long id) {
         SongResponseDTO song = songService.findSongById(id);
 
-        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "Song found.", song));
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(), "Song found.", song));
     }
 
     @PostMapping
     public ResponseEntity<Response> createSong(@RequestBody SongRequestDTO request) {
         SongResponseDTO song = songService.createSong(request);
 
-        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "Song created successfully.", song));
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(), "Song created successfully.", song));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateSong(@PathVariable Long id, @RequestBody SongRequestDTO request) {
         SongResponseDTO song = songService.updateSong(id, request);
 
-        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "Song updated successfully.", song));
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(), "Song updated successfully.", song));
     }
 
-    @PostMapping("/fileService/{id}")
+    @PostMapping("/fileService")
     public ResponseEntity<Response> uploadSongToMinio(@RequestParam MultipartFile[] musicFile, @RequestParam Long[] ids) {
         String[] uploadedFileUrls = songService.uploadSongs(musicFile, ids);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Song uploaded successfully", uploadedFileUrls)
+                new Response(HttpStatus.OK.toString(), "Upload result: ", uploadedFileUrls)
         );
     }
 
@@ -67,7 +67,7 @@ public class SongController {
         songService.deleteSongFromMinioStorage(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Song deleted successfully")
+                new Response(HttpStatus.OK.toString(), "Song deleted successfully")
         );
     }
 
@@ -75,13 +75,13 @@ public class SongController {
     public ResponseEntity<Response> deleteSongById(@PathVariable Long id) {
         SongResponseDTO songDeleted = songService.deleteSongById(id);
 
-        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "Song deleted successfully.", songDeleted));
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(), "Song deleted successfully.", songDeleted));
     }
 
     @DeleteMapping
     public ResponseEntity<Response> deleteAllSongs() {
         songService.deleteAllSongs();
 
-        return ResponseEntity.ok().body(new Response(HttpStatus.OK.value(), "All songs have been removed."));
+        return ResponseEntity.ok().body(new Response(HttpStatus.OK.toString(), "All songs have been removed."));
     }
 }

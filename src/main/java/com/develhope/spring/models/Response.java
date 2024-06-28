@@ -1,22 +1,22 @@
 package com.develhope.spring.models;
 
 public class Response {
-    private int status;
+    private String status;
     private String message;
     private Object data;
 
-    public Response(int status, String message, Object data) {
+    public Response(String status, String message, Object data) {
         this.status = status;
         this.message = message;
         this.data = data;
     }
 
-    public Response(int status, String message) {
+    public Response(String status, String message) {
         this.status = status;
         this.message = message;
     }
 
-    public int getStatus() {
+    public String getStatus() {
         return status;
     }
 

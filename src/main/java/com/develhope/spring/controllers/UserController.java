@@ -35,7 +35,7 @@ public class UserController {
         List<UserWithRoleDetailsResponseDTO> users = userService.getAllUsers();
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Users found: " + users.size() + ".", users)
+                new Response(HttpStatus.OK.toString(), "Users found: " + users.size() + ".", users)
         );
     }
 
@@ -44,7 +44,7 @@ public class UserController {
         List<UserWithRoleDetailsResponseDTO> users = userService.getAllByRole(role);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Users with role " +
+                new Response(HttpStatus.OK.toString(), "Users with role " +
                         role + " found: " + users.size() + ".", users)
         );
     }
@@ -55,7 +55,7 @@ public class UserController {
         UserWithRoleDetailsResponseDTO user = userService.getUserById(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "User found.", user)
+                new Response(HttpStatus.OK.toString(), "User found.", user)
         );
     }
 
@@ -65,7 +65,7 @@ public class UserController {
         Optional<?> user = userService.createUser(request);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "User created successfully.", user)
+                new Response(HttpStatus.OK.toString(), "User created successfully.", user)
         );
     }
 
@@ -76,7 +76,7 @@ public class UserController {
         Optional<?> user = userService.updateUser(creationDTO, id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "User updated successfully.", user)
+                new Response(HttpStatus.OK.toString(), "User updated successfully.", user)
         );
     }
 
@@ -90,7 +90,7 @@ public class UserController {
         String uploadedFileUrl = userService.uploadUserProfileImage(imageFile,id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Profile image uploaded successfully", uploadedFileUrl)
+                new Response(HttpStatus.OK.toString(), "Profile image uploaded successfully", uploadedFileUrl)
         );
     }
 
@@ -99,7 +99,7 @@ public class UserController {
         userService.deleteUserProfileImg(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "Profile image deleted successfully")
+                new Response(HttpStatus.OK.toString(), "Profile image deleted successfully")
         );
     }
 
@@ -110,7 +110,7 @@ public class UserController {
         UserWithRoleDetailsResponseDTO user = userService.deleteUserById(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "User deleted successfully.", user)
+                new Response(HttpStatus.OK.toString(), "User deleted successfully.", user)
         );
     }
 
@@ -119,7 +119,7 @@ public class UserController {
         userService.deleteAllUsers();
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "All users deleted")
+                new Response(HttpStatus.OK.toString(), "All users deleted")
         );
     }
 }

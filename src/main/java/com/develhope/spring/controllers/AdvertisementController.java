@@ -28,7 +28,7 @@ public class AdvertisementController {
         AdvertisementResponseDTO adv = advService.displayAdvertisementToUser(id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Advertisement shown successfully", adv)
+                new Response(HttpStatus.OK.toString(), "Advertisement shown successfully", adv)
         );
     }
 
@@ -37,7 +37,7 @@ public class AdvertisementController {
         List<AdvertisementResponseDTO> advList = advService.getAllAdvertisements();
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(),
+                new Response(HttpStatus.OK.toString(),
                         "Advertisements found: " + advList.size(), advList)
         );
     }
@@ -47,7 +47,7 @@ public class AdvertisementController {
         List<AdvertisementResponseDTO> advList = advService.getAllByActive(active);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(),
+                new Response(HttpStatus.OK.toString(),
                         "Advertisements(active = " + active +
                                 ") found: " + advList.size() + ".", advList)
         );
@@ -58,7 +58,7 @@ public class AdvertisementController {
         AdvertisementResponseDTO adv = advService.getAdvertisementById(id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(),
+                new Response(HttpStatus.OK.toString(),
                         "Advertisement found successfully.", adv)
         );
     }
@@ -69,7 +69,7 @@ public class AdvertisementController {
         AdvertisementResponseDTO adv = advService.createAdvertisement(requestDTO);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(),
+                new Response(HttpStatus.OK.toString(),
                         "The ad was created and linked to a advertiser with ID " +
                                 requestDTO.getAdvertiserUserId()+ ".", adv)
         );
@@ -82,7 +82,7 @@ public class AdvertisementController {
         AdvertisementResponseDTO adv = advService.updateAdvertisement(updateDTO, id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Advertisement updated successfully.", adv)
+                new Response(HttpStatus.OK.toString(), "Advertisement updated successfully.", adv)
         );
     }
 
@@ -91,7 +91,7 @@ public class AdvertisementController {
         AdvertisementResponseDTO adv = advService.enableAdvertisement(id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Advertisement with ID " + id +
+                new Response(HttpStatus.OK.toString(), "Advertisement with ID " + id +
                         " enabled successfully.", adv)
         );
     }
@@ -101,7 +101,7 @@ public class AdvertisementController {
         AdvertisementResponseDTO adv = advService.disableAdvertisement(id);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Advertisement with ID " + id +
+                new Response(HttpStatus.OK.toString(), "Advertisement with ID " + id +
                         " disabled successfully.", adv)
         );
     }
@@ -111,7 +111,7 @@ public class AdvertisementController {
         AdvertisementResponseDTO adv = advService.deleteAdvertisement(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-                new Response(HttpStatus.NO_CONTENT.value(), "Advertisement deleted successfully.", adv)
+                new Response(HttpStatus.OK.toString(), "Advertisement deleted successfully.", adv)
         );
     }
 
@@ -120,7 +120,7 @@ public class AdvertisementController {
         advService.deleteAllAdvertisements();
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.NO_CONTENT.value(), "All advertisements deleted.")
+                new Response(HttpStatus.OK.toString(), "All advertisements deleted.")
         );
     }
 }

@@ -26,7 +26,7 @@ public class CommentController {
     public ResponseEntity<Response> getCommentById(@PathVariable Long id) {
         CommentResponseDTO comment = commentService.findCommentById(id);
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Comment found.", comment)
+                new Response(HttpStatus.OK.toString(), "Comment found.", comment)
         );
     }
 
@@ -35,7 +35,7 @@ public class CommentController {
         List<CommentResponseDTO> comments = commentService.getAllComments();
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Comments found.", comments)
+                new Response(HttpStatus.OK.toString(), "Comments found.", comments)
         );
     }
 
@@ -44,7 +44,7 @@ public class CommentController {
         CommentResponseDTO comment = commentService.createComment(request);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Comment created successfully.", comment)
+                new Response(HttpStatus.OK.toString(), "Comment created successfully.", comment)
         );
     }
 
@@ -53,7 +53,7 @@ public class CommentController {
         CommentResponseDTO comment = commentService.updateComment(id, request);
 
         return ResponseEntity.ok().body(
-                new Response(HttpStatus.OK.value(), "Comment updated successfully.", comment)
+                new Response(HttpStatus.OK.toString(), "Comment updated successfully.", comment)
         );
     }
 
@@ -62,7 +62,7 @@ public class CommentController {
         CommentResponseDTO comment = commentService.deleteCommentById(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-                new Response(HttpStatus.NO_CONTENT.value(), "Comment deleted successfully.", comment)
+                new Response(HttpStatus.OK.toString(), "Comment deleted successfully.", comment)
         );
     }
 
