@@ -5,6 +5,7 @@ import com.develhope.spring.models.Response;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -115,6 +116,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<ErrorResponse> handleMultipartExceptions(MultipartException ex){
+        return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterExceptions(MissingServletRequestParameterException ex){
         return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
