@@ -146,7 +146,6 @@ public class SongServiceImpl implements SongService {
             }
 
 
-
             String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
 
             if (!extension.equals("mp3") && !extension.equals("wav") &&
@@ -165,7 +164,7 @@ public class SongServiceImpl implements SongService {
 
             Optional<Song> songOptional = songRepository.findById(songID);
 
-            if (songOptional.isEmpty()){
+            if (songOptional.isEmpty()) {
                 uploadedLinks[i] = "[Song upload failed] Song with id " +
                         songID + " not found in the database, file " + file.getOriginalFilename() + " is not uploaded";
 
@@ -231,8 +230,8 @@ public class SongServiceImpl implements SongService {
     @Transactional
     public SongResponseDTO deleteSongById(Long id) {
         return songRepository.findById(id).map(songFound -> {
+            if (songFound.getObjectStorageFileName() != null) deleteSongFromMinioStorage(id);
 
-            deleteSongFromMinioStorage(id);
 
             List<Playlist> playlists = playlistRepository.findAll();
             playlists.forEach(playlist -> playlist.getSongs().remove(songFound));
