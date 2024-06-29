@@ -3,10 +3,7 @@ package com.develhope.spring.services.implementations;
 import com.develhope.spring.dtos.requests.SongRequestDTO;
 import com.develhope.spring.dtos.responses.SongResponseDTO;
 import com.develhope.spring.entities.*;
-import com.develhope.spring.exceptions.EmptyResultException;
-import com.develhope.spring.exceptions.EntityMappingException;
-import com.develhope.spring.exceptions.MinIOFileUploadException;
-import com.develhope.spring.exceptions.UnsupportedFileFormatException;
+import com.develhope.spring.exceptions.*;
 import com.develhope.spring.repositories.AlbumRepository;
 import com.develhope.spring.repositories.GenreRepository;
 import com.develhope.spring.repositories.PlaylistRepository;
@@ -17,7 +14,7 @@ import com.develhope.spring.services.interfaces.MinioService;
 import com.develhope.spring.services.interfaces.SongService;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -128,61 +125,89 @@ public class SongServiceImpl implements SongService {
 
     @Transactional
     @Override
-    public String uploadSong(MultipartFile file, Long songID) {
-        UserEntity currentUser = Security.getCurrentUser();
+
+    public String[] uploadSongs(MultipartFile[] files, Long[] songIDS) {
+
         long maxSize = 209715200L;
         int maxSizeMB = (int) maxSize / (1024 * 1024);
 
-        String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
-
-        if (!extension.equals("mp3") && !extension.equals("wav") && !extension.equals("flac") && !extension.equals("m4a")) {
-            throw new UnsupportedFileFormatException( 
-                    "[Song upload failed] unsupported format(Available formats: .mp3 / .wav / .flac / .m4a)"
-            );
-        }
-
-        if (file.getSize() > maxSize) {
-            try {
-                throw new FileSizeLimitExceededException(
-                        "File too large. Max. size = " + maxSizeMB + "MB", file.getSize(), maxSize
-                );
-            } catch (FileSizeLimitExceededException e) {
-                throw new MinIOFileUploadException(e.getMessage());
-            }
-        }
-
-        Song song = songRepository.findById(songID).orElseThrow(
-                () -> new EntityNotFoundException("[Song upload failed] Song with id " +
-                        songID + " not found in the database")
+        if (files.length != songIDS.length) throw new MultiUploadFailedException(
+                "[Upload failed]  The number of file(s) does not correspond to the number of identifiers! Files cannot be uploaded."
         );
+
+        String[] uploadedLinks = new String[files.length];
+
+        for (int i = 0; i < files.length; i++) {
+
+            var file = files[i];
+            var songID = songIDS[i];
+
+            if (songID < 0) {
+                uploadedLinks[i] = "[Song upload failed] File: " +
+                        file.getOriginalFilename() + "(ID < 0, current value: " + songID + ")";
+
+                continue;
+            }
+
+            String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
+
 
         if (!song.getAlbum().getArtist().getUser().equals(currentUser))// todo ex handler
             throw new AccessDeniedException("You are not allowed to upload this song");
 
         if (song == null) throw new EntityNotFoundException("[Upload error] Song data not found in the DB]");
 
-        String albumName = song.getAlbum().getTitle();
-        String songNAme = song.getTitle();
-        String artistName = song.getAlbum().getArtist().getArtistName();
+            if (!extension.equals("mp3") && !extension.equals("wav") &&
+                    !extension.equals("flac") && !extension.equals("m4a")) {
+                uploadedLinks[i] = "[Song upload failed] File: " +
+                        file.getOriginalFilename() + "(unsupported format(Available formats: .mp3 / .wav / .flac / .m4a))";
 
-        String destinationFolderName = artistName + "_" + albumName;
-        String newFileName = artistName + "_" + songNAme + "_" + UUID.randomUUID();
+                continue;
+            }
 
-        Map<String, String> uploaded = minioService.uploadFile(file, newFileName, destinationFolderName, musicBucket);
+            if (file.getSize() > maxSize) {
+                uploadedLinks[i] = "[Song upload failed] File: " + file.getOriginalFilename() +
+                        "File too large. Max. size = " + maxSizeMB + "MB" + "Now: " + file.getSize() / (1024 * 1024) + "MB";
+                continue;
+            }
 
-        String fullLink = uploaded.get("fullLink");
-        String objectStorageFileName = uploaded.get("objectName");
+            Optional<Song> songOptional = songRepository.findById(songID);
 
-        song.setLink_audio(fullLink);
-        song.setObjectStorageFileName(objectStorageFileName);
+            if (songOptional.isEmpty()){
+                uploadedLinks[i] = "[Song upload failed] Song with id " +
+                        songID + " not found in the database, file " + file.getOriginalFilename() + " is not uploaded";
+
+                continue;
+            }
+
+            Song song = songOptional.get();
+
+            String albumName = song.getAlbum().getTitle();
+            String songNAme = song.getTitle();
+            String artistName = song.getAlbum().getArtist().getArtistName();
+
+            String destinationFolderName = artistName + "_" + albumName;
+            String newFileName = artistName + "_" + songNAme + "_" + UUID.randomUUID();
+
+            Map<String, String> uploaded = minioService.uploadFile(file, newFileName, destinationFolderName, musicBucket);
+
+            String fullLink = uploaded.get("fullLink");
+            String objectStorageFileName = uploaded.get("objectName");
+
+            song.setLink_audio(fullLink);
+            song.setObjectStorageFileName(objectStorageFileName);
 
 
-        return "Uploaded file url: " + fullLink;
+            uploadedLinks[i] = "Uploaded file url: " + fullLink;
+        }
+
+        return uploadedLinks;
     }
 
     @Override
     @Transactional
     public void deleteSongFromMinioStorage(Long songID) {
+
         UserEntity currentUser = Security.getCurrentUser();
 
         Song song = songRepository.findById(songID).orElseThrow(
@@ -192,6 +217,7 @@ public class SongServiceImpl implements SongService {
         if (!song.getAlbum().getArtist().getUser().equals(currentUser))// todo ex handler
             throw new AccessDeniedException("You are not allowed to delete this song");
         
+
         String fileToDelete = song.getObjectStorageFileName();
 
         boolean deleted = minioService.deleteFile(musicBucket, fileToDelete);
@@ -290,7 +316,7 @@ public class SongServiceImpl implements SongService {
         }
     }
 
-    private void songResponseDtoSetArtistName(Song song, SongResponseDTO responseDTO){
+    private void songResponseDtoSetArtistName(Song song, SongResponseDTO responseDTO) {
         String artistName = song.getAlbum().getArtist().getArtistName();
         responseDTO.setArtistName(artistName);
     }

@@ -106,19 +106,28 @@ public class GlobalExceptionHandler {
         return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedExceptions(AccessDeniedException ex) {
         return createErrorResponse(ex, HttpStatus.FORBIDDEN);
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MultiUploadFailedException.class)
+    public ResponseEntity<ErrorResponse> handleMultiUploadFailedException(MultiUploadFailedException ex){
+        return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+
     }
 
     private ResponseEntity<ErrorResponse> createErrorResponse(Exception ex, HttpStatus status) {
 
-        String message = "[" + ex.getClass() + "] " + ex.getMessage();
+        String exception = ex.getClass().toString();
+        String statusString = status.toString();
+        String message =  ex.getMessage();
         String timestamp = this.timestamp;
         String stackTrace = Arrays.toString(ex.getStackTrace());
 
-        ErrorResponse errorResponseEntity = new ErrorResponse(status.value(), message, timestamp, stackTrace);
+        ErrorResponse errorResponseEntity = new ErrorResponse(exception, statusString, message, timestamp, stackTrace);
 
         return ResponseEntity.status(status).body(errorResponseEntity);
     }

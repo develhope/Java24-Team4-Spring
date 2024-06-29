@@ -5,7 +5,9 @@ import com.develhope.spring.authentication.UzerDetailsService;
 import com.develhope.spring.dtos.requests.LoginDTO;
 import com.develhope.spring.dtos.requests.UserCreationDTO;
 import com.develhope.spring.dtos.responses.UserWithRoleDetailsResponseDTO;
+
 import com.develhope.spring.entities.UserEntity;
+import com.develhope.spring.exceptions.MultiUploadFailedException;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.UserService;
 import org.modelmapper.ModelMapper;
@@ -94,7 +96,11 @@ public class UserController {
 
 
     @PostMapping("/fileService/{id}")
-    public ResponseEntity<Response> uploadProfileImage(@RequestParam MultipartFile imageFile, @PathVariable Long id) {
+    public ResponseEntity<Response> uploadProfileImage(@RequestParam MultipartFile[] image, @PathVariable Long id) {
+
+        if (image.length != 1) throw new MultiUploadFailedException("You can only upload one image at a time.");
+
+        MultipartFile imageFile = image[0];
         String uploadedFileUrl = userService.uploadUserProfileImage(imageFile,id);
 
         return ResponseEntity.status(HttpStatus.OK).body(
