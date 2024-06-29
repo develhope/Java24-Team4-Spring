@@ -13,7 +13,6 @@ import com.develhope.spring.services.interfaces.MinioService;
 import com.develhope.spring.services.interfaces.SongService;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.io.FilenameUtils;
-import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -117,6 +117,17 @@ public class SongServiceImpl implements SongService {
     @Transactional
     @Override
     public String[] uploadSongs(MultipartFile[] files, Long[] songIDS) {
+
+        try {
+            if (controlDuplicateEntries(files))
+                throw new MultiUploadFailedException("Files list contains a duplicate entry" + getFilenames(files));
+        } catch (IOException e) {
+            throw new MultiUploadFailedException("I/O error: " + e.getMessage() + "Exception: " + e.getClass().getName());
+        }
+
+        if (controlDuplicateEntries(songIDS))
+            throw new MultiUploadFailedException("SongIDs list contains a duplicate entry" + Arrays.toString(songIDS));
+
 
         long maxSize = 209715200L;
         int maxSizeMB = (int) maxSize / (1024 * 1024);
@@ -303,4 +314,41 @@ public class SongServiceImpl implements SongService {
         responseDTO.setArtistName(artistName);
     }
 
+    private boolean controlDuplicateEntries(Long[] numbers) {
+        boolean existsDuplicate = false;
+
+        Set<Long> tempSet = new HashSet<>();
+        for (Long number : numbers) {
+            if (!tempSet.add(number)) {
+                existsDuplicate = true;
+                break;
+            }
+        }
+        return existsDuplicate;
+    }
+
+    public boolean controlDuplicateEntries(MultipartFile[] files) throws IOException {
+        Set<String> tempSet = new HashSet<>();
+
+        for (MultipartFile file : files) {
+            byte[] fileBytes = file.getBytes();
+            String fileContent = Base64.getEncoder().encodeToString(fileBytes);
+
+            if (!tempSet.add(fileContent)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<String> getFilenames(MultipartFile[] files) throws EmptyResultException {
+        List<String> filenames = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            filenames.add(file.getOriginalFilename());
+        }
+        if (filenames.isEmpty()) throw new  EmptyResultException("Files list is empty");
+        return filenames;
+    }
 }
+
