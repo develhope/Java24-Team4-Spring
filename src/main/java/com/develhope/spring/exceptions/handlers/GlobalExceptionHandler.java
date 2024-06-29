@@ -17,6 +17,7 @@ import java.util.Date;
 
 import com.develhope.spring.exceptions.*;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -122,6 +123,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterExceptions(MissingServletRequestParameterException ex){
+        return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ErrorResponse> handleMMissingServletRequestPartExceptions(MissingServletRequestPartException ex){
         return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
