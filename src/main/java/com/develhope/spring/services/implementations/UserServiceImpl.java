@@ -7,12 +7,15 @@ import com.develhope.spring.exceptions.*;
 import com.develhope.spring.repositories.*;
 import com.develhope.spring.services.interfaces.MinioService;
 import com.develhope.spring.services.interfaces.UserService;
+import com.develhope.spring.utils.Security;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +34,11 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class UserServiceImpl implements UserService {
 
+
+    //TODO CONFIGUR. ENABLE, DISABLE, CREARE RUOLO CHE PUO FARE STE COSE (ADMIN)
+    //todo aggiungere controllo di Current User  anche x i metodi getById
+
+
     private final MinioService minioService;
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
@@ -39,12 +47,13 @@ public class UserServiceImpl implements UserService {
     private final ArtistRepository artistRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionServiceImpl subscriptionService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${minio.profileDataBucket}")
     private String profileDataBucket;
 
     @Autowired
-    public UserServiceImpl(MinioService minioService, ModelMapper modelMapper, UserRepository userRepository, ListenerRepository listenerRepository, AdvertiserRepository advertiserRepository, ArtistRepository artistRepository, SubscriptionRepository subscriptionRepository, SubscriptionServiceImpl subscriptionService) {
+    public UserServiceImpl(MinioService minioService, ModelMapper modelMapper, UserRepository userRepository, ListenerRepository listenerRepository, AdvertiserRepository advertiserRepository, ArtistRepository artistRepository, SubscriptionRepository subscriptionRepository, SubscriptionServiceImpl subscriptionService, PasswordEncoder passwordEncoder) {
         this.minioService = minioService;
         this.modelMapper = modelMapper;
         this.userRepository = userRepository;
@@ -53,8 +62,9 @@ public class UserServiceImpl implements UserService {
         this.artistRepository = artistRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.subscriptionService = subscriptionService;
-
+        this.passwordEncoder = passwordEncoder;
     }
+
 
     @Transactional
     @Override
@@ -64,17 +74,18 @@ public class UserServiceImpl implements UserService {
             throw new InvalidUserFieldsException("[Creation failed] One or more required fields for User/Listener are null or empty");
         }
 
-        User toSave = modelMapper.map(request, User.class);
+        UserEntity toSave = modelMapper.map(request, UserEntity.class);
         toSave.setRegistrationDate(LocalDate.now());
+        toSave.setPassword(passwordEncoder.encode(toSave.getPassword()));
 
         switch (toSave.getRole()) {
 
             case LISTENER -> {
 
-                User savedUser = userRepository.saveAndFlush(toSave);
+                UserEntity savedUserEntity = userRepository.saveAndFlush(toSave);
 
                 Listener listenerToSave = new Listener();
-                listenerToSave.setUser(savedUser);
+                listenerToSave.setUser(savedUserEntity);
 
                 Listener listenerSaved = listenerRepository.saveAndFlush(listenerToSave);
                 ListenerResponseDTO response = modelMapper.map(listenerSaved, ListenerResponseDTO.class);
@@ -89,10 +100,10 @@ public class UserServiceImpl implements UserService {
                     throw new InvalidUserFieldsException("[Creation failed] One or more required fields for Artist are null or empty");
                 }
 
-                User savedUser = userRepository.saveAndFlush(toSave);
+                UserEntity savedUserEntity = userRepository.saveAndFlush(toSave);
 
                 Artist artistToSave = modelMapper.map(request, Artist.class);
-                artistToSave.setUser(savedUser);
+                artistToSave.setUser(savedUserEntity);
 
                 Artist artistSaved = artistRepository.saveAndFlush(artistToSave);
                 ArtistResponseDTO response = modelMapper.map(artistSaved, ArtistResponseDTO.class);
@@ -106,10 +117,10 @@ public class UserServiceImpl implements UserService {
                     throw new InvalidUserFieldsException("[Creation failed] One or more required fields for Advertiser are null or empty");
                 }
 
-                User savedUser = userRepository.saveAndFlush(toSave);
+                UserEntity savedUserEntity = userRepository.saveAndFlush(toSave);
 
                 Advertiser advertiserToSave = modelMapper.map(request, Advertiser.class);
-                advertiserToSave.setUser(savedUser);
+                advertiserToSave.setUser(savedUserEntity);
 
                 Advertiser advertiserSaved = advertiserRepository.saveAndFlush(advertiserToSave);
                 AdvertiserResponseDTO response = modelMapper.map(advertiserSaved, AdvertiserResponseDTO.class);
@@ -128,24 +139,29 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public Optional<?> updateUser(UserCreationDTO request, Long id) throws InvocationTargetException, IllegalAccessException {
+        UserEntity currentUser = Security.getCurrentUser();
 
         if (id < 0) {
             throw new NegativeIdException(
                     "[Update failed] Subscription ID cannot be negative. Now: " + id);
         }
 
-        Optional<User> userOptional = userRepository.findById(id);
+        Optional<UserEntity> userOptional = userRepository.findById(id);
 
         if (userOptional.isEmpty()) {
             throw new EntityNotFoundException("[Update failed] User with ID " + id + " not Found!");
         }
 
-        User user = userOptional.get();
+        UserEntity userEntity = userOptional.get();
+        if (! userEntity.equals(currentUser))
+            throw new AccessDeniedException("You are not allowed to update this user");
 
-        checkFieldsAndUpdateUser(request, user);
 
-        if (request.getRole() != user.getRole()) {
-            switch (user.getRole()) {
+        checkFieldsAndUpdateUser(request, userEntity);
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+
+        if (request.getRole() != userEntity.getRole()) {
+            switch (userEntity.getRole()) {
 
                 case LISTENER -> {
                     subscriptionRepository.deleteById(id);
@@ -166,19 +182,40 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        switch (user.getRole()) {
+        switch (userEntity.getRole()) {
 
             case LISTENER -> {
-                return updateSaveUserAndListener(user);
+                return updateSaveUserAndListener(userEntity);
             }
             case ARTIST -> {
-                return updateSaveUserAndArtist(request, user);
+                return updateSaveUserAndArtist(request, userEntity);
             }
             case ADVERTISER -> {
-                return updateSaveAdvertiser(request, user);
+                return updateSaveAdvertiser(request, userEntity);
             }
             default -> throw new UnknownUserRoleException(
                     "[Update failed] Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
+            );
+        }
+    }
+
+    @Override
+    public UserWithRoleDetailsResponseDTO getCurrentUser(){
+        UserEntity currentUser = Security.getCurrentUser();
+        UserWithRoleDetailsResponseDTO response = modelMapper.map(currentUser, UserWithRoleDetailsResponseDTO.class);
+
+        switch (currentUser.getRole()) {
+            case LISTENER -> {
+                return handleListenerRole(currentUser, response);
+            }
+            case ARTIST -> {
+                return handleArtistRole(currentUser, response);
+            }
+            case ADVERTISER -> {
+                return handleAdvertiserRole(currentUser, response);
+            }
+            default -> throw new UnknownUserRoleException(
+                    "[Search failed] Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER!"
             );
         }
     }
@@ -206,7 +243,7 @@ public class UserServiceImpl implements UserService {
                     return handleAdvertiserRole(user, response);
                 }
                 default -> throw new UnknownUserRoleException(
-                        "[Search failed] Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER (case sensitive)!"
+                        "[Search failed] Unknown user role! The role can only be: LISTENER, ARTIST or ADVERTISER!"
                 );
             }
         }).orElseThrow(() -> new EntityNotFoundException("[Search failed] User with ID " + id +
@@ -240,16 +277,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserWithRoleDetailsResponseDTO> getAllByRole(User.Role role) {
+    public List<UserWithRoleDetailsResponseDTO> getAllByRole(UserEntity.Role role) {
 
-        List<User> users = userRepository.findByRole(role);
+        List<UserEntity> userEntities = userRepository.findByRole(role);
 
-        if (users.isEmpty()) {
+        if (userEntities.isEmpty()) {
             throw new EmptyResultException("Users with role " + role +
                     " were not found");
         }
 
-        return users.stream().map(user -> {
+        return userEntities.stream().map(user -> {
 
             UserWithRoleDetailsResponseDTO response = modelMapper.map(user, UserWithRoleDetailsResponseDTO.class);
 
@@ -273,18 +310,22 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserWithRoleDetailsResponseDTO deleteUserById(Long id) {
+        UserEntity currentUser = Security.getCurrentUser();
 
         if (id < 0) {
             throw new NegativeIdException(
                     "[Search failed] Subscription ID cannot be negative. Now: " + id);
         }
 
-        Optional<User> userOptional = userRepository.findById(id);
+        Optional<UserEntity> userOptional = userRepository.findById(id);
 
 
         if (userOptional.isEmpty()) {
             throw new EntityNotFoundException("[Delete failed] User with ID " + id + " not Found!");
         }
+
+        if (!userOptional.get().equals(currentUser))// todo ex handler
+            throw new AccessDeniedException("You are not allowed to delete this user");
 
         var responseDTO = modelMapper.map(userOptional.get(), UserWithRoleDetailsResponseDTO.class);
 
@@ -329,12 +370,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String uploadUserProfileImage(MultipartFile file, Long userID)  {
-
-        Optional<User> userOptional = userRepository.findById(userID);
+        UserEntity currentUser = Security.getCurrentUser();
+        Optional<UserEntity> userOptional = userRepository.findById(userID);
 
         if (userOptional.isEmpty()) {
             throw new EntityNotFoundException("[Profile image upload failed] User with ID " + userID + " not Found!");
         }
+
+        if (! userOptional.get().equals(currentUser))// todo ex handler
+            throw new AccessDeniedException("You are not allowed to update this user");
 
         long maxSize = 1048576L; // 1MB
         int maxSizeMB = (int) maxSize / (1024 * 1024);
@@ -342,7 +386,7 @@ public class UserServiceImpl implements UserService {
         String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
 
         if (!extension.equals("jpg") && !extension.equals("jpeg") && !extension.equals("png") && !extension.equals("gif")) {
-            throw new UnsupportedFileFormatException( //todo aggiungere in ex. handler
+            throw new UnsupportedFileFormatException(
                     "[Profile image upload failed] unsupported format(Available formats: .jpg / .jpeg / .png / .gif)"
             );
         }
@@ -363,48 +407,48 @@ public class UserServiceImpl implements UserService {
         String fullLink = uploaded.get("fullLink");
         String objectStorageFileName = uploaded.get("objectName");
 
-        User user = userOptional.get();
-        user.setUrlPhoto(fullLink);
-        user.setPhotoObjectStorageName(objectStorageFileName);
-        userRepository.saveAndFlush(user);
+        UserEntity userEntity = userOptional.get();
+        userEntity.setUrlPhoto(fullLink);
+        userEntity.setPhotoObjectStorageName(objectStorageFileName);
+        userRepository.saveAndFlush(userEntity);
 
         return "Uploaded file url:" + fullLink;
     }
 
     @Override
     public void deleteUserProfileImg(Long userID) {
-        Optional<User> userOptional = userRepository.findById(userID);
+        Optional<UserEntity> userOptional = userRepository.findById(userID);
 
         if (userOptional.isEmpty()) {
             throw new EntityNotFoundException("[Profile image delete failed] User with ID " + userID + " not Found!");
         }
 
-        User user = userOptional.get();
-        String fileToDelete = user.getPhotoObjectStorageName();
+        UserEntity userEntity = userOptional.get();
+        String fileToDelete = userEntity.getPhotoObjectStorageName();
 
         boolean deleted = minioService.deleteFile(profileDataBucket, fileToDelete);
 
         if (deleted) {
-            user.setPhotoObjectStorageName(null);
-            user.setUrlPhoto(null);
-            userRepository.saveAndFlush(user);
+            userEntity.setPhotoObjectStorageName(null);
+            userEntity.setUrlPhoto(null);
+            userRepository.saveAndFlush(userEntity);
         }
     }
 
-    private UserWithRoleDetailsResponseDTO handleListenerRole(User user, UserWithRoleDetailsResponseDTO response) {
+    private UserWithRoleDetailsResponseDTO handleListenerRole(UserEntity userEntity, UserWithRoleDetailsResponseDTO response) {
 
-        if (user.getId() < 0) {
+        if (userEntity.getId() < 0) {
             throw new NegativeIdException(
-                    "[Search failed] User ID cannot be negative. Now: " + user.getId());
+                    "[Search failed] User ID cannot be negative. Now: " + userEntity.getId());
         }
 
-        Optional<Listener> listener = listenerRepository.findById(user.getId());
+        Optional<Listener> listener = listenerRepository.findById(userEntity.getId());
 
         if (listener.isEmpty()) {
-            throw new EntityNotFoundException("[Search failed] Listener with ID " + user.getId() + " not Found!");
+            throw new EntityNotFoundException("[Search failed] Listener with ID " + userEntity.getId() + " not Found!");
         }
 
-        Optional<Subscription> subscriptionOptional = subscriptionRepository.findById(user.getId());
+        Optional<Subscription> subscriptionOptional = subscriptionRepository.findById(userEntity.getId());
         Subscription subscription = subscriptionOptional.orElse(null);
 
         if (subscription != null) {
@@ -422,10 +466,10 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
-    private UserWithRoleDetailsResponseDTO handleArtistRole(User user, UserWithRoleDetailsResponseDTO response) {
-        Optional<Artist> artist = artistRepository.findById(user.getId());
+    private UserWithRoleDetailsResponseDTO handleArtistRole(UserEntity userEntity, UserWithRoleDetailsResponseDTO response) {
+        Optional<Artist> artist = artistRepository.findById(userEntity.getId());
         if (artist.isEmpty()) {
-            throw new EntityNotFoundException("Artist with ID " + user.getId() + " not Found!");
+            throw new EntityNotFoundException("Artist with ID " + userEntity.getId() + " not Found!");
         }
 
         ArtistWithoutUserDTO dto = modelMapper.map(artist.get(), ArtistWithoutUserDTO.class);
@@ -434,10 +478,10 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
-    private UserWithRoleDetailsResponseDTO handleAdvertiserRole(User user, UserWithRoleDetailsResponseDTO response) {
-        Optional<Advertiser> advertiser = advertiserRepository.findById(user.getId());
+    private UserWithRoleDetailsResponseDTO handleAdvertiserRole(UserEntity userEntity, UserWithRoleDetailsResponseDTO response) {
+        Optional<Advertiser> advertiser = advertiserRepository.findById(userEntity.getId());
         if (advertiser.isEmpty()) {
-            throw new EntityNotFoundException("Advertiser with ID " + user.getId() + " not Found!");
+            throw new EntityNotFoundException("Advertiser with ID " + userEntity.getId() + " not Found!");
         }
 
         AdvertiserWithoutUserDTO dto = modelMapper.map(advertiser.get(), AdvertiserWithoutUserDTO.class);
@@ -532,7 +576,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private void checkFieldsAndUpdateUser(UserCreationDTO request, User toUpdate) throws IllegalAccessException, InvocationTargetException {
+    private void checkFieldsAndUpdateUser(UserCreationDTO request, UserEntity toUpdate) throws IllegalAccessException, InvocationTargetException {
         String[] fieldsToCheck = {
                 "getNickName",
                 "getName",
@@ -558,7 +602,7 @@ public class UserServiceImpl implements UserService {
 
                     String setterName = "set" + field.substring(3);
                     try {
-                        Method setter = User.class.getMethod(setterName, method.getReturnType());
+                        Method setter = UserEntity.class.getMethod(setterName, method.getReturnType());
                         setter.invoke(toUpdate, value);
                     } catch (NoSuchMethodException e) {
                         e.printStackTrace();
@@ -632,10 +676,10 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private Optional<?> updateSaveUserAndListener(User user) {
-        User updatedUser = userRepository.saveAndFlush(user);
+    private Optional<?> updateSaveUserAndListener(UserEntity userEntity) {
+        UserEntity updatedUserEntity = userRepository.saveAndFlush(userEntity);
 
-        return listenerRepository.findById(updatedUser.getId()).map(listener -> {
+        return listenerRepository.findById(updatedUserEntity.getId()).map(listener -> {
 
             listener = listenerRepository.saveAndFlush(listener);
             ListenerResponseDTO response = modelMapper.map(listener, ListenerResponseDTO.class);
@@ -644,8 +688,8 @@ public class UserServiceImpl implements UserService {
         });
     }
 
-    private Optional<?> updateSaveUserAndArtist(UserCreationDTO request, User user) {
-        User updated = userRepository.saveAndFlush(user);
+    private Optional<?> updateSaveUserAndArtist(UserCreationDTO request, UserEntity userEntity) {
+        UserEntity updated = userRepository.saveAndFlush(userEntity);
 
         return artistRepository.findById(updated.getId()).map(artist -> {
 
@@ -663,10 +707,10 @@ public class UserServiceImpl implements UserService {
         });
     }
 
-    private Optional<?> updateSaveAdvertiser(UserCreationDTO request, User user) throws InvocationTargetException, IllegalAccessException {
-        User updatedUser = userRepository.saveAndFlush(user);
+    private Optional<?> updateSaveAdvertiser(UserCreationDTO request, UserEntity userEntity) throws InvocationTargetException, IllegalAccessException {
+        UserEntity updatedUserEntity = userRepository.saveAndFlush(userEntity);
 
-        return advertiserRepository.findById(updatedUser.getId()).map(advertiser -> {
+        return advertiserRepository.findById(updatedUserEntity.getId()).map(advertiser -> {
 
             try {
                 checkFieldsAndUpdateAdvertiser(request, advertiser);

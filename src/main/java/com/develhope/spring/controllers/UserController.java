@@ -1,16 +1,23 @@
 package com.develhope.spring.controllers;
 
+import com.develhope.spring.authentication.JWTService;
+import com.develhope.spring.authentication.UzerDetailsService;
+import com.develhope.spring.dtos.requests.LoginDTO;
 import com.develhope.spring.dtos.requests.UserCreationDTO;
 import com.develhope.spring.dtos.responses.UserWithRoleDetailsResponseDTO;
-import com.develhope.spring.entities.User;
+
+import com.develhope.spring.entities.UserEntity;
 import com.develhope.spring.exceptions.MultiUploadFailedException;
 import com.develhope.spring.models.Response;
 import com.develhope.spring.services.interfaces.UserService;
-import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,12 +29,21 @@ import java.util.Optional;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+
+    private final UserService userService;
+    private final ModelMapper modelMapper;
+    private final AuthenticationManager authenticationManager;
+    private final UzerDetailsService uzerDetailsService;
+    private final JWTService jwtService;
 
     @Autowired
-    private ModelMapper modelMapper;
-
+    public UserController(UserService userService, ModelMapper modelMapper, AuthenticationManager authenticationManager, UzerDetailsService uzerDetailsService, JWTService jwtService) {
+        this.userService = userService;
+        this.modelMapper = modelMapper;
+        this.authenticationManager = authenticationManager;
+        this.uzerDetailsService = uzerDetailsService;
+        this.jwtService = jwtService;
+    }
 
     @GetMapping
     public ResponseEntity<Response> getAllUsers() {
@@ -40,13 +56,20 @@ public class UserController {
     }
 
     @GetMapping("/byRole")
-    public ResponseEntity<Response> getAllByRole(@RequestParam User.Role role) {
+    public ResponseEntity<Response> getAllByRole(@RequestParam UserEntity.Role role) {
         List<UserWithRoleDetailsResponseDTO> users = userService.getAllByRole(role);
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new Response(HttpStatus.OK.value(), "Users with role " +
                         role + " found: " + users.size() + ".", users)
         );
+    }
+
+    @GetMapping("/myProfile")
+    public ResponseEntity<Response> getCurrentUser(){
+        UserWithRoleDetailsResponseDTO user = userService.getCurrentUser();
+
+        return ResponseEntity.status(HttpStatus.OK).body(new Response(HttpStatus.OK.value(), "Current user found.", user));
     }
 
 
@@ -59,15 +82,6 @@ public class UserController {
         );
     }
 
-    @PostMapping
-    public ResponseEntity<Response> createUser(@RequestBody UserCreationDTO request)
-            throws InvocationTargetException, IllegalAccessException {
-        Optional<?> user = userService.createUser(request);
-
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new Response(HttpStatus.OK.value(), "User created successfully.", user)
-        );
-    }
 
 
     @PutMapping("/{id}")

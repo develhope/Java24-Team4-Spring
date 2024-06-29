@@ -8,6 +8,7 @@ import com.develhope.spring.repositories.AlbumRepository;
 import com.develhope.spring.repositories.GenreRepository;
 import com.develhope.spring.repositories.PlaylistRepository;
 import com.develhope.spring.repositories.SongRepository;
+import com.develhope.spring.utils.Security;
 import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.MinioService;
 import com.develhope.spring.services.interfaces.SongService;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +29,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class SongServiceImpl implements SongService {
+
+    //TODO CONFIGUR. ENABLE, DISABLE, CREARE RUOLO CHE PUO FARE STE COSE (ADMIN)
+    //todo aggiungere controllo di Current User  anche x i metodi getById
 
 
     private final SongRepository songRepository;
@@ -82,8 +87,12 @@ public class SongServiceImpl implements SongService {
     @Override
     @Transactional
     public SongResponseDTO updateSong(Long id, SongRequestDTO song) {
+        UserEntity currentUser = Security.getCurrentUser();
 
         return songRepository.findById(id).map(songFound -> {
+            if (! songFound.getAlbum().getArtist().getUser().equals(currentUser))// todo ex handler
+                throw new AccessDeniedException("You are not allowed to update this song");
+
             validDtoAndUpdateSong(song, songFound);
 
             Song updated = songRepository.saveAndFlush(songFound);
@@ -116,6 +125,7 @@ public class SongServiceImpl implements SongService {
 
     @Transactional
     @Override
+
     public String[] uploadSongs(MultipartFile[] files, Long[] songIDS) {
 
         long maxSize = 209715200L;
@@ -140,6 +150,12 @@ public class SongServiceImpl implements SongService {
             }
 
             String extension = Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())).toLowerCase();
+
+
+        if (!song.getAlbum().getArtist().getUser().equals(currentUser))// todo ex handler
+            throw new AccessDeniedException("You are not allowed to upload this song");
+
+        if (song == null) throw new EntityNotFoundException("[Upload error] Song data not found in the DB]");
 
             if (!extension.equals("mp3") && !extension.equals("wav") &&
                     !extension.equals("flac") && !extension.equals("m4a")) {
@@ -192,9 +208,15 @@ public class SongServiceImpl implements SongService {
     @Transactional
     public void deleteSongFromMinioStorage(Long songID) {
 
+        UserEntity currentUser = Security.getCurrentUser();
+
         Song song = songRepository.findById(songID).orElseThrow(
-                () -> new EntityNotFoundException("[Song delete failed] Song with ID " + songID + " not Found!")
-        );
+               () -> new EntityNotFoundException("[Song delete failed] Song with ID " + songID + " not Found!")
+       );
+
+        if (!song.getAlbum().getArtist().getUser().equals(currentUser))// todo ex handler
+            throw new AccessDeniedException("You are not allowed to delete this song");
+        
 
         String fileToDelete = song.getObjectStorageFileName();
 
@@ -211,6 +233,7 @@ public class SongServiceImpl implements SongService {
     public SongResponseDTO findSongById(long id) {
 
         return songRepository.findById(id).map(songFound -> {
+
             SongResponseDTO response = modelMapper.map(songFound, SongResponseDTO.class);
             songResponseDtoSetArtistName(songFound, response);
 
@@ -222,13 +245,18 @@ public class SongServiceImpl implements SongService {
     @Override
     @Transactional
     public SongResponseDTO deleteSongById(Long id) {
+        UserEntity currentUser = Security.getCurrentUser();
+
         return songRepository.findById(id).map(songFound -> {
+            if (! songFound.getAlbum().getArtist().getUser().equals(currentUser))// todo ex handler
+                throw new AccessDeniedException("You are not allowed to delete this song");
 
             List<Playlist> playlists = playlistRepository.findAll();
             playlists.forEach(playlist -> playlist.getSongs().remove(songFound));
             playlistRepository.saveAll(playlists);
 
             songRepository.deleteById(id);
+            deleteSongFromMinioStorage(id);
 
             SongResponseDTO deleted = modelMapper.map(songFound, SongResponseDTO.class);
             songResponseDtoSetArtistName(songFound, deleted);
@@ -240,7 +268,7 @@ public class SongServiceImpl implements SongService {
 
 
     @Override
-    public void deleteAllSongs() {
+    public void deleteAllSongs() { //todo configurare security per non far calcellare tutto ad artista
         songRepository.deleteAll();
     }
 

@@ -1,13 +1,17 @@
 package com.develhope.spring.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class UserEntity implements UserDetails {
 
     public enum Role {
         ARTIST,
@@ -19,11 +23,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String nickName;
-
     @Column(nullable = false)
     private String name;
+
+    private String nickname;
 
     @Column(nullable = false)
     private String lastName;
@@ -34,15 +37,18 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+//    @Column(nullable = false, unique = true)
+//    private String username;
+
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
     private LocalDate registrationDate;
 
-
-    @Column(length = 65535, columnDefinition="TEXT")
     private String urlPhoto;
+
+    @JsonIgnore
     private String photoObjectStorageName;
 
     @Column(nullable = true)
@@ -56,10 +62,13 @@ public class User {
     private Role role; // Ruolo dell'utente
 
 
-    public User(Long id, String nickName, String name, String lastName, String numPhone, String email, String password, LocalDate registrationDate, String urlPhoto, String photoObjectStorageName, String urlSocial, String userCountry, Role role) {
+    public UserEntity() {
+    }
+
+    public UserEntity(Long id, String name, String nickname, String lastName, String numPhone, String email, String password, LocalDate registrationDate, String urlPhoto, String photoObjectStorageName, String urlSocial, String userCountry, Role role) {
         this.id = id;
-        this.nickName = nickName;
         this.name = name;
+        this.nickname = nickname;
         this.lastName = lastName;
         this.numPhone = numPhone;
         this.email = email;
@@ -72,7 +81,42 @@ public class User {
         this.role = role;
     }
 
-    public User() {
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public Long getId() {
@@ -81,14 +125,6 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
     }
 
     public String getName() {
@@ -123,6 +159,7 @@ public class User {
         this.email = email;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }
@@ -163,19 +200,19 @@ public class User {
         this.urlSocial = urlSocial;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
     public String getUserCountry() {
         return userCountry;
     }
 
     public void setUserCountry(String userCountry) {
         this.userCountry = userCountry;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

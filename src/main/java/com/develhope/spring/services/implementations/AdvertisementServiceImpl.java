@@ -5,15 +5,18 @@ import com.develhope.spring.dtos.requests.AdvertisementUpdateDTO;
 import com.develhope.spring.dtos.responses.AdvertisementResponseDTO;
 import com.develhope.spring.entities.Advertisement;
 import com.develhope.spring.entities.Advertiser;
+import com.develhope.spring.entities.UserEntity;
 import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.NegativeIdException;
 import com.develhope.spring.repositories.AdvertisementRepository;
 import com.develhope.spring.repositories.AdvertiserRepository;
+import com.develhope.spring.utils.Security;
 import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.AdvertisementService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,11 @@ import java.util.Optional;
 
 @Service
 public class AdvertisementServiceImpl implements AdvertisementService {
+
+
+    //TODO CONFIGUR. ENABLE, DISABLE, CREARE RUOLO CHE PUO FARE STE COSE (ADMIN)
+    //todo aggiungere controllo di Current User  anche x i metodi getById
+
 
     private final ModelMapper modelMapper;
     private final AdvertisementRepository advertisementRepository;
@@ -70,6 +78,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Transactional
 
     public AdvertisementResponseDTO updateAdvertisement(AdvertisementUpdateDTO request, Long id) {
+        UserEntity currentUser = Security.getCurrentUser();
 
         if (id < 0) {
             throw new NegativeIdException("[Creation failed] Advertisement ID cannot be negative. Now: " + id);
@@ -84,6 +93,8 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         var toUpdate = advertisement.get();
 
+        if (!toUpdate.getAdvertiser().getUser().equals(currentUser))// todo ex handler
+            throw new AccessDeniedException("You are not allowed to update this ADV");
         try {
             UniversalFieldUpdater.checkFieldsAndUpdate(request, toUpdate);
         } catch (InvocationTargetException e) {
@@ -186,13 +197,16 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     @Override
     @Transactional
     public AdvertisementResponseDTO deleteAdvertisement(Long id) {
+        UserEntity currentUser = Security.getCurrentUser();
+
 
         if (id < 0) {
             throw new NegativeIdException("[Delete failed] Advertisement ID cannot be negative. Now: " + id);
         }
 
         return advertisementRepository.findById(id).map(advToDelete -> {
-
+            if (!advToDelete.getAdvertiser().getUser().equals(currentUser))// todo ex handler
+                throw new AccessDeniedException("You are not allowed to delete this ADV");
             Advertiser advertiser = advToDelete.getAdvertiser();
 
             if (advertiser != null) {

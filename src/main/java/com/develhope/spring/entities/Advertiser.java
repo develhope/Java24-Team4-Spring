@@ -16,7 +16,7 @@ public class Advertiser {
     @MapsId
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id", nullable = false)
-    private User user;
+    private UserEntity userEntity;
     private String companyName;
     private String advertiserCountry;
     private String advertiserDescription;
@@ -29,9 +29,9 @@ public class Advertiser {
     public Advertiser() {
     }
 
-    public Advertiser(Long id, User user, String companyName, String advertiserCountry, String advertiserDescription, List<Advertisement> advertisements) {
+    public Advertiser(Long id, UserEntity userEntity, String companyName, String advertiserCountry, String advertiserDescription, List<Advertisement> advertisements) {
         this.id = id;
-        this.user = user;
+        this.userEntity = userEntity;
         this.companyName = companyName;
         this.advertiserCountry = advertiserCountry;
         this.advertiserDescription = advertiserDescription;
@@ -46,12 +46,12 @@ public class Advertiser {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public UserEntity getUser() {
+        return userEntity;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
     public String getCompanyName() {

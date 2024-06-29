@@ -1,6 +1,6 @@
 package com.develhope.spring.dtos.responses;
 
-import com.develhope.spring.entities.User;
+import com.develhope.spring.entities.UserEntity;
 
 import java.time.LocalDate;
 
@@ -16,7 +16,7 @@ public class UserWithRoleDetailsResponseDTO {
     private String urlPhoto;
     private String urlSocial;
     private String userCountry;
-    private User.Role role;
+    private UserEntity.Role role;
     private Object roleDetails;
 
     public Long getId() {
@@ -99,11 +99,11 @@ public class UserWithRoleDetailsResponseDTO {
         this.userCountry = userCountry;
     }
 
-    public User.Role getRole() {
+    public UserEntity.Role getRole() {
         return role;
     }
 
-    public void setRole(User.Role role) {
+    public void setRole(UserEntity.Role role) {
         this.role = role;
     }
 
@@ -115,7 +115,7 @@ public class UserWithRoleDetailsResponseDTO {
         this.roleDetails = roleDetails;
     }
 
-    public UserWithRoleDetailsResponseDTO(Long id, String nickName, String name, String lastName, String email, String numPhone, LocalDate registrationDate, String urlPhoto, String urlSocial, String userCountry, User.Role role, Object roleDetails) {
+    public UserWithRoleDetailsResponseDTO(Long id, String nickName, String name, String lastName, String email, String numPhone, LocalDate registrationDate, String urlPhoto, String urlSocial, String userCountry, UserEntity.Role role, Object roleDetails) {
         this.id = id;
         this.nickName = nickName;
         this.name = name;

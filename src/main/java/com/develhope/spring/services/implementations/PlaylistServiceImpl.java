@@ -7,6 +7,7 @@ import com.develhope.spring.dtos.responses.PlaylistResponseDTO;
 import com.develhope.spring.entities.Listener;
 import com.develhope.spring.entities.Playlist;
 import com.develhope.spring.entities.Song;
+import com.develhope.spring.entities.UserEntity;
 import com.develhope.spring.exceptions.EmptyResultException;
 import com.develhope.spring.exceptions.EmptySongsListOnUpdateException;
 import com.develhope.spring.exceptions.NegativeIdException;
@@ -14,11 +15,13 @@ import com.develhope.spring.exceptions.PlaylistUpdateException;
 import com.develhope.spring.repositories.ListenerRepository;
 import com.develhope.spring.repositories.PlaylistRepository;
 import com.develhope.spring.repositories.SongRepository;
+import com.develhope.spring.utils.Security;
 import com.develhope.spring.utils.UniversalFieldUpdater;
 import com.develhope.spring.services.interfaces.PlaylistService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +32,15 @@ import java.util.List;
 @Service
 public class PlaylistServiceImpl implements PlaylistService {
 
+    //TODO CONFIGUR. ENABLE, DISABLE, CREARE RUOLO CHE PUO FARE STE COSE (ADMIN)
+    //todo aggiungere controllo di Current User  anche x i metodi getById
+
+
     private final PlaylistRepository playlistRepository;
     private final ListenerRepository listenerRepository;
     private final SongRepository songRepository;
     private final ModelMapper modelMapper;
+
 
     @Autowired
     public PlaylistServiceImpl(
@@ -130,6 +138,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     @Override
     @Transactional
     public PlaylistResponseDTO updatePlaylist(Long id, PlaylistUpdateDTO request) {
+        UserEntity currentUser = Security.getCurrentUser();
 
         if (id < 0) {
             throw new NegativeIdException(
@@ -143,8 +152,13 @@ public class PlaylistServiceImpl implements PlaylistService {
         }
 
 
+
         return playlistRepository.findById(id)
                 .map(playlist -> {
+
+                    if (! playlist.getListener().getUser().equals(currentUser))
+                        throw new AccessDeniedException("You are not allowed to update this playlist");
+
                     playlist.setSongs(songs);
                     playlist.setUpdateDate(LocalDate.now());
 
@@ -167,10 +181,12 @@ public class PlaylistServiceImpl implements PlaylistService {
     @Override
     @Transactional
     public PlaylistResponseDTO deletePlaylistById(Long id) {
+        UserEntity currentUser = Security.getCurrentUser();
 
         return playlistRepository.findById(id)
                 .map(playlist -> {
-
+                    if (! playlist.getListener().getUser().equals(currentUser))
+                        throw new AccessDeniedException("You are not allowed to delete this playlist");
                     playlist.getSongs().clear();
                     playlistRepository.save(playlist);
                     playlistRepository.deleteById(id);
